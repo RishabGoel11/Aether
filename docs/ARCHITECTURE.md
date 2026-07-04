@@ -1,0 +1,75 @@
+# ARCHITECTURE.md
+
+# Aether System Architecture
+
+## High-Level Architecture
+
+```
+                        User
+                          │
+      ┌───────────────────┼───────────────────┐
+      │                   │                   │
+     CLI              Desktop               Web
+                          │
+                          ▼
+             Conversation Controller
+                          │
+                          ▼
+                Agent Orchestrator
+                          │
+      ┌────────────┬─────────────┬─────────────┐
+      │            │             │             │
+   Memory       Tool Hub        RAG      Model Manager
+      │            │             │             │
+      └────────────┴─────────────┴─────────────┘
+                          │
+                  Infrastructure Layer
+      Logging • Configuration • Storage • Testing
+```
+
+---
+
+## Architectural Principles
+
+### Separation of Concerns
+
+Every module has one clearly defined responsibility.
+
+### Modularity
+
+Components communicate through well-defined interfaces and should be replaceable.
+
+### Local First
+
+The default implementation should avoid unnecessary cloud dependencies.
+
+### Privacy First
+
+Runtime user data must remain outside version control.
+
+### Extensibility
+
+Future capabilities should be added by extending the architecture rather than rewriting existing components.
+
+---
+
+## Planned Core Modules
+
+* Conversation Controller
+* Agent Orchestrator
+* Memory Manager
+* Retrieval (RAG)
+* Tool Framework
+* Model Manager
+* Configuration System
+* Logging System
+* Voice Module
+* Automation Module
+
+---
+
+## Current Status
+
+This document represents the initial architecture and will evolve throughout development.
+
+Major architectural changes will be accompanied by updates to this document and corresponding Architecture Decision Records (ADRs).
