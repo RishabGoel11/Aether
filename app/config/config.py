@@ -1,3 +1,5 @@
+from enum import Enum
+
 from pydantic import BaseModel, Field
 
 
@@ -15,8 +17,16 @@ class ToolSettings(BaseModel):
     enabled: bool = True
 
 
+class LogLevel(str, Enum):
+    DEBUG = "DEBUG"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+    CRITICAL = "CRITICAL"
+
+
 class LoggingSettings(BaseModel):
-    level: str = "INFO"
+    level: LogLevel = LogLevel.INFO
 
 
 class Settings(BaseModel):

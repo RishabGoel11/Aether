@@ -68,6 +68,117 @@ Future capabilities should be added by extending the architecture rather than re
 
 ---
 
+# Architecture
+
+Aether follows a layered architecture to maintain separation of concerns and make the system modular, testable, and extensible.
+
+---
+
+## Presentation Layer
+
+Responsible for interacting with the user.
+
+Current components:
+
+- `main.py`
+
+Responsibilities:
+
+- Read user input.
+- Display responses.
+- Handle user-facing exceptions.
+
+---
+
+## Application Layer
+
+Coordinates the application's workflow.
+
+Current components:
+
+- `ConversationEngine`
+- `Session`
+- `PromptBuilder`
+
+Responsibilities:
+
+- Orchestrate conversations.
+- Maintain session state.
+- Build prompts.
+- Coordinate communication between components.
+
+---
+
+## Infrastructure Layer
+
+Provides implementations for external services and system resources.
+
+Current components:
+
+- `ConfigLoader`
+- `OllamaLLM`
+- `LLMFactory`
+- Logger (planned)
+
+Responsibilities:
+
+- Load configuration.
+- Communicate with LLM providers.
+- Configure logging.
+- Translate external APIs into Aether abstractions.
+
+---
+
+## Domain Layer
+
+Defines Aether's core models and interfaces.
+
+Current components:
+
+- `BaseLLM`
+- `Message`
+- `LLMResponse`
+- `Role`
+- Custom Exceptions
+
+Responsibilities:
+
+- Define contracts.
+- Define shared models.
+- Remain independent of external libraries.
+
+
+                 User
+                  │
+                  ▼
+            Presentation
+             (main.py)
+                  │
+                  ▼
+            Application
+       ┌──────────────────┐
+       │ ConversationEngine│
+       │ Session           │
+       │ PromptBuilder     │
+       └──────────────────┘
+                  │
+                  ▼
+          Infrastructure
+       ┌──────────────────┐
+       │ ConfigLoader      │
+       │ OllamaLLM         │
+       │ Logger            │
+       └──────────────────┘
+                  │
+                  ▼
+          External Systems
+      ┌────────────────────┐
+      │ Ollama Server       │
+      │ settings.yaml       │
+      │ Terminal            │
+      └────────────────────┘
+      
+
 ## Current Status
 
 This document represents the initial architecture and will evolve throughout development.
