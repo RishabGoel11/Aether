@@ -1,5 +1,6 @@
 from app.config.loader import ConfigLoader
 from app.core.engine import ConversationEngine
+from app.core.session import Session
 from app.llm.factory import LLMFactory
 
 
@@ -8,8 +9,9 @@ def main():
     settings = loader.load()
 
     llm = LLMFactory.create(settings.llm)
+    session = Session()
 
-    engine = ConversationEngine(llm)
+    engine = ConversationEngine(llm, session=session)
 
     print("Welcome to Aether!")
     print("Type 'exit' to quit.\n")
@@ -17,7 +19,7 @@ def main():
     while True:
         user_input = input("You: ")
 
-        if user_input.lower() == "exit":
+        if user_input.strip().lower() == "exit":
             print("Goodbye!")
             break
 
