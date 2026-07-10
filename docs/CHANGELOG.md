@@ -27,3 +27,17 @@ This project loosely follows the Keep a Changelog format.
 ### Notes
 
 This version establishes the engineering foundation of Aether.
+
+## v0.1.0
+
+### Added
+
+- Configuration system
+- Ollama integration
+- Conversation engine
+- Session management
+- Prompt builder
+- Structured logging
+- Exception handling
+- Configuration validation
+- Unit tests

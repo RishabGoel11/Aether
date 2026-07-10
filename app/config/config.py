@@ -3,10 +3,17 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 
+class LLMProvider(str, Enum):
+    OLLAMA = "ollama"
+
 class LLMSettings(BaseModel):
-    provider: str = Field(default="ollama")
+    provider: LLMProvider = LLMProvider.OLLAMA
     model: str = Field(default="qwen3:8b")
-    temperature: float = Field(default=0.7)
+    temperature: float = Field(
+        default=0.7,
+        ge=0.0,
+        le=2.0,
+    )
 
 
 class MemorySettings(BaseModel):

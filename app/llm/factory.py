@@ -1,4 +1,4 @@
-from app.config.config import LLMSettings
+from app.config.config import LLMProvider, LLMSettings
 from app.llm.base import BaseLLM
 from app.llm.ollama import OllamaLLM
 
@@ -6,7 +6,7 @@ from app.llm.ollama import OllamaLLM
 class LLMFactory:
     @staticmethod
     def create(settings: LLMSettings) -> BaseLLM:
-        if settings.provider == "ollama":
+        if settings.provider == LLMProvider.OLLAMA:
             return OllamaLLM(settings)
 
         raise ValueError(
