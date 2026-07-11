@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
 [project]
 name = "aether"
 version = "0.1.0"
@@ -6,9 +10,26 @@ readme = "README.md"
 requires-python = ">=3.12"
 
 authors = [
-{ name = "Rishab Goel" }
+    { name = "Rishab Goel" }
 ]
 
+license = { text = "MIT" }
+
+dependencies = [
+    "ollama~=0.6.2",
+    "pydantic~=2.13.4",
+    "PyYAML~=6.0.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest~=9.1.1",
+    "ruff~=0.15.20",
+]
+
+
+[project.urls]
+Repository = "https://github.com/RishabGoel11/Aether"
 
 [tool.ruff]
 line-length = 100
@@ -21,3 +42,6 @@ select = ["E", "F", "I"]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 pythonpath = ["."]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
