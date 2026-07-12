@@ -179,6 +179,15 @@ Responsibilities:
       └────────────────────┘
       
 
+## Testing Architecture
+
+Aether separates production code from testing infrastructure.
+
+- `tests/fakes/` contains reusable test doubles.
+- `tests/conftest.py` provides reusable pytest fixtures.
+- Unit tests verify isolated components.
+- Integration tests verify collaboration between components using `FakeLLM`.
+
 ## Current Status
 
 This document represents the initial architecture and will evolve throughout development.

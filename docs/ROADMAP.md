@@ -89,17 +89,17 @@
 
     ## Tooling
 
-    - [ ] Adopt `uv`
-    - [ ] Dependency management
-    - [ ] GitHub Actions (CI)
-    - [ ] Coverage reporting
+    - [x] Adopt `uv`
+    - [x] Dependency management
+    - [x] GitHub Actions (CI)
+    - [x] Coverage reporting
 
     ## Testing
 
-    - [ ] Integration tests
+    - [x] Integration tests
     - [ ] End-to-end tests
-    - [ ] Test fixtures
-    - [ ] Mocking improvements
+    - [x] Test fixtures
+    - [x] Mocking improvements
 
     ## Developer Experience
 
