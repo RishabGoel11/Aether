@@ -1,263 +1,259 @@
-    # Aether Development Roadmap
+# Aether Development Roadmap
 
-    > **A modular, local-first AI engineering platform built with privacy, transparency, extensibility, and software engineering best practices at its core.**
+> **A modular, local-first AI engineering platform built with privacy, transparency, extensibility, and software engineering best practices at its core.**
 
-    ---
+---
 
-    # Phase 0 – Engineering Foundations
+# Phase 0 – Engineering Foundations
 
-    ## Repository
+## Repository
 
-    - [x] Create repository
-    - [x] Initialize Git
-    - [x] Create project structure
-    - [x] Create README
-    - [x] Create `.gitignore`
-    - [x] Create `pyproject.toml`
+- [x] Create repository
+- [x] Initialize Git
+- [x] Create project structure
+- [x] Create README
+- [x] Create `.gitignore`
+- [x] Create `pyproject.toml`
 
-    ## Python Environment
+## Python Environment
 
-    - [x] Create virtual environment
-    - [x] Understand virtual environments
-    - [x] Configure Ruff
-    - [x] Configure Pytest
-    - [x] Configure VS Code settings
+- [x] Create virtual environment
+- [x] Understand virtual environments
+- [x] Configure Ruff
+- [x] Configure Pytest
+- [x] Configure VS Code settings
 
-    ## Documentation
+## Documentation
 
-    - [x] README
-    - [x] PROJECT_MASTER.md
-    - [x] ROADMAP.md
-    - [x] ARCHITECTURE.md
-    - [x] DECISIONS.md
-    - [x] Engineering Journal
+- [x] README
+- [x] PROJECT_MASTER.md
+- [x] ROADMAP.md
+- [x] ARCHITECTURE.md
+- [x] DECISIONS.md
+- [x] Engineering Journal
 
-    ## Git
+## Git
 
-    - [x] Create GitHub repository
-    - [x] First meaningful commit
-    - [x] Push initial version
-    - [x] Create first release (`v0.1.0`)
+- [x] Create GitHub repository
+- [x] First meaningful commit
+- [x] Push initial version
+- [x] Create first release (`v0.1.0`)
 
-    ---
+---
 
-    # Phase 1 – Core Conversation Engine ✅
+# Phase 1 – Core Conversation Engine ✅
 
-    Build the foundational architecture for Aether.
+Build the foundational architecture for Aether.
 
-    ## Configuration
+## Configuration
 
-    - [x] Configuration system
-    - [x] YAML configuration loader
-    - [x] Typed configuration models
-    - [x] Configuration validation
+- [x] Configuration system
+- [x] YAML configuration loader
+- [x] Typed configuration models
+- [x] Configuration validation
 
-    ## LLM Layer
+## LLM Layer
 
-    - [x] Base LLM abstraction
-    - [x] Ollama provider
-    - [x] LLM Factory
-    - [x] Message models
-    - [x] Response models
+- [x] Base LLM abstraction
+- [x] Ollama provider
+- [x] LLM Factory
+- [x] Message models
+- [x] Response models
 
-    ## Conversation
+## Conversation
 
-    - [x] Conversation Engine
-    - [x] Session Management
-    - [x] Conversation History
-    - [x] Prompt Builder
-    - [x] Local LLM Integration
+- [x] Conversation Engine
+- [x] Session Management
+- [x] Conversation History
+- [x] Prompt Builder
+- [x] Local LLM Integration
 
-    ## Reliability
+## Reliability
 
-    - [x] Custom exception hierarchy
-    - [x] Structured logging
-    - [x] Error handling
+- [x] Custom exception hierarchy
+- [x] Structured logging
+- [x] Error handling
 
-    ## Quality
+## Quality
 
-    - [x] Unit tests
-    - [x] Ruff linting
-    - [x] Git versioning
-    - [x] GitHub Release (`v0.1.0`)
+- [x] Unit tests
+- [x] Ruff linting
+- [x] Git versioning
+- [x] GitHub Release (`v0.1.0`)
 
-    ---
+---
 
-    # Phase 2 – Software Engineering
+# Phase 2 – Engineering Excellence ✅
 
-    Strengthen the development workflow and project quality.
+## Tooling
 
-    ## Tooling
+- [x] uv package manager
+- [x] Dependency management
+- [x] GitHub Actions
+- [x] Code coverage
 
-    - [x] Adopt `uv`
-    - [x] Dependency management
-    - [x] GitHub Actions (CI)
-    - [x] Coverage reporting
+## Testing
 
-    ## Testing
+- [x] Unit tests
+- [x] Integration tests
+- [x] 92% Coverage
 
-    - [x] Integration tests
-    - [ ] End-to-end tests
-    - [x] Test fixtures
-    - [x] Mocking improvements
+## Developer Experience
 
-    ## Developer Experience
+- [x] Application Bootstrap
+- [x] Debug Infrastructure
+- [x] Diagnostics
+- [x] Command-Line Interface
+  
 
-    - [ ] CLI improvements
-    - [ ] Debug mode
-    - [ ] Performance profiling
-    - [ ] Configuration improvements
+# Phase 3 – Memory System
 
-    ---
+Introduce persistent intelligence.
 
-    # Phase 3 – Memory System
+## Conversation Memory
 
-    Introduce persistent intelligence.
+- [ ] Persistent chat history
+- [ ] Session persistence
+- [ ] Conversation loading
 
-    ## Conversation Memory
+## Long-Term Memory
 
-    - [ ] Persistent chat history
-    - [ ] Session persistence
-    - [ ] Conversation loading
+- [ ] User profile
+- [ ] Preferences
+- [ ] Project memory
+- [ ] Memory editing
+- [ ] Memory deletion
+- [ ] Memory search
 
-    ## Long-Term Memory
+---
 
-    - [ ] User profile
-    - [ ] Preferences
-    - [ ] Project memory
-    - [ ] Memory editing
-    - [ ] Memory deletion
-    - [ ] Memory search
+# Phase 4 – Tool Framework
 
-    ---
+Transform Aether from a conversational assistant into an AI capable of performing actions.
 
-    # Phase 4 – Tool Framework
+## Tool Architecture
 
-    Transform Aether from a conversational assistant into an AI capable of performing actions.
+- [ ] Tool abstraction
+- [ ] Tool registry
+- [ ] Tool manager
+- [ ] Tool execution pipeline
 
-    ## Tool Architecture
+## Built-in Tools
 
-    - [ ] Tool abstraction
-    - [ ] Tool registry
-    - [ ] Tool manager
-    - [ ] Tool execution pipeline
+- [ ] Calculator
+- [ ] Python execution
+- [ ] File management
+- [ ] Terminal execution
+- [ ] Safety mechanisms
 
-    ## Built-in Tools
+---
 
-    - [ ] Calculator
-    - [ ] Python execution
-    - [ ] File management
-    - [ ] Terminal execution
-    - [ ] Safety mechanisms
+# Phase 5 – Retrieval-Augmented Generation (RAG)
 
-    ---
+Enable knowledge retrieval from external documents.
 
-    # Phase 5 – Retrieval-Augmented Generation (RAG)
+- [ ] Document loading
+- [ ] Document parsing
+- [ ] Chunking
+- [ ] Embedding generation
+- [ ] Vector database
+- [ ] Retrieval pipeline
+- [ ] Citation support
 
-    Enable knowledge retrieval from external documents.
+---
 
-    - [ ] Document loading
-    - [ ] Document parsing
-    - [ ] Chunking
-    - [ ] Embedding generation
-    - [ ] Vector database
-    - [ ] Retrieval pipeline
-    - [ ] Citation support
+# Phase 6 – AI Framework Integrations
 
-    ---
+Integrate external frameworks without making them architectural dependencies.
 
-    # Phase 6 – AI Framework Integrations
+## LangChain
 
-    Integrate external frameworks without making them architectural dependencies.
+- [ ] Prompt templates
+- [ ] Chain integration
+- [ ] Tool adapters
 
-    ## LangChain
+## LangGraph
 
-    - [ ] Prompt templates
-    - [ ] Chain integration
-    - [ ] Tool adapters
+- [ ] State management
+- [ ] Graph workflows
+- [ ] Agent orchestration
 
-    ## LangGraph
+> **Principle:** Aether remains framework-independent. LangChain and LangGraph are integrations, not foundations.
 
-    - [ ] State management
-    - [ ] Graph workflows
-    - [ ] Agent orchestration
+---
 
-    > **Principle:** Aether remains framework-independent. LangChain and LangGraph are integrations, not foundations.
+# Phase 7 – Web Intelligence
 
-    ---
+Enable internet-aware capabilities.
 
-    # Phase 7 – Web Intelligence
+- [ ] Web search
+- [ ] Browser automation
+- [ ] Web scraping
+- [ ] Information extraction
+- [ ] Page summarization
 
-    Enable internet-aware capabilities.
+---
 
-    - [ ] Web search
-    - [ ] Browser automation
-    - [ ] Web scraping
-    - [ ] Information extraction
-    - [ ] Page summarization
+# Phase 8 – Voice
 
-    ---
+Enable natural voice interaction.
 
-    # Phase 8 – Voice
+- [ ] Speech-to-Text
+- [ ] Text-to-Speech
+- [ ] Wake word
+- [ ] Streaming conversations
 
-    Enable natural voice interaction.
+---
 
-    - [ ] Speech-to-Text
-    - [ ] Text-to-Speech
-    - [ ] Wake word
-    - [ ] Streaming conversations
+# Phase 9 – Multi-Agent System
 
-    ---
+Expand Aether into a collaborative AI platform.
 
-    # Phase 9 – Multi-Agent System
+- [ ] Planner Agent
+- [ ] Research Agent
+- [ ] Coding Agent
+- [ ] Reviewer Agent
+- [ ] Coordinator Agent
+- [ ] Agent communication
 
-    Expand Aether into a collaborative AI platform.
+---
 
-    - [ ] Planner Agent
-    - [ ] Research Agent
-    - [ ] Coding Agent
-    - [ ] Reviewer Agent
-    - [ ] Coordinator Agent
-    - [ ] Agent communication
+# Phase 10 – Production
 
-    ---
+Prepare Aether for real-world deployment.
 
-    # Phase 10 – Production
+## Backend
 
-    Prepare Aether for real-world deployment.
+- [ ] REST API
+- [ ] Authentication
+- [ ] Performance optimization
 
-    ## Backend
+## Frontend
 
-    - [ ] REST API
-    - [ ] Authentication
-    - [ ] Performance optimization
+- [ ] Desktop UI
+- [ ] Web UI
+- [ ] Chat interface
+- [ ] Settings
 
-    ## Frontend
+## Deployment
 
-    - [ ] Desktop UI
-    - [ ] Web UI
-    - [ ] Chat interface
-    - [ ] Settings
+- [ ] Docker
+- [ ] Packaging
+- [ ] Installation
+- [ ] Documentation polish
 
-    ## Deployment
+---
 
-    - [ ] Docker
-    - [ ] Packaging
-    - [ ] Installation
-    - [ ] Documentation polish
+# Long-Term Vision
 
-    ---
+Aether aims to become a complete AI engineering platform that:
 
-    # Long-Term Vision
-
-    Aether aims to become a complete AI engineering platform that:
-
-    - Operates locally by default.
-    - Protects user privacy.
-    - Supports multiple LLM providers.
-    - Maintains long-term memory.
-    - Executes tools safely.
-    - Retrieves knowledge through RAG.
-    - Coordinates multiple AI agents.
-    - Supports both CLI and graphical interfaces.
-    - Remains modular and extensible.
+- Operates locally by default.
+- Protects user privacy.
+- Supports multiple LLM providers.
+- Maintains long-term memory.
+- Executes tools safely.
+- Retrieves knowledge through RAG.
+- Coordinates multiple AI agents.
+- Supports both CLI and graphical interfaces.
+- Remains modular and extensible.

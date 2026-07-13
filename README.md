@@ -2,7 +2,7 @@
 
 > **A modular, local-first AI engineering platform built with privacy, transparency, extensibility, and software engineering best practices at its core.**
 
-![Version](https://img.shields.io/badge/version-v0.1.0-blue)
+![Version](https://img.shields.io/badge/version-v0.2.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -55,28 +55,32 @@ The project is guided by a small set of engineering principles:
 
 # Current Features
 
-## Core Assistant
+## Core AI Platform
 
 - Local LLM integration using Ollama
-- Conversation Engine
+- Modular Conversation Engine
 - Session Management
 - Prompt Builder
-- YAML Configuration
+- YAML Configuration System
 - Typed Configuration Models
 - Structured Logging
-- Exception Hierarchy
-- Dependency Injection
+- Custom Exception Hierarchy
 - Factory Pattern
+- Application Bootstrap
+- Interactive Command-Line Interface
 
-## Engineering
+## Engineering Excellence
 
 - Modern Python packaging with `uv`
 - PEP 621 compliant project configuration
 - Hatchling build backend
-- Reproducible dependency management
+- GitHub Actions Continuous Integration
 - Ruff linting
-- Pytest testing
-- Documentation-first workflow
+- Pytest unit & integration testing
+- 92% code coverage
+- Debug subsystem
+- Diagnostics subsystem
+- Documentation-first development workflow
 
 ---
 
@@ -103,28 +107,35 @@ A detailed development roadmap is available in **docs/ROADMAP.md**.
 Aether follows a layered architecture designed to keep business logic independent from infrastructure.
 
 ```text
-                   User
-                     │
-                     ▼
-         Conversation Engine
-                     │
-                     ▼
-         Session Management
-                     │
-                     ▼
-           Prompt Builder
-                     │
-                     ▼
-            LLM Abstraction
-                     │
-                     ▼
-            Provider Layer
-                     │
-                     ▼
-              Local LLM
+                    User
+                      │
+                      ▼
+              Command-Line Interface
+                      │
+                      ▼
+             Application Bootstrap
+                      │
+                      ▼
+                Conversation Engine
+                      │
+          ┌───────────┼────────────┐
+          ▼           ▼            ▼
+      Session     Debugger     Diagnostics
+          │
+          ▼
+     Prompt Builder
+          │
+          ▼
+     LLM Abstraction
+          │
+          ▼
+      Provider Layer
+          │
+          ▼
+      Local Ollama
 ```
 
-Future layers—including Memory, Tools, Retrieval, Framework Integrations, and Agents—will extend this architecture without requiring major redesigns.
+Future subsystems—including Memory, Tool Execution, Retrieval-Augmented Generation (RAG), Web Intelligence, Voice, and Multi-Agent Collaboration—will integrate into this architecture while preserving the separation of concerns established during the first two development phases.
 
 Detailed architectural documentation is available in **docs/ARCHITECTURE.md**.
 
@@ -172,10 +183,22 @@ Install dependencies:
 uv sync --extra dev
 ```
 
-Run Aether:
+Run the interactive chat:
 
 ```bash
-uv run python main.py
+uv run python -m app.cli.main chat
+```
+
+Run diagnostics:
+
+```bash
+uv run python -m app.cli.main doctor
+```
+
+Display the version:
+
+```bash
+uv run python -m app.cli.main version
 ```
 
 ---
@@ -213,7 +236,7 @@ Aether uses:
 |--------|--------|
 | Phase 0 – Engineering Foundations | ✅ Complete |
 | Phase 1 – Core Conversation Engine | ✅ Complete |
-| Phase 2 – Software Engineering | 🚧 In Progress |
+| Phase 2 – Software Engineering | ✅ Complete |
 | Phase 3 – Memory System | ⬜ Planned |
 | Phase 4 – Tool Framework | ⬜ Planned |
 | Phase 5 – Retrieval-Augmented Generation | ⬜ Planned |
@@ -227,9 +250,25 @@ For detailed milestones and implementation tasks, see **docs/ROADMAP.md**.
 
 ---
 
+# Latest Release
+
+## v0.2.0 — Engineering Excellence
+
+Highlights of this release:
+
+- Application bootstrap architecture
+- Modular command-line interface
+- Debug subsystem
+- Diagnostics subsystem
+- GitHub Actions CI pipeline
+- 92% automated test coverage
+- Improved project architecture and developer experience
+
+The next major milestone is **Phase 3 – Memory System**, which introduces persistent conversational memory and lays the foundation for long-term AI capabilities.
+
 # Documentation
 
-The **docs/** directory contains:
+The **docs/** directory contains the project's technical documentation, including:
 
 - Architecture
 - Development Roadmap
@@ -242,7 +281,7 @@ The **docs/** directory contains:
 
 # Development Workflow
 
-Every milestone follows a structured engineering lifecycle:
+Every feature in Aether follows a structured engineering lifecycle:
 
 1. Architecture discussion
 2. Design review

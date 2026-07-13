@@ -2,42 +2,20 @@
 
 All notable changes to Aether will be documented in this file.
 
-This project loosely follows the Keep a Changelog format.
-
----
-
-## [0.1.0] - In Development
+## [0.2.0] - 2026-07-13
 
 ### Added
 
-- Modern Python project structure
-- Git repository
-- Virtual environment
-- Ruff configuration
-- Pytest configuration
-- Initial documentation
-- Architecture documentation
-- Engineering journal
-- Testing infrastructure
+- Application bootstrap
+- ApplicationBuilder
+- Command-line interface
+- Version command
+- Chat command
+- Diagnostics subsystem
+- Debug subsystem
 
-### Changed
+### Improved
 
-- Established documentation-driven development workflow
-
-### Notes
-
-This version establishes the engineering foundation of Aether.
-
-## v0.1.0
-
-### Added
-
-- Configuration system
-- Ollama integration
-- Conversation engine
-- Session management
-- Prompt builder
-- Structured logging
-- Exception handling
-- Configuration validation
-- Unit tests
+- Project architecture
+- Test coverage to 92%
+- Continuous Integration

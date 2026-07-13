@@ -1,7 +1,8 @@
 from app.cli.commands.chat import run as chat_command
+from app.cli.commands.doctor import run as doctor_command
 from app.cli.commands.version import run as version_command
 from app.cli.parser import create_parser
-from app.cli.commands.doctor import run as doctor_command
+
 
 def main() -> None:
     parser = create_parser()
