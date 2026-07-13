@@ -23,7 +23,12 @@ class MemorySettings(BaseModel):
 class ToolSettings(BaseModel):
     enabled: bool = True
 
+class DebugSettings(BaseModel):
+    """
+    Configuration for Aether's debugging infrastructure.
+    """
 
+    enabled: bool = False
 class LogLevel(str, Enum):
     DEBUG = "DEBUG"
     INFO = "INFO"
@@ -41,3 +46,4 @@ class Settings(BaseModel):
     memory: MemorySettings = Field(default_factory=MemorySettings)
     tools: ToolSettings = Field(default_factory=ToolSettings)
     logging: LoggingSettings = Field(default_factory=LoggingSettings)
+    debug: DebugSettings = Field(default_factory=DebugSettings)

@@ -9,23 +9,14 @@ description = "A modular, local-first AI engineering platform."
 readme = "README.md"
 requires-python = ">=3.12"
 
-authors = [
-    { name = "Rishab Goel" }
-]
+authors = [{ name = "Rishab Goel" }]
 
 license = { text = "MIT" }
 
-dependencies = [
-    "ollama~=0.6.2",
-    "pydantic~=2.13.4",
-    "PyYAML~=6.0.3",
-]
+dependencies = ["ollama~=0.6.2", "pydantic~=2.13.4", "PyYAML~=6.0.3"]
 
 [project.optional-dependencies]
-dev = [
-    "pytest~=9.1.1",
-    "ruff~=0.15.20",
-]
+dev = ["pytest~=9.1.1", "ruff~=0.15.20", "pytest-cov~=7.0.0"]
 
 
 [project.urls]
@@ -42,6 +33,15 @@ select = ["E", "F", "I"]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 pythonpath = ["."]
+
+addopts = ["--cov", "--cov-report=term-missing"]
+
+[tool.coverage.run]
+source = ["app"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
 
 [tool.hatch.build.targets.wheel]
 packages = ["app"]

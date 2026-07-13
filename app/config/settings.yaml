@@ -11,3 +11,6 @@ tools:
 
 logging:
   level: INFO
+
+debug:
+  enabled: false

@@ -1,5 +1,6 @@
 from app.core.prompt_builder import PromptBuilder
 from app.core.session import Session
+from app.debug.collector import DebugCollector
 from app.llm.base import BaseLLM
 from app.llm.models import LLMResponse, Message, Role
 from app.logger.logger import get_logger
@@ -22,27 +23,62 @@ class ConversationEngine:
     ):
         self.llm = llm
         self.session = session
+        self.debug_collector: DebugCollector | None = None
 
     def chat(self, user_input: str) -> LLMResponse:
-        logger.info("Processing user message.")
+        # Create a fresh collector for this request.
+        self.debug_collector = DebugCollector()
+        self.debug_collector.start()
+        self.debug_collector.add_event("Conversation started")
 
-        message = Message(
-            role=Role.USER,
-            content=user_input,
-        )
-        self.session.add_message(message)
+        try:
+            logger.info("Processing user message.")
 
-        messages = self.session.get_messages()
-        prompt = PromptBuilder.build(messages)
+            message = Message(
+                role=Role.USER,
+                content=user_input,
+            )
+            self.session.add_message(message)
 
-        response = self.llm.generate(prompt)
+            self.debug_collector.add_event(
+                "User message added",
+            )
 
-        assistant_message = Message(
-            role=Role.ASSISTANT,
-            content=response.content,
-        )
-        self.session.add_message(assistant_message)
+            messages = self.session.get_messages()
+            prompt = PromptBuilder.build(messages)
 
-        logger.info("Response generated successfully.")
+            self.debug_collector.set_message_count(len(prompt))
+            self.debug_collector.set_prompt_length(
+                sum(len(message.content) for message in prompt)
+            )
 
-        return response
+            self.debug_collector.add_event(
+                "Prompt built",
+            )
+
+            self.debug_collector.add_event(
+                "LLM request started",
+            )
+
+            response = self.llm.generate(prompt)
+
+            self.debug_collector.add_event(
+                "LLM response received",
+            )
+
+            assistant_message = Message(
+                role=Role.ASSISTANT,
+                content=response.content,
+            )
+            self.session.add_message(assistant_message)
+
+            self.debug_collector.add_event(
+                "Assistant message stored",
+            )
+
+            logger.info("Response generated successfully.")
+
+            return response
+
+        finally:
+            self.debug_collector.finish()
