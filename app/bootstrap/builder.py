@@ -16,7 +16,7 @@ class ApplicationBuilder:
 
         configure_logging(settings.logging)
 
-        llm = LLMFactory.create(settings)
+        llm = LLMFactory.create(settings.llm)
 
         session = Session()
 
