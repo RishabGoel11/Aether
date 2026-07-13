@@ -1,0 +1,3 @@
+"""
+Diagnostics subsystem for Aether.
+"""

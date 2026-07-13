@@ -25,4 +25,9 @@ def create_parser() -> argparse.ArgumentParser:
         help="Start an interactive chat session.",
     )
 
+    subparsers.add_parser(
+        "doctor",
+        help="Run Aether diagnostics.",
+    )
+
     return parser
