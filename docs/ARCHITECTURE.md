@@ -1,195 +1,467 @@
-# ARCHITECTURE.md
-
 # Aether System Architecture
 
-## High-Level Architecture
+> **Version:** v0.3.0-alpha.1 (Memory Foundation)
+> This document describes the current architecture of Aether and its intended long-term evolution.
 
+---
+
+# Overview
+
+Aether is a modular, local-first AI engineering platform built around clean architecture, dependency injection, and replaceable components.
+
+The project emphasizes:
+
+* Local-first execution
+* Privacy-first design
+* Modular architecture
+* Testability
+* Production-quality engineering
+
+Each subsystem has a single responsibility and communicates through well-defined interfaces.
+
+---
+
+# High-Level Architecture
+
+```text
+                    User
+                      │
+      ┌───────────────┼───────────────┐
+      │               │               │
+     CLI          Desktop (Planned)   Web (Planned)
+      │
+      ▼
+ Application Bootstrap
+      │
+      ▼
+   Application
+      │
+ ┌────┴──────────────────────┐
+ ▼                           ▼
+Conversation Engine     Memory Manager
+ │                           │
+ ▼                           ▼
+Session             BaseMemoryStore
+ │                           │
+ ▼                           ▼
+Prompt Builder      JsonMemoryStore
+ │                           │
+ ▼                           ▼
+LLM Factory       data/memories.json
+ │
+ ▼
+BaseLLM
+ │
+ ▼
+OllamaLLM
+ │
+ ▼
+Local Ollama
 ```
-                        User
-                          │
-      ┌───────────────────┼───────────────────┐
-      │                   │                   │
-     CLI              Desktop               Web
-                          │
-                          ▼
-             Conversation Controller
-                          │
-                          ▼
-                Agent Orchestrator
-                          │
-      ┌────────────┬─────────────┬─────────────┐
-      │            │             │             │
-   Memory       Tool Hub        RAG      Model Manager
-      │            │             │             │
-      └────────────┴─────────────┴─────────────┘
-                          │
-                  Infrastructure Layer
-      Logging • Configuration • Storage • Testing
+
+---
+
+# Architectural Principles
+
+## Separation of Concerns
+
+Every module owns exactly one responsibility.
+
+Business logic, infrastructure, persistence, and presentation remain independent.
+
+---
+
+## Dependency Inversion
+
+High-level components depend on abstractions rather than implementations.
+
+Example:
+
+```text
+ConversationEngine
+        │
+        ▼
+MemoryManager
+        │
+        ▼
+BaseMemoryStore
+        │
+        ▼
+JsonMemoryStore
 ```
 
----
-
-## Architectural Principles
-
-### Separation of Concerns
-
-Every module has one clearly defined responsibility.
-
-### Modularity
-
-Components communicate through well-defined interfaces and should be replaceable.
-
-### Local First
-
-The default implementation should avoid unnecessary cloud dependencies.
-
-### Privacy First
-
-Runtime user data must remain outside version control.
-
-### Extensibility
-
-Future capabilities should be added by extending the architecture rather than rewriting existing components.
+Implementations may change without affecting higher layers.
 
 ---
 
-## Planned Core Modules
+## Dependency Injection
 
-* Conversation Controller
-* Agent Orchestrator
-* Memory Manager
-* Retrieval (RAG)
-* Tool Framework
-* Model Manager
-* Configuration System
-* Logging System
-* Voice Module
-* Automation Module
+Object creation occurs only inside the bootstrap layer.
+
+Components never instantiate their own dependencies.
+
+Example:
+
+* ConversationEngine receives an LLM.
+* MemoryManager receives a BaseMemoryStore.
+* Application receives both Engine and MemoryManager.
 
 ---
 
-# Architecture
+## Local First
 
-Aether follows a layered architecture to maintain separation of concerns and make the system modular, testable, and extensible.
+The default implementation avoids unnecessary cloud dependencies.
+
+Current implementation uses:
+
+* Ollama
+* Local JSON storage
+
+Future cloud providers will remain optional.
+
+---
+
+## Privacy First
+
+User conversations and memories remain on the local machine unless explicitly configured otherwise.
+
+Runtime data is excluded from version control.
+
+---
+
+## Extensibility
+
+New functionality should be added by introducing new modules rather than modifying existing ones.
+
+Examples include:
+
+* Additional LLM providers
+* New memory stores
+* Tool plugins
+* Retrieval engines
+
+---
+
+# Layered Architecture
 
 ---
 
 ## Presentation Layer
 
-Responsible for interacting with the user.
+Responsible for user interaction.
 
-Current components:
+### Current Components
 
-- `main.py`
+* CLI
+* Commands
+* Parser
 
-Responsibilities:
+### Responsibilities
 
-- Read user input.
-- Display responses.
-- Handle user-facing exceptions.
+* Accept user input
+* Display responses
+* Handle user-facing errors
+
+---
+
+## Bootstrap Layer
+
+Responsible for constructing the application.
+
+### Current Components
+
+* Application
+* ApplicationBuilder
+
+### Responsibilities
+
+* Load configuration
+* Configure logging
+* Create services
+* Wire dependencies
+* Perform dependency injection
 
 ---
 
 ## Application Layer
 
-Coordinates the application's workflow.
+Coordinates workflows.
 
-Current components:
+### Current Components
 
-- `ConversationEngine`
-- `Session`
-- `PromptBuilder`
+* ConversationEngine
+* Session
+* PromptBuilder
+* MemoryManager
 
-Responsibilities:
+### Responsibilities
 
-- Orchestrate conversations.
-- Maintain session state.
-- Build prompts.
-- Coordinate communication between components.
-
----
-
-## Infrastructure Layer
-
-Provides implementations for external services and system resources.
-
-Current components:
-
-- `ConfigLoader`
-- `OllamaLLM`
-- `LLMFactory`
-- Logger (planned)
-
-Responsibilities:
-
-- Load configuration.
-- Communicate with LLM providers.
-- Configure logging.
-- Translate external APIs into Aether abstractions.
+* Coordinate conversations
+* Maintain session state
+* Coordinate memory operations
+* Build prompts
 
 ---
 
 ## Domain Layer
 
-Defines Aether's core models and interfaces.
+Defines business models and contracts.
 
-Current components:
+### Current Components
 
-- `BaseLLM`
-- `Message`
-- `LLMResponse`
-- `Role`
-- Custom Exceptions
+* BaseLLM
+* BaseMemoryStore
+* Message
+* Role
+* LLMResponse
+* MemoryRecord
+* Custom Exceptions
 
-Responsibilities:
+### Responsibilities
 
-- Define contracts.
-- Define shared models.
-- Remain independent of external libraries.
+* Define interfaces
+* Define shared models
+* Remain independent of infrastructure
 
+---
 
-                 User
-                  │
-                  ▼
-            Presentation
-             (main.py)
-                  │
-                  ▼
-            Application
-       ┌──────────────────┐
-       │ ConversationEngine│
-       │ Session           │
-       │ PromptBuilder     │
-       └──────────────────┘
-                  │
-                  ▼
-          Infrastructure
-       ┌──────────────────┐
-       │ ConfigLoader      │
-       │ OllamaLLM         │
-       │ Logger            │
-       └──────────────────┘
-                  │
-                  ▼
-          External Systems
-      ┌────────────────────┐
-      │ Ollama Server       │
-      │ settings.yaml       │
-      │ Terminal            │
-      └────────────────────┘
-      
+## Infrastructure Layer
 
-## Testing Architecture
+Provides concrete implementations.
+
+### Current Components
+
+* OllamaLLM
+* LLMFactory
+* JsonMemoryStore
+* ConfigLoader
+* Logger
+* Diagnostics
+
+### Responsibilities
+
+* Access external systems
+* Persist data
+* Configure runtime services
+* Translate external APIs into domain abstractions
+
+---
+
+# Current Runtime Flow
+
+```text
+User
+ │
+ ▼
+CLI
+ │
+ ▼
+ApplicationBuilder
+ │
+ ▼
+Application
+ │
+ ▼
+ConversationEngine
+ │
+ ├───────────────┐
+ ▼               ▼
+Session     PromptBuilder
+                 │
+                 ▼
+             LLMFactory
+                 │
+                 ▼
+             OllamaLLM
+                 │
+                 ▼
+            Local Ollama
+```
+
+---
+
+# Memory Architecture
+
+The Memory Foundation has been implemented.
+
+Current architecture:
+
+```text
+ConversationEngine
+
+MemoryManager
+
+BaseMemoryStore
+
+JsonMemoryStore
+
+data/memories.json
+```
+
+Current capabilities:
+
+* Typed memory models
+* Persistent JSON storage
+* Memory manager
+* Storage abstraction
+* Dependency injection
+
+Future capabilities:
+
+* Conversation persistence
+* Memory retrieval
+* Prompt integration
+* Automatic memory extraction
+* Semantic search
+* Vector databases
+
+---
+
+# Diagnostics Architecture
+
+```text
+Diagnostic Checks
+        │
+        ▼
+Doctor
+        │
+        ▼
+Diagnostic Renderer
+        │
+        ▼
+CLI
+```
+
+Current checks include:
+
+* Python version
+* Configuration loading
+* Ollama package
+* Ollama server
+* Configured model
+
+---
+
+# Debug Architecture
+
+```text
+ConversationEngine
+        │
+        ▼
+DebugCollector
+        │
+        ▼
+DebugRenderer
+```
+
+Captured information includes:
+
+* Response time
+* Prompt length
+* Message count
+* Debug events
+
+---
+
+# Testing Architecture
 
 Aether separates production code from testing infrastructure.
 
-- `tests/fakes/` contains reusable test doubles.
-- `tests/conftest.py` provides reusable pytest fixtures.
-- Unit tests verify isolated components.
-- Integration tests verify collaboration between components using `FakeLLM`.
+Current structure:
 
-## Current Status
+```text
+tests/
 
-This document represents the initial architecture and will evolve throughout development.
+├── unit/
+├── integration/
+├── fakes/
+└── conftest.py
+```
 
-Major architectural changes will be accompanied by updates to this document and corresponding Architecture Decision Records (ADRs).
+Testing philosophy:
+
+* Unit tests verify isolated components.
+* Integration tests verify collaboration between components.
+* Fake implementations replace external services.
+* Production code never depends on testing utilities.
+
+---
+
+# Current Core Modules
+
+Implemented
+
+* Configuration System
+* Logging System
+* Conversation Engine
+* Session Management
+* Prompt Builder
+* LLM Abstraction
+* Ollama Provider
+* Memory Foundation
+* Diagnostics
+* Debug System
+* Bootstrap Layer
+* CLI
+
+Planned
+
+* Retrieval (RAG)
+* Tool Framework
+* Agent Orchestrator
+* Voice System
+* Automation Framework
+* Multi-Agent Coordination
+* Desktop Interface
+* Web Interface
+
+---
+
+# Future Direction
+
+The long-term architecture will evolve toward:
+
+```text
+Presentation
+
+↓
+
+Bootstrap
+
+↓
+
+Application Services
+
+├── Conversation
+├── Memory
+├── Agents
+├── Tools
+├── Retrieval
+
+↓
+
+Domain Contracts
+
+↓
+
+Infrastructure
+```
+
+Each subsystem should remain independently testable, replaceable, and extensible.
+
+---
+
+# Current Status
+
+Current Version
+
+**v0.3.0-alpha.1**
+
+Completed
+
+* Engineering Foundations
+* Core Conversation Engine
+* Engineering Excellence
+* Memory Foundation
+
+The next architectural milestone is integrating memory retrieval into the conversation pipeline, allowing Aether to actively use persistent memories during conversations.

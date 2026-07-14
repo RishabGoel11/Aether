@@ -1,5 +1,6 @@
 from app.config.config import Settings
 from app.core.engine import ConversationEngine
+from app.memory.manager import MemoryManager
 
 
 class Application:
@@ -14,9 +15,11 @@ class Application:
         self,
         settings: Settings,
         engine: ConversationEngine,
+        memory: MemoryManager
     ):
         self.settings = settings
         self.engine = engine
+        self.memory = memory
 
     def chat(self, user_input: str):
         """

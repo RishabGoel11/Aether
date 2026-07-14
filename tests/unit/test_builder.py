@@ -2,6 +2,7 @@ from app.bootstrap.application import Application
 from app.bootstrap.builder import ApplicationBuilder
 from app.config.config import Settings
 from app.llm.factory import LLMFactory
+from app.memory.manager import MemoryManager
 from tests.fakes.fake_llm import FakeLLM
 
 
@@ -61,6 +62,20 @@ def test_builder_creates_session(monkeypatch):
     assert app.engine.session is not None
 
 
+def test_builder_creates_memory_manager(monkeypatch):
+    monkeypatch.setattr(
+        LLMFactory,
+        "create",
+        lambda settings: FakeLLM(),
+    )
+
+    builder = ApplicationBuilder()
+
+    app = builder.build()
+
+    assert isinstance(app.memory, MemoryManager)
+
+
 def test_builder_uses_fake_llm(monkeypatch):
     fake_llm = FakeLLM()
 
@@ -75,4 +90,3 @@ def test_builder_uses_fake_llm(monkeypatch):
     app = builder.build()
 
     assert app.engine.llm is fake_llm
-    

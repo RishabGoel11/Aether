@@ -82,6 +82,27 @@ The project is guided by a small set of engineering principles:
 - Diagnostics subsystem
 - Documentation-first development workflow
 
+## Memory System
+
+Aether now includes the foundation of a persistent, local-first memory system.
+
+Current capabilities:
+
+- Persistent JSON-based memory storage
+- Typed memory models using Pydantic
+- Modular memory architecture
+- Dependency-injected MemoryManager
+- Abstract storage interface (`BaseMemoryStore`)
+- JSON storage backend (`JsonMemoryStore`)
+
+This foundation prepares Aether for future capabilities including:
+
+- Memory retrieval
+- Prompt integration
+- Automatic memory extraction
+- Memory summarization
+- Semantic search using vector embeddings
+
 ---
 
 # Planned Capabilities
@@ -115,24 +136,31 @@ Aether follows a layered architecture designed to keep business logic independen
                       ▼
              Application Bootstrap
                       │
-                      ▼
-                Conversation Engine
-                      │
-          ┌───────────┼────────────┐
-          ▼           ▼            ▼
-      Session     Debugger     Diagnostics
+          ┌───────────┴────────────┐
+          ▼                        ▼
+ Conversation Engine         Memory Manager
+          │                        │
+          │                 BaseMemoryStore
+          │                        │
+          │                 JsonMemoryStore
+          │                        │
+          │                data/memories.json
           │
-          ▼
-     Prompt Builder
-          │
-          ▼
-     LLM Abstraction
-          │
-          ▼
-      Provider Layer
-          │
-          ▼
-      Local Ollama
+ ┌────────┼─────────┐
+ ▼        ▼         ▼
+Session  Debugger  Diagnostics
+   │
+   ▼
+Prompt Builder
+   │
+   ▼
+LLM Abstraction
+   │
+   ▼
+Provider Layer
+   │
+   ▼
+Local Ollama
 ```
 
 Future subsystems—including Memory, Tool Execution, Retrieval-Augmented Generation (RAG), Web Intelligence, Voice, and Multi-Agent Collaboration—will integrate into this architecture while preserving the separation of concerns established during the first two development phases.

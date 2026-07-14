@@ -1,9 +1,13 @@
+from pathlib import Path
+
 from app.bootstrap.application import Application
 from app.config.loader import ConfigLoader
 from app.core.engine import ConversationEngine
 from app.core.session import Session
 from app.llm.factory import LLMFactory
 from app.logger.config import configure_logging
+from app.memory.manager import MemoryManager
+from app.memory.stores.json_store import JsonMemoryStore
 
 
 class ApplicationBuilder:
@@ -20,12 +24,13 @@ class ApplicationBuilder:
 
         session = Session()
 
+        memory_manager = MemoryManager(
+            JsonMemoryStore(Path("data") / "memories.json")
+        )
+
         engine = ConversationEngine(
             llm=llm,
             session=session,
         )
 
-        return Application(
-            settings=settings,
-            engine=engine,
-        )
+        return Application(settings=settings, engine=engine, memory=memory_manager)

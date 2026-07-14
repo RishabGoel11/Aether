@@ -18,4 +18,4 @@ All notable changes to Aether will be documented in this file.
 
 - Project architecture
 - Test coverage to 92%
-- Continuous Integration
+- Continuous Integratio

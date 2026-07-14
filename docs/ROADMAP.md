@@ -108,13 +108,25 @@ Build the foundational architecture for Aether.
 
 # Phase 3 – Memory System
 
-Introduce persistent intelligence.
+> Introduce persistent intelligence.
+
+## Memory Foundation
+
+- [x] Memory models
+- [x] Base memory store abstraction
+- [x] JSON memory store
+- [x] Memory manager
+- [x] Persistent memory storage
+- [x] Application integration
+- [x] Unit tests
 
 ## Conversation Memory
 
 - [ ] Persistent chat history
 - [ ] Session persistence
 - [ ] Conversation loading
+- [ ] Memory retrieval
+- [ ] Prompt integration
 
 ## Long-Term Memory
 
@@ -125,6 +137,20 @@ Introduce persistent intelligence.
 - [ ] Memory deletion
 - [ ] Memory search
 
+## Intelligent Memory
+
+- [ ] Automatic memory extraction
+- [ ] Memory summarization
+- [ ] Context management
+- [ ] Memory ranking
+- [ ] Forgetting strategy
+
+## Semantic Memory
+
+- [ ] Embedding generation
+- [ ] Vector store integration
+- [ ] Semantic search
+- [ ] Hybrid retrieval
 ---
 
 # Phase 4 – Tool Framework
