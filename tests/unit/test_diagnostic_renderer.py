@@ -45,4 +45,3 @@ def test_render_failed_check():
 
     assert "✗ Ollama: Server not running." in output
     assert "1 issue(s) detected." in output
-

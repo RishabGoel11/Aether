@@ -81,6 +81,5 @@ def test_update_missing_memory_raises(tmp_path):
 def test_delete_missing_memory_raises(tmp_path):
     store = JsonMemoryStore(tmp_path / "memories.json")
 
-
     with pytest.raises(ValueError):
         store.delete(uuid.uuid4())

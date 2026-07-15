@@ -30,8 +30,7 @@ class JsonMemoryStore(BaseMemoryStore):
             data = json.load(file)
 
         self._records = {
-            record.id: record
-            for record in (MemoryRecord.model_validate(item) for item in data)
+            record.id: record for record in (MemoryRecord.model_validate(item) for item in data)
         }
 
     def save(self) -> None:
@@ -39,10 +38,7 @@ class JsonMemoryStore(BaseMemoryStore):
 
         with self.filepath.open("w", encoding="utf-8") as file:
             json.dump(
-                [
-                    record.model_dump(mode="json")
-                    for record in self._records.values()
-                ],
+                [record.model_dump(mode="json") for record in self._records.values()],
                 file,
                 indent=4,
             )

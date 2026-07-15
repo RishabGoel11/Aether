@@ -17,13 +17,9 @@ def test_render_empty_debug_info():
 def test_render_with_events():
     debug = DebugInfo()
 
-    debug.events.append(
-        DebugEvent(name="Conversation started")
-    )
+    debug.events.append(DebugEvent(name="Conversation started"))
 
-    debug.events.append(
-        DebugEvent(name="Prompt built")
-    )
+    debug.events.append(DebugEvent(name="Prompt built"))
 
     output = DebugRenderer.render(debug)
 

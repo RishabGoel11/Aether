@@ -22,6 +22,7 @@ def test_check_configuration():
     assert isinstance(result.success, bool)
     assert result.message
 
+
 def test_check_ollama_installation():
     result = check_ollama_installation()
 

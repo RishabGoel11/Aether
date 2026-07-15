@@ -33,4 +33,4 @@ class MemoryManager:
     def list(self) -> list[MemoryRecord]:
         """Return all stored memories."""
 
-        return self._store.list()   
+        return self._store.list()

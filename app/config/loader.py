@@ -10,9 +10,7 @@ class ConfigLoader:
         config_path = Path(__file__).parent / "settings.yaml"
 
         if not config_path.exists():
-            raise FileNotFoundError(
-                f"Configuration file not found: {config_path}"
-            )
+            raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
         with config_path.open("r", encoding="utf-8") as file:
             data = yaml.safe_load(file)

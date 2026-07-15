@@ -15,10 +15,7 @@ def test_doctor_contains_python_check():
 
     report = doctor.run()
 
-    names = {
-        result.name
-        for result in report.results
-    }
+    names = {result.name for result in report.results}
 
     assert "Python Version" in names
     assert "Configuration" in names

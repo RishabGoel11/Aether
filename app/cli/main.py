@@ -13,7 +13,7 @@ def main() -> None:
 
     elif args.command == "chat":
         chat_command()
-    
+
     elif args.command == "doctor":
         doctor_command()
 

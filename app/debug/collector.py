@@ -24,7 +24,6 @@ class DebugCollector:
     def set_model(self, model: str) -> None:
         self.debug_info.model = model
 
-
     def set_message_count(self, count: int) -> None:
         self.debug_info.message_count = count
 
@@ -45,7 +44,7 @@ class DebugCollector:
                 metadata=metadata,
             )
         )
-    
+
     def finish(self) -> None:
         """
         Stop timing and record the response time.
@@ -55,4 +54,3 @@ class DebugCollector:
 
         elapsed = perf_counter() - self._start_time
         self.debug_info.response_time_ms = elapsed * 1000
-        

@@ -20,17 +20,11 @@ class DiagnosticReport(BaseModel):
 
     @property
     def passed(self) -> int:
-        return sum(
-            result.success
-            for result in self.results
-        )
+        return sum(result.success for result in self.results)
 
     @property
     def failed(self) -> int:
-        return sum(
-            not result.success
-            for result in self.results
-        )
+        return sum(not result.success for result in self.results)
 
     @property
     def healthy(self) -> bool:

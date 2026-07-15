@@ -12,4 +12,4 @@ def test_factory_returns_ollama_provider():
 
     llm = LLMFactory.create(settings)
 
-    assert isinstance(llm, OllamaLLM)   
+    assert isinstance(llm, OllamaLLM)

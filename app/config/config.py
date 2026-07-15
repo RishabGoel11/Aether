@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 class LLMProvider(str, Enum):
     OLLAMA = "ollama"
 
+
 class LLMSettings(BaseModel):
     provider: LLMProvider = LLMProvider.OLLAMA
     model: str = Field(default="qwen3:8b")
@@ -23,12 +24,15 @@ class MemorySettings(BaseModel):
 class ToolSettings(BaseModel):
     enabled: bool = True
 
+
 class DebugSettings(BaseModel):
     """
     Configuration for Aether's debugging infrastructure.
     """
 
     enabled: bool = False
+
+
 class LogLevel(str, Enum):
     DEBUG = "DEBUG"
     INFO = "INFO"

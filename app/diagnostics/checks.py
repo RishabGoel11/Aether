@@ -101,10 +101,7 @@ def check_model() -> DiagnosticResult:
     try:
         models = ollama.list()
 
-        installed = {
-            model.model
-            for model in models.models
-        }
+        installed = {model.model for model in models.models}
 
         if settings.llm.model in installed:
             return DiagnosticResult(

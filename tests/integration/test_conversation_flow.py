@@ -55,6 +55,7 @@ def test_chat_sends_messages_to_llm(
     assert sent_messages[1].role == Role.USER
     assert sent_messages[1].content == "Hello"
 
+
 def test_chat_propagates_llm_exception(
     engine,
     fake_llm,
@@ -63,7 +64,6 @@ def test_chat_propagates_llm_exception(
 
     with pytest.raises(RuntimeError, match="LLM unavailable"):
         engine.chat("Hello")
-
 
 
 def test_chat_creates_debug_collector(engine):
@@ -93,10 +93,7 @@ def test_chat_records_debug_events(engine):
 
     debug = engine.debug_collector.debug_info
 
-    event_names = [
-        event.name
-        for event in debug.events
-    ]
+    event_names = [event.name for event in debug.events]
 
     assert "Conversation started" in event_names
     assert "User message added" in event_names

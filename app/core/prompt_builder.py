@@ -16,15 +16,9 @@ class PromptBuilder:
         )
 
         if memories:
-            memory_text = "\n".join(
-                f"- {memory.content}"
-                for memory in memories
-            )
+            memory_text = "\n".join(f"- {memory.content}" for memory in memories)
 
-            system_prompt += (
-                "\n\nRelevant Memories:\n"
-                f"{memory_text}"
-            )
+            system_prompt += f"\n\nRelevant Memories:\n{memory_text}"
 
         system_message = Message(
             role=Role.SYSTEM,

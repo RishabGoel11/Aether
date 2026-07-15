@@ -11,12 +11,7 @@ class Application:
     provides the primary interface for interacting with them.
     """
 
-    def __init__(
-        self,
-        settings: Settings,
-        engine: ConversationEngine,
-        memory: MemoryManager
-    ):
+    def __init__(self, settings: Settings, engine: ConversationEngine, memory: MemoryManager):
         self.settings = settings
         self.engine = engine
         self.memory = memory

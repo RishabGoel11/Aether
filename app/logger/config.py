@@ -7,7 +7,7 @@ def configure_logging(settings: LoggingSettings) -> None:
     """
     Configure the application's logging system.
     """
-    
+
     logging.basicConfig(
         level=settings.level.value,
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",

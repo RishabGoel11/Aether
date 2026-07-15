@@ -57,9 +57,7 @@ def test_retrieve_limits_results():
     manager = MemoryManager(FakeMemoryStore())
 
     for i in range(10):
-        manager.remember(
-            MemoryRecord(content=f"Memory {i}")
-        )
+        manager.remember(MemoryRecord(content=f"Memory {i}"))
 
     retriever = MemoryRetriever(manager)
 

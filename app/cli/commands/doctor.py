@@ -10,6 +10,4 @@ def run() -> None:
 
     report = doctor.run()
 
-    print(
-        DiagnosticRenderer.render(report)
-    )
+    print(DiagnosticRenderer.render(report))

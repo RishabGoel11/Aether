@@ -27,9 +27,7 @@ def test_application_chat_delegates_to_engine(
 ):
     settings = Settings()
 
-    memory = MemoryManager(
-        JsonMemoryStore(tmp_path / "memories.json")
-    )
+    memory = MemoryManager(JsonMemoryStore(tmp_path / "memories.json"))
 
     app = Application(
         settings=settings,

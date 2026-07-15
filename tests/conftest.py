@@ -20,9 +20,7 @@ def session() -> Session:
 
 @pytest.fixture
 def memory_manager(tmp_path) -> MemoryManager:
-    return MemoryManager(
-        JsonMemoryStore(tmp_path / "memories.json")
-    )
+    return MemoryManager(JsonMemoryStore(tmp_path / "memories.json"))
 
 
 @pytest.fixture

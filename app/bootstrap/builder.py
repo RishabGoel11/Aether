@@ -25,9 +25,7 @@ class ApplicationBuilder:
 
         session = Session()
 
-        memory_manager = MemoryManager(
-            JsonMemoryStore(Path("data") / "memories.json")
-        )
+        memory_manager = MemoryManager(JsonMemoryStore(Path("data") / "memories.json"))
 
         memory_retriever = MemoryRetriever(memory_manager)
 

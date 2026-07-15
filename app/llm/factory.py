@@ -9,6 +9,4 @@ class LLMFactory:
         if settings.provider == LLMProvider.OLLAMA:
             return OllamaLLM(settings)
 
-        raise ValueError(
-            f"Unsupported LLM provider: {settings.provider}"
-        )
+        raise ValueError(f"Unsupported LLM provider: {settings.provider}")

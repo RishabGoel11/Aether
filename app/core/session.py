@@ -8,7 +8,7 @@ class Session:
 
     def __init__(self):
         self._messages: list[Message] = []
-    
+
     def add_message(self, message: Message) -> None:
         self._messages.append(message)
 

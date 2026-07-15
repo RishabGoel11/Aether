@@ -19,13 +19,9 @@ def create_engine(tmp_path):
     llm = FakeLLM()
     session = Session()
 
-    memory_manager = MemoryManager(
-        JsonMemoryStore(tmp_path / "memories.json")
-    )
+    memory_manager = MemoryManager(JsonMemoryStore(tmp_path / "memories.json"))
 
-    memory_retriever = MemoryRetriever(
-        memory_manager
-    )
+    memory_retriever = MemoryRetriever(memory_manager)
 
     engine = ConversationEngine(
         llm=llm,
@@ -71,7 +67,4 @@ def test_engine_retrieves_memories(tmp_path):
 
     engine.chat("Hello")
 
-    assert any(
-        "Retrieved" in event.name
-        for event in engine.debug_collector.debug_info.events
-    )   
+    assert any("Retrieved" in event.name for event in engine.debug_collector.debug_info.events)

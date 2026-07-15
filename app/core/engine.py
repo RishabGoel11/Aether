@@ -4,6 +4,8 @@ from app.debug.collector import DebugCollector
 from app.llm.base import BaseLLM
 from app.llm.models import LLMResponse, Message, Role
 from app.logger.logger import get_logger
+from app.memory.extractor import MemoryExtractor
+from app.memory.manager import MemoryManager
 from app.memory.retrieval import MemoryRetriever
 
 logger = get_logger(__name__)
@@ -22,10 +24,14 @@ class ConversationEngine:
         llm: BaseLLM,
         session: Session,
         memory_retriever: MemoryRetriever,
+        memory_extractor: MemoryExtractor,
+        memory_manager: MemoryManager,
     ):
         self.llm = llm
         self.session = session
         self.memory_retriever = memory_retriever
+        self.memory_extractor = memory_extractor
+        self.memory_manager = memory_manager
         self.debug_collector: DebugCollector | None = None
 
     def chat(self, user_input: str) -> LLMResponse:
@@ -47,6 +53,15 @@ class ConversationEngine:
                 "User message added",
             )
 
+            extracted_memories = self.memory_extractor.extract(user_input)
+
+            for memory in extracted_memories:
+                self.memory_manager.remember(memory)
+
+            self.debug_collector.add_event(
+                f"Stored {len(extracted_memories)} new memories",
+            )
+
             messages = self.session.get_messages()
 
             # TODO:
@@ -64,9 +79,7 @@ class ConversationEngine:
             )
 
             self.debug_collector.set_message_count(len(prompt))
-            self.debug_collector.set_prompt_length(
-                sum(len(message.content) for message in prompt)
-            )
+            self.debug_collector.set_prompt_length(sum(len(message.content) for message in prompt))
 
             self.debug_collector.add_event(
                 "Prompt built",

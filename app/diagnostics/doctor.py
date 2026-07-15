@@ -26,4 +26,4 @@ class Doctor:
             ]
         )
 
-        return report   
+        return report
