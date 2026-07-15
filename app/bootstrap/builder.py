@@ -7,6 +7,7 @@ from app.core.session import Session
 from app.llm.factory import LLMFactory
 from app.logger.config import configure_logging
 from app.memory.manager import MemoryManager
+from app.memory.retrieval import MemoryRetriever
 from app.memory.stores.json_store import JsonMemoryStore
 
 
@@ -28,9 +29,16 @@ class ApplicationBuilder:
             JsonMemoryStore(Path("data") / "memories.json")
         )
 
+        memory_retriever = MemoryRetriever(memory_manager)
+
         engine = ConversationEngine(
             llm=llm,
             session=session,
+            memory_retriever=memory_retriever,
         )
 
-        return Application(settings=settings, engine=engine, memory=memory_manager)
+        return Application(
+            settings=settings,
+            engine=engine,
+            memory=memory_manager,
+        )

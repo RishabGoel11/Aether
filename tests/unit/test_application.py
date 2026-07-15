@@ -6,23 +6,19 @@ from app.memory.stores.json_store import JsonMemoryStore
 
 def test_application_stores_components(
     engine,
-    tmp_path,
+    memory_manager,
 ):
     settings = Settings()
-
-    memory = MemoryManager(
-        JsonMemoryStore(tmp_path / "memories.json")
-    )
 
     app = Application(
         settings=settings,
         engine=engine,
-        memory=memory,
+        memory=memory_manager,
     )
 
     assert app.settings is settings
     assert app.engine is engine
-    assert app.memory is memory
+    assert app.memory is memory_manager
 
 
 def test_application_chat_delegates_to_engine(

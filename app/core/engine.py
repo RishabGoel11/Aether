@@ -4,6 +4,7 @@ from app.debug.collector import DebugCollector
 from app.llm.base import BaseLLM
 from app.llm.models import LLMResponse, Message, Role
 from app.logger.logger import get_logger
+from app.memory.retrieval import MemoryRetriever
 
 logger = get_logger(__name__)
 
@@ -20,9 +21,11 @@ class ConversationEngine:
         self,
         llm: BaseLLM,
         session: Session,
+        memory_retriever: MemoryRetriever,
     ):
         self.llm = llm
         self.session = session
+        self.memory_retriever = memory_retriever
         self.debug_collector: DebugCollector | None = None
 
     def chat(self, user_input: str) -> LLMResponse:
@@ -34,18 +37,31 @@ class ConversationEngine:
         try:
             logger.info("Processing user message.")
 
-            message = Message(
+            user_message = Message(
                 role=Role.USER,
                 content=user_input,
             )
-            self.session.add_message(message)
+            self.session.add_message(user_message)
 
             self.debug_collector.add_event(
                 "User message added",
             )
 
             messages = self.session.get_messages()
-            prompt = PromptBuilder.build(messages)
+
+            # TODO:
+            # Replace the raw user input with a richer retrieval context
+            # once conversation-aware retrieval is implemented.
+            memories = self.memory_retriever.retrieve(user_input)
+
+            self.debug_collector.add_event(
+                f"Retrieved {len(memories)} memories",
+            )
+
+            prompt = PromptBuilder.build(
+                messages,
+                memories,
+            )
 
             self.debug_collector.set_message_count(len(prompt))
             self.debug_collector.set_prompt_length(

@@ -1,0 +1,99 @@
+from app.memory.manager import MemoryManager
+from app.memory.models import MemoryRecord
+from app.memory.retrieval import MemoryRetriever
+from app.memory.stores.base import BaseMemoryStore
+
+
+class FakeMemoryStore(BaseMemoryStore):
+    def __init__(self):
+        self.records = {}
+
+    def load(self) -> None:
+        pass
+
+    def save(self) -> None:
+        pass
+
+    def add(self, record: MemoryRecord) -> MemoryRecord:
+        self.records[record.id] = record
+        return record
+
+    def update(self, record: MemoryRecord) -> MemoryRecord:
+        self.records[record.id] = record
+        return record
+
+    def delete(self, memory_id):
+        self.records.pop(memory_id, None)
+
+    def get(self, memory_id):
+        return self.records.get(memory_id)
+
+    def list(self) -> list[MemoryRecord]:
+        return list(self.records.values())
+
+
+def test_retrieve_empty():
+    manager = MemoryManager(FakeMemoryStore())
+    retriever = MemoryRetriever(manager)
+
+    assert retriever.retrieve("anything") == []
+
+
+def test_retrieve_single_memory():
+    manager = MemoryManager(FakeMemoryStore())
+
+    memory = MemoryRecord(content="User likes Python")
+    manager.remember(memory)
+
+    retriever = MemoryRetriever(manager)
+
+    memories = retriever.retrieve("python")
+
+    assert len(memories) == 1
+    assert memories[0] == memory
+
+
+def test_retrieve_limits_results():
+    manager = MemoryManager(FakeMemoryStore())
+
+    for i in range(10):
+        manager.remember(
+            MemoryRecord(content=f"Memory {i}")
+        )
+
+    retriever = MemoryRetriever(manager)
+
+    memories = retriever.retrieve("anything")
+
+    assert len(memories) == 5
+
+
+def test_retrieve_preserves_order():
+    manager = MemoryManager(FakeMemoryStore())
+
+    expected = []
+
+    for i in range(6):
+        memory = MemoryRecord(content=f"Memory {i}")
+        manager.remember(memory)
+        expected.append(memory)
+
+    retriever = MemoryRetriever(manager)
+
+    memories = retriever.retrieve("anything")
+
+    assert memories == expected[:5]
+
+
+def test_query_is_ignored_for_now():
+    manager = MemoryManager(FakeMemoryStore())
+
+    memory = MemoryRecord(content="Building Aether")
+    manager.remember(memory)
+
+    retriever = MemoryRetriever(manager)
+
+    result1 = retriever.retrieve("python")
+    result2 = retriever.retrieve("completely unrelated")
+
+    assert result1 == result2
