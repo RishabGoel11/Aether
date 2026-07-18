@@ -1,6 +1,7 @@
 from app.config.config import Settings
 from app.core.engine import ConversationEngine
 from app.memory.manager import MemoryManager
+from app.session.manager import SessionManager
 
 
 class Application:
@@ -11,9 +12,16 @@ class Application:
     provides the primary interface for interacting with them.
     """
 
-    def __init__(self, settings: Settings, engine: ConversationEngine, memory: MemoryManager):
+    def __init__(
+        self,
+        settings: Settings,
+        engine: ConversationEngine,
+        session: SessionManager,
+        memory: MemoryManager,
+    ):
         self.settings = settings
         self.engine = engine
+        self.session = session
         self.memory = memory
 
     def chat(self, user_input: str):
