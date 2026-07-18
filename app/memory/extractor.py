@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from app.llm.models import Message, Role
 from app.memory.models import (
     MemoryCategory,
     MemoryRecord,
@@ -26,17 +27,30 @@ class MemoryExtractor:
 
     def extract(
         self,
-        message: str,
+        messages: list[Message],
     ) -> list[MemoryRecord]:
         """
-        Extract memories from a user message.
+        Extract memories from the latest user message in a conversation.
 
-        Version 1:
-        - Rule-based matching.
+        Version 2:
+        - Accepts conversation messages.
+        - Applies rule-based extraction to the latest user message.
         - Returns zero or more memories.
         """
 
-        text = message.lower()
+        latest_user_message = next(
+            (
+                message
+                for message in reversed(messages)
+                if message.role == Role.USER
+            ),
+            None,
+        )
+
+        if latest_user_message is None:
+            return []
+
+        text = latest_user_message.content.lower()
 
         memories: list[MemoryRecord] = []
 
@@ -44,7 +58,7 @@ class MemoryExtractor:
             if pattern in text:
                 memories.append(
                     MemoryRecord(
-                        content=message,
+                        content=latest_user_message.content,
                         category=category,
                         source=MemorySource.AUTOMATIC,
                     )

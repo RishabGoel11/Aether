@@ -20,6 +20,17 @@ class MemoryManager:
 
         return self._store.add(record)
 
+    def add_all(
+        self,
+        memories: list[MemoryRecord],
+    ) -> None:
+        """
+        Add multiple memories to the store.
+        """
+
+        for memory in memories:
+            self.add(memory)
+
     def forget(self, memory_id: UUID) -> None:
         """Remove a memory."""
 

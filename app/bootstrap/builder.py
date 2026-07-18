@@ -5,6 +5,7 @@ from app.config.loader import ConfigLoader
 from app.core.engine import ConversationEngine
 from app.llm.factory import LLMFactory
 from app.logger.config import configure_logging
+from app.memory.extractor import MemoryExtractor
 from app.memory.manager import MemoryManager
 from app.memory.retrieval import MemoryRetriever
 from app.memory.stores.json_store import JsonMemoryStore
@@ -36,6 +37,8 @@ class ApplicationBuilder:
 
         memory_retriever = MemoryRetriever(memory_manager)
 
+        extractor = MemoryExtractor()
+
         engine = ConversationEngine(
             llm=llm,
             session=session,
@@ -47,4 +50,5 @@ class ApplicationBuilder:
             engine=engine,
             memory=memory_manager,
             session=session_manager,
+            extractor=extractor
         )
