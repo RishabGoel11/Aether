@@ -193,3 +193,41 @@ def test_update_empty_content():
     with pytest.raises(ValueError):
         manager.update(record)
     
+def test_remember_duplicate_returns_existing():
+    store = FakeMemoryStore()
+    manager = MemoryManager(store)
+
+    first = MemoryRecord(content="User likes Python")
+    second = MemoryRecord(content="User likes Python")
+
+    stored = manager.remember(first)
+    duplicate = manager.remember(second)
+
+    assert stored == duplicate
+    assert len(manager.list()) == 1
+
+def test_remember_duplicate_is_case_insensitive():
+    store = FakeMemoryStore()
+    manager = MemoryManager(store)
+
+    manager.remember(MemoryRecord(content="User likes Python"))
+    manager.remember(MemoryRecord(content="user likes python"))
+
+    assert len(manager.list()) == 1
+
+def test_remember_unique_memories():
+    store = FakeMemoryStore()
+    manager = MemoryManager(store)
+
+    manager.remember(MemoryRecord(content="User likes Python"))
+    manager.remember(MemoryRecord(content="User likes Rust"))
+
+    assert len(manager.list()) == 2
+
+
+def test_remember_empty_memory():
+    store = FakeMemoryStore()
+    manager = MemoryManager(store)
+
+    with pytest.raises(ValueError):
+        manager.remember(MemoryRecord(content=""))

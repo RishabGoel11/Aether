@@ -12,14 +12,27 @@ class MemoryManager:
     def __init__(self, store: BaseMemoryStore) -> None:
         self._store = store
 
-    def remember(self, record: MemoryRecord) -> MemoryRecord:
-        """Store a new memory."""
+    def remember(
+        self,
+        record: MemoryRecord,
+    ) -> MemoryRecord:
+        """
+        Store a memory if it passes the forgetting strategy.
+
+        Version 1:
+        - Reject empty memories.
+        - Reject duplicate memory content.
+        """
 
         if not record.content.strip():
             raise ValueError("Memory content cannot be empty.")
 
-        return self._store.add(record)
+        for existing in self._store.list():
+            if existing.content.strip().lower() == record.content.strip().lower():
+                return existing
 
+        return self._store.add(record)
+        
     def add_all(
         self,
         memories: list[MemoryRecord],
@@ -80,7 +93,7 @@ class MemoryManager:
             if query in memory.content.lower()
         ]
 
-        
+
     def update(
         self,
         record: MemoryRecord,

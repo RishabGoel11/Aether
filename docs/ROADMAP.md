@@ -141,9 +141,9 @@ Build the foundational architecture for Aether.
 
 - [x] Automatic memory extraction
 - [ ] Memory summarization
-- [ ] Context management
-- [ ] Memory ranking
-- [ ] Forgetting strategy
+- [x] Context management
+- [x] Memory ranking
+- [x] Forgetting strategy
 
 ## Semantic Memory
 
