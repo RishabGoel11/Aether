@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from app.memory.models import MemoryRecord
+from app.memory.models import MemoryCategory, MemoryRecord
 from app.memory.stores.base import BaseMemoryStore
 
 
@@ -29,7 +29,7 @@ class MemoryManager:
         """
 
         for memory in memories:
-            self.add(memory)
+            self.remember(memory)
 
     def forget(self, memory_id: UUID) -> None:
         """Remove a memory."""
@@ -45,3 +45,37 @@ class MemoryManager:
         """Return all stored memories."""
 
         return self._store.list()
+
+
+    def find_by_category(
+        self,
+        category: MemoryCategory,
+    ) -> list[MemoryRecord]:
+        """
+        Return all memories belonging to a category.
+        """
+
+        return [
+            memory
+            for memory in self._store.list()
+            if memory.category == category
+        ]
+
+
+    def search_content(
+        self,
+        query: str,
+    ) -> list[MemoryRecord]:
+        """
+        Search memories by content.
+
+        Version 1 performs a case-insensitive substring search.
+        """
+
+        query = query.lower()
+
+        return [
+            memory
+            for memory in self._store.list()
+            if query in memory.content.lower()
+        ]

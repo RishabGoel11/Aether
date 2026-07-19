@@ -3,7 +3,7 @@ from uuid import UUID
 import pytest
 
 from app.memory.manager import MemoryManager
-from app.memory.models import MemoryRecord
+from app.memory.models import MemoryCategory, MemoryRecord
 from app.memory.stores.base import BaseMemoryStore
 
 
@@ -81,3 +81,75 @@ def test_list():
     manager.remember(MemoryRecord(content="Two"))
 
     assert len(manager.list()) == 2
+
+
+def test_find_by_category():
+    store = FakeMemoryStore()
+    manager = MemoryManager(store)
+
+    project = MemoryRecord(
+        content="I'm building Aether.",
+        category=MemoryCategory.PROJECT,
+    )
+
+    preference = MemoryRecord(
+        content="I prefer Python.",
+        category=MemoryCategory.PREFERENCE,
+    )
+
+    manager.remember(project)
+    manager.remember(preference)
+
+    results = manager.find_by_category(
+        MemoryCategory.PROJECT,
+    )
+
+    assert results == [project]
+
+
+def test_search_returns_matching_memories():
+    store = FakeMemoryStore()
+    manager = MemoryManager(store)
+
+    memory = MemoryRecord(
+        content="I prefer Python.",
+        category=MemoryCategory.PREFERENCE,
+    )
+
+    manager.remember(memory)
+
+    results = manager.search_content("Python")
+
+    assert results == [memory]
+
+
+def test_search_is_case_insensitive():
+    store = FakeMemoryStore()
+    manager = MemoryManager(store)
+
+    memory = MemoryRecord(
+        content="I prefer Python.",
+        category=MemoryCategory.PREFERENCE,
+    )
+
+    manager.remember(memory)
+
+    results = manager.search_content("python")
+
+    assert results == [memory]
+
+
+def test_search_returns_empty_when_no_match():
+    store = FakeMemoryStore()
+    manager = MemoryManager(store)
+
+    memory = MemoryRecord(
+        content="I prefer Python.",
+        category=MemoryCategory.PREFERENCE,
+    )
+
+    manager.remember(memory)
+
+    results = manager.search_content("Rust")
+
+    assert results == []
