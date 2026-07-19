@@ -15,15 +15,40 @@ class MemoryRetriever:
         self._manager = manager
         self._limit = limit
 
-    def retrieve(self, query: str) -> list[MemoryRecord]:
+    def _score(
+        self,
+        query: str,
+        memory: MemoryRecord,
+    ) -> int:
+        """
+        Score a memory based on keyword overlap with the query.
+
+        Version 1 performs a simple case-insensitive token overlap.
+        """
+
+        query_tokens = set(query.lower().split())
+        memory_tokens = set(memory.content.lower().split())
+
+        return len(query_tokens & memory_tokens)
+
+    def retrieve(
+        self,
+        query: str,
+    ) -> list[MemoryRecord]:
         """
         Retrieve memories relevant to the given query.
 
         Version 1:
-        - Ignores the query.
-        - Returns the first `limit` memories.
+        - Scores memories using keyword overlap.
+        - Returns the highest-ranked memories.
         """
 
         memories = self._manager.list()
 
-        return memories[: self._limit]
+        ranked = sorted(
+            memories,
+            key=lambda memory: self._score(query, memory),
+            reverse=True,
+        )
+
+        return ranked[: self._limit]

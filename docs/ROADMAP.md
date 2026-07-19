@@ -122,24 +122,24 @@ Build the foundational architecture for Aether.
 
 ## Conversation Memory
 
-- [ ] Persistent chat history
-- [ ] Session persistence
-- [ ] Conversation loading
-- [ ] Memory retrieval
-- [ ] Prompt integration
+- [x] Persistent chat history
+- [x] Session persistence
+- [x] Conversation loading
+- [x] Memory retrieval
+- [x] Prompt integration
 
 ## Long-Term Memory
 
-- [ ] User profile
-- [ ] Preferences
-- [ ] Project memory
-- [ ] Memory editing
-- [ ] Memory deletion
-- [ ] Memory search
+- [x] User profile
+- [x] Preferences
+- [x] Project memory
+- [x] Memory editing
+- [x] Memory deletion
+- [x] Memory search
 
 ## Intelligent Memory
 
-- [ ] Automatic memory extraction
+- [x] Automatic memory extraction
 - [ ] Memory summarization
 - [ ] Context management
 - [ ] Memory ranking
@@ -151,7 +151,6 @@ Build the foundational architecture for Aether.
 - [ ] Vector store integration
 - [ ] Semantic search
 - [ ] Hybrid retrieval
----
 
 # Phase 4 – Tool Framework
 

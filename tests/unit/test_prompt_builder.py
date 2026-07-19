@@ -14,7 +14,7 @@ def test_build_without_memories():
     prompt = PromptBuilder.build(messages)
 
     assert prompt[0].role == Role.SYSTEM
-    assert "Relevant Memories" not in prompt[0].content
+    assert "Known information about the user:" not in prompt[0].content
     assert prompt[1:] == messages
 
 
@@ -38,6 +38,6 @@ def test_build_with_memories():
 
     system_prompt = prompt[0].content
 
-    assert "Relevant Memories" in system_prompt
+    assert "Known information about the user:" in system_prompt
     assert "User likes Python" in system_prompt
     assert "Building Aether" in system_prompt

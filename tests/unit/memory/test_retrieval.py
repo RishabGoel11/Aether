@@ -66,32 +66,49 @@ def test_retrieve_limits_results():
     assert len(memories) == 5
 
 
-def test_retrieve_preserves_order():
+def test_retrieve_ranks_relevant_memories_first():
     manager = MemoryManager(FakeMemoryStore())
 
-    expected = []
+    python = MemoryRecord(content="User likes Python")
+    coffee = MemoryRecord(content="User likes coffee")
+    aether = MemoryRecord(content="User is building Aether")
 
-    for i in range(6):
-        memory = MemoryRecord(content=f"Memory {i}")
-        manager.remember(memory)
-        expected.append(memory)
+    manager.remember(coffee)
+    manager.remember(aether)
+    manager.remember(python)
 
     retriever = MemoryRetriever(manager)
 
-    memories = retriever.retrieve("anything")
+    memories = retriever.retrieve("Python")
 
-    assert memories == expected[:5]
+    assert memories[0] == python
 
 
-def test_query_is_ignored_for_now():
+def test_retrieve_is_case_insensitive():
     manager = MemoryManager(FakeMemoryStore())
 
-    memory = MemoryRecord(content="Building Aether")
+    memory = MemoryRecord(content="User likes Python")
+
     manager.remember(memory)
 
     retriever = MemoryRetriever(manager)
 
-    result1 = retriever.retrieve("python")
-    result2 = retriever.retrieve("completely unrelated")
+    memories = retriever.retrieve("PYTHON")
 
-    assert result1 == result2
+    assert memories[0] == memory
+
+
+def test_retrieve_returns_all_when_no_match():
+    manager = MemoryManager(FakeMemoryStore())
+
+    first = MemoryRecord(content="User likes coffee")
+    second = MemoryRecord(content="User is building Aether")
+
+    manager.remember(first)
+    manager.remember(second)
+
+    retriever = MemoryRetriever(manager)
+
+    memories = retriever.retrieve("Rust")
+
+    assert len(memories) == 2
