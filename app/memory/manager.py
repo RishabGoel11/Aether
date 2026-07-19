@@ -79,3 +79,17 @@ class MemoryManager:
             for memory in self._store.list()
             if query in memory.content.lower()
         ]
+
+        
+    def update(
+        self,
+        record: MemoryRecord,
+    ) -> MemoryRecord:
+        """
+        Update an existing memory.
+        """
+
+        if not record.content.strip():
+            raise ValueError("Memory content cannot be empty.")
+
+        return self._store.update(record)

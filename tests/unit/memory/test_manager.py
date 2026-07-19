@@ -153,3 +153,43 @@ def test_search_returns_empty_when_no_match():
     results = manager.search_content("Rust")
 
     assert results == []
+
+def test_update_memory():
+    store = FakeMemoryStore()
+    manager = MemoryManager(store)
+
+    record = MemoryRecord(content="I like Python")
+
+    manager.remember(record)
+
+    record.content = "I like Rust"
+
+    manager.update(record)
+
+    updated = manager.get(record.id)
+
+    assert updated is not None
+    assert updated.content == "I like Rust"
+
+def test_update_missing_memory():
+    store = FakeMemoryStore()
+    manager = MemoryManager(store)
+
+    record = MemoryRecord(content="Does not exist")
+
+    with pytest.raises(ValueError):
+        manager.update(record)
+    
+def test_update_empty_content():
+    store = FakeMemoryStore()
+    manager = MemoryManager(store)
+
+    record = MemoryRecord(content="Python")
+
+    manager.remember(record)
+
+    record.content = "   "
+
+    with pytest.raises(ValueError):
+        manager.update(record)
+    

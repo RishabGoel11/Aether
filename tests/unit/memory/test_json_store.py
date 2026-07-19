@@ -72,8 +72,6 @@ def test_update_missing_memory_raises(tmp_path):
 
     record = MemoryRecord(content="Missing")
 
-    import pytest
-
     with pytest.raises(ValueError):
         store.update(record)
 
@@ -83,3 +81,29 @@ def test_delete_missing_memory_raises(tmp_path):
 
     with pytest.raises(ValueError):
         store.delete(uuid.uuid4())
+
+def test_get_missing_memory_returns_none(tmp_path):
+    store = JsonMemoryStore(tmp_path / "memories.json")
+
+    assert store.get(uuid.uuid4()) is None
+
+
+def test_update_persists_after_reload(tmp_path):
+    path = tmp_path / "memories.json"
+
+    store = JsonMemoryStore(path)
+
+    record = MemoryRecord(content="Python")
+
+    store.add(record)
+
+    updated = record.model_copy(update={"content": "Rust"})
+
+    store.update(updated)
+
+    reloaded = JsonMemoryStore(path)
+
+    loaded = reloaded.get(record.id)
+
+    assert loaded is not None
+    assert loaded.content == "Rust"
