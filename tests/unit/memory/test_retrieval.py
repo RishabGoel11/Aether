@@ -1,7 +1,11 @@
+from unittest.mock import Mock
+
+from app.embedding.base import BaseEmbedder
 from app.memory.manager import MemoryManager
 from app.memory.models import MemoryRecord
 from app.memory.retrieval import MemoryRetriever
 from app.memory.stores.base import BaseMemoryStore
+from app.vectorstore.base import BaseVectorStore
 
 
 class FakeMemoryStore(BaseMemoryStore):
@@ -33,14 +37,32 @@ class FakeMemoryStore(BaseMemoryStore):
 
 
 def test_retrieve_empty():
-    manager = MemoryManager(FakeMemoryStore())
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.1, 0.2, 0.3]
+
+    vector_store = Mock(spec=BaseVectorStore)
+
+    manager = MemoryManager(
+        store=FakeMemoryStore(),
+        embedder=embedder,
+        vector_store=vector_store,
+    )
     retriever = MemoryRetriever(manager)
 
     assert retriever.retrieve("anything") == []
 
 
 def test_retrieve_single_memory():
-    manager = MemoryManager(FakeMemoryStore())
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.1, 0.2, 0.3]
+
+    vector_store = Mock(spec=BaseVectorStore)
+
+    manager = MemoryManager(
+        store=FakeMemoryStore(),
+        embedder=embedder,
+        vector_store=vector_store,
+    )
 
     memory = MemoryRecord(content="User likes Python")
     manager.remember(memory)
@@ -54,7 +76,16 @@ def test_retrieve_single_memory():
 
 
 def test_retrieve_limits_results():
-    manager = MemoryManager(FakeMemoryStore())
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.1, 0.2, 0.3]
+
+    vector_store = Mock(spec=BaseVectorStore)
+
+    manager = MemoryManager(
+        store=FakeMemoryStore(),
+        embedder=embedder,
+        vector_store=vector_store,
+    )
 
     for i in range(10):
         manager.remember(MemoryRecord(content=f"Memory {i}"))
@@ -67,7 +98,16 @@ def test_retrieve_limits_results():
 
 
 def test_retrieve_ranks_relevant_memories_first():
-    manager = MemoryManager(FakeMemoryStore())
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.1, 0.2, 0.3]
+
+    vector_store = Mock(spec=BaseVectorStore)
+
+    manager = MemoryManager(
+        store=FakeMemoryStore(),
+        embedder=embedder,
+        vector_store=vector_store,
+    )
 
     python = MemoryRecord(content="User likes Python")
     coffee = MemoryRecord(content="User likes coffee")
@@ -85,7 +125,16 @@ def test_retrieve_ranks_relevant_memories_first():
 
 
 def test_retrieve_is_case_insensitive():
-    manager = MemoryManager(FakeMemoryStore())
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.1, 0.2, 0.3]
+
+    vector_store = Mock(spec=BaseVectorStore)
+
+    manager = MemoryManager(
+        store=FakeMemoryStore(),
+        embedder=embedder,
+        vector_store=vector_store,
+    )
 
     memory = MemoryRecord(content="User likes Python")
 
@@ -99,7 +148,16 @@ def test_retrieve_is_case_insensitive():
 
 
 def test_retrieve_returns_all_when_no_match():
-    manager = MemoryManager(FakeMemoryStore())
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.1, 0.2, 0.3]
+
+    vector_store = Mock(spec=BaseVectorStore)
+
+    manager = MemoryManager(
+        store=FakeMemoryStore(),
+        embedder=embedder,
+        vector_store=vector_store,
+    )
 
     first = MemoryRecord(content="User likes coffee")
     second = MemoryRecord(content="User is building Aether")

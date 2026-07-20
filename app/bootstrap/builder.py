@@ -3,6 +3,7 @@ from pathlib import Path
 from app.bootstrap.application import Application
 from app.config.loader import ConfigLoader
 from app.core.engine import ConversationEngine
+from app.embedding.factory import EmbeddingFactory
 from app.llm.factory import LLMFactory
 from app.logger.config import configure_logging
 from app.memory.extractor import MemoryExtractor
@@ -11,6 +12,7 @@ from app.memory.retrieval import MemoryRetriever
 from app.memory.stores.json_store import JsonMemoryStore
 from app.session.manager import SessionManager
 from app.session.stores.json_store import JsonSessionStore
+from app.vectorstore.in_memory import InMemoryVectorStore
 
 
 class ApplicationBuilder:
@@ -33,7 +35,19 @@ class ApplicationBuilder:
 
         session = session_manager.load()
 
-        memory_manager = MemoryManager(JsonMemoryStore(Path("data") / "memories.json"))
+        memory_store = JsonMemoryStore(
+            Path("data") / "memories.json",
+        )
+
+        embedder = EmbeddingFactory.create()
+
+        vector_store = InMemoryVectorStore()
+
+        memory_manager = MemoryManager(
+            store=memory_store,
+            embedder=embedder,
+            vector_store=vector_store,
+        )
 
         memory_retriever = MemoryRetriever(memory_manager)
 
@@ -50,5 +64,5 @@ class ApplicationBuilder:
             engine=engine,
             memory=memory_manager,
             session=session_manager,
-            extractor=extractor
+            extractor=extractor,
         )

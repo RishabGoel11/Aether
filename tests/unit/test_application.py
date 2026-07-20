@@ -1,10 +1,14 @@
+from pathlib import Path
+
 from app.bootstrap.application import Application
 from app.config.config import Settings
+from app.embedding.factory import EmbeddingFactory
 from app.memory.extractor import MemoryExtractor
 from app.memory.manager import MemoryManager
 from app.memory.stores.json_store import JsonMemoryStore
 from app.session.manager import SessionManager
 from app.session.stores.json_store import JsonSessionStore
+from app.vectorstore.in_memory import InMemoryVectorStore
 
 
 def test_application_stores_components(
@@ -41,8 +45,18 @@ def test_application_chat_delegates_to_engine(
 ):
     settings = Settings()
 
-    memory = MemoryManager(
-        JsonMemoryStore(tmp_path / "memories.json"),
+    memory_store = JsonMemoryStore(
+        Path("data") / "memories.json",
+    )
+
+    embedder = EmbeddingFactory.create()
+
+    vector_store = InMemoryVectorStore()
+
+    memory_manager = MemoryManager(
+        store=memory_store,
+        embedder=embedder,
+        vector_store=vector_store,
     )
 
     session = SessionManager(
@@ -55,7 +69,7 @@ def test_application_chat_delegates_to_engine(
         settings=settings,
         engine=engine,
         session=session,
-        memory=memory,
+        memory=memory_manager,
         extractor=extractor,
     )
 

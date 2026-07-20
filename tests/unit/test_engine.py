@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from app.core.engine import ConversationEngine
 from app.core.session import Session
+from app.embedding.factory import EmbeddingFactory
 from app.llm.base import BaseLLM
 from app.llm.models import (
     LLMResponse,
@@ -8,6 +11,7 @@ from app.llm.models import (
 from app.memory.manager import MemoryManager
 from app.memory.retrieval import MemoryRetriever
 from app.memory.stores.json_store import JsonMemoryStore
+from app.vectorstore.in_memory import InMemoryVectorStore
 
 
 class FakeLLM(BaseLLM):
@@ -19,7 +23,17 @@ def create_engine(tmp_path):
     llm = FakeLLM()
     session = Session()
 
-    memory_manager = MemoryManager(JsonMemoryStore(tmp_path / "memories.json"))
+    memory_store = JsonMemoryStore(Path("data") / "memories.json")
+
+    embedder = EmbeddingFactory.create()
+
+    vector_store = InMemoryVectorStore()
+
+    memory_manager = MemoryManager(
+        store=memory_store,
+        embedder=embedder,
+        vector_store=vector_store,
+    )
 
     memory_retriever = MemoryRetriever(memory_manager)
 

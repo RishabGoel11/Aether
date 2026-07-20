@@ -2,15 +2,24 @@ from __future__ import annotations
 
 from uuid import UUID
 
+from app.embedding.base import BaseEmbedder
 from app.memory.models import MemoryCategory, MemoryRecord
 from app.memory.stores.base import BaseMemoryStore
+from app.vectorstore.base import BaseVectorStore
 
 
 class MemoryManager:
     """Coordinates long-term memory operations."""
 
-    def __init__(self, store: BaseMemoryStore) -> None:
+    def __init__(
+        self,
+        store: BaseMemoryStore,
+        embedder: BaseEmbedder,
+        vector_store: BaseVectorStore,
+    ) -> None:
         self._store = store
+        self._embedder = embedder
+        self._vector_store = vector_store
 
     def remember(
         self,
@@ -31,8 +40,17 @@ class MemoryManager:
             if existing.content.strip().lower() == record.content.strip().lower():
                 return existing
 
-        return self._store.add(record)
-        
+        stored = self._store.add(record)
+
+        embedding = self._embedder.embed(stored.content)
+
+        self._vector_store.add(
+            stored.id,
+            embedding,
+        )
+
+        return stored
+
     def add_all(
         self,
         memories: list[MemoryRecord],
@@ -49,6 +67,8 @@ class MemoryManager:
 
         self._store.delete(memory_id)
 
+        self._vector_store.delete(memory_id)
+
     def get(self, memory_id: UUID) -> MemoryRecord | None:
         """Retrieve a memory by its ID."""
 
@@ -59,7 +79,6 @@ class MemoryManager:
 
         return self._store.list()
 
-
     def find_by_category(
         self,
         category: MemoryCategory,
@@ -68,12 +87,7 @@ class MemoryManager:
         Return all memories belonging to a category.
         """
 
-        return [
-            memory
-            for memory in self._store.list()
-            if memory.category == category
-        ]
-
+        return [memory for memory in self._store.list() if memory.category == category]
 
     def search_content(
         self,
@@ -87,12 +101,7 @@ class MemoryManager:
 
         query = query.lower()
 
-        return [
-            memory
-            for memory in self._store.list()
-            if query in memory.content.lower()
-        ]
-
+        return [memory for memory in self._store.list() if query in memory.content.lower()]
 
     def update(
         self,
@@ -105,4 +114,13 @@ class MemoryManager:
         if not record.content.strip():
             raise ValueError("Memory content cannot be empty.")
 
-        return self._store.update(record)
+        updated = self._store.update(record)
+
+        embedding = self._embedder.embed(updated.content)
+
+        self._vector_store.update(
+        updated.id,
+        embedding,
+        )
+
+        return updated
