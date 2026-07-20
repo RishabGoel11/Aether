@@ -1,5 +1,5 @@
 from unittest.mock import Mock
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 
@@ -402,6 +402,7 @@ def test_remember_indexes_memory():
         [0.1, 0.2, 0.3],
     )
 
+
 def test_update_updates_vector_store():
     store = FakeMemoryStore()
 
@@ -434,6 +435,7 @@ def test_update_updates_vector_store():
         [0.4, 0.5, 0.6],
     )
 
+
 def test_forget_deletes_vector():
     store = FakeMemoryStore()
 
@@ -459,3 +461,74 @@ def test_forget_deletes_vector():
     vector_store.delete.assert_called_once_with(
         record.id,
     )
+
+
+def test_semantic_search():
+    store = FakeMemoryStore()
+
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.1, 0.2, 0.3]
+
+    vector_store = Mock(spec=BaseVectorStore)
+
+    manager = MemoryManager(
+        store=store,
+        embedder=embedder,
+        vector_store=vector_store,
+    )
+
+    memory = MemoryRecord(content="I love Python")
+
+    manager.remember(memory)
+
+    vector_store.search.return_value = [memory.id]
+
+    result = manager.semantic_search("programming")
+
+    assert result == [memory]
+
+    embedder.embed.assert_called_with("programming")
+
+    vector_store.search.assert_called_once_with(
+        [0.1, 0.2, 0.3],
+        limit=5,
+    )
+
+
+def test_semantic_search_empty():
+    store = FakeMemoryStore()
+
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.1, 0.2]
+
+    vector_store = Mock(spec=BaseVectorStore)
+    vector_store.search.return_value = []
+
+    manager = MemoryManager(
+        store=store,
+        embedder=embedder,
+        vector_store=vector_store,
+    )
+
+    assert manager.semantic_search("python") == []
+
+
+def test_semantic_search_skips_missing_memory():
+    store = FakeMemoryStore()
+
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.1, 0.2]
+
+    vector_store = Mock(spec=BaseVectorStore)
+
+    manager = MemoryManager(
+        store=store,
+        embedder=embedder,
+        vector_store=vector_store,
+    )
+
+    missing_id = uuid4()
+
+    vector_store.search.return_value = [missing_id]
+
+    assert manager.semantic_search("python") == []

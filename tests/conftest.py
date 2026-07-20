@@ -33,6 +33,8 @@ def memory_manager(tmp_path):
 
     vector_store = Mock(spec=BaseVectorStore)
 
+    vector_store.search.return_value = []   
+
     return MemoryManager(
         store=memory_store,
         embedder=embedder,

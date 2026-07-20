@@ -1,8 +1,9 @@
 from pathlib import Path
+from unittest.mock import Mock
 
 from app.core.engine import ConversationEngine
 from app.core.session import Session
-from app.embedding.factory import EmbeddingFactory
+from app.embedding.base import BaseEmbedder
 from app.llm.base import BaseLLM
 from app.llm.models import (
     LLMResponse,
@@ -11,7 +12,7 @@ from app.llm.models import (
 from app.memory.manager import MemoryManager
 from app.memory.retrieval import MemoryRetriever
 from app.memory.stores.json_store import JsonMemoryStore
-from app.vectorstore.in_memory import InMemoryVectorStore
+from app.vectorstore.base import BaseVectorStore
 
 
 class FakeLLM(BaseLLM):
@@ -25,9 +26,11 @@ def create_engine(tmp_path):
 
     memory_store = JsonMemoryStore(Path("data") / "memories.json")
 
-    embedder = EmbeddingFactory.create()
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.1, 0.2, 0.3]
 
-    vector_store = InMemoryVectorStore()
+    vector_store = Mock(spec=BaseVectorStore)
+    vector_store.search.return_value = []
 
     memory_manager = MemoryManager(
         store=memory_store,

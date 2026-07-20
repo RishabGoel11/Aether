@@ -103,6 +103,32 @@ class MemoryManager:
 
         return [memory for memory in self._store.list() if query in memory.content.lower()]
 
+    def semantic_search(
+        self,
+        query: str,
+        limit: int = 5,
+    ) -> list[MemoryRecord]:
+        """
+        Search memories using semantic similarity.
+        """
+
+        embedding = self._embedder.embed(query)
+
+        memory_ids = self._vector_store.search(
+            embedding,
+            limit=limit,
+        )
+
+        memories: list[MemoryRecord] = []
+
+        for memory_id in memory_ids:
+            memory = self._store.get(memory_id)
+
+            if memory is not None:
+                memories.append(memory)
+
+        return memories
+
     def update(
         self,
         record: MemoryRecord,

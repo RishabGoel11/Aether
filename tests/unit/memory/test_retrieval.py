@@ -36,137 +36,72 @@ class FakeMemoryStore(BaseMemoryStore):
         return list(self.records.values())
 
 
-def test_retrieve_empty():
+def create_manager():
+    store = FakeMemoryStore()
+
     embedder = Mock(spec=BaseEmbedder)
     embedder.embed.return_value = [0.1, 0.2, 0.3]
 
     vector_store = Mock(spec=BaseVectorStore)
 
     manager = MemoryManager(
-        store=FakeMemoryStore(),
+        store=store,
         embedder=embedder,
         vector_store=vector_store,
     )
+
+    return manager, embedder, vector_store
+
+
+def test_retrieve_empty():
+    manager, _, vector_store = create_manager()
+
+    vector_store.search.return_value = []
+
     retriever = MemoryRetriever(manager)
 
     assert retriever.retrieve("anything") == []
 
 
-def test_retrieve_single_memory():
-    embedder = Mock(spec=BaseEmbedder)
-    embedder.embed.return_value = [0.1, 0.2, 0.3]
-
-    vector_store = Mock(spec=BaseVectorStore)
-
-    manager = MemoryManager(
-        store=FakeMemoryStore(),
-        embedder=embedder,
-        vector_store=vector_store,
-    )
+def test_retrieve_returns_memories():
+    manager, _, vector_store = create_manager()
 
     memory = MemoryRecord(content="User likes Python")
     manager.remember(memory)
 
+    vector_store.search.return_value = [memory.id]
+
     retriever = MemoryRetriever(manager)
 
-    memories = retriever.retrieve("python")
-
-    assert len(memories) == 1
-    assert memories[0] == memory
+    assert retriever.retrieve("python") == [memory]
 
 
-def test_retrieve_limits_results():
-    embedder = Mock(spec=BaseEmbedder)
-    embedder.embed.return_value = [0.1, 0.2, 0.3]
+def test_retrieve_respects_limit():
+    manager, _, vector_store = create_manager()
 
-    vector_store = Mock(spec=BaseVectorStore)
-
-    manager = MemoryManager(
-        store=FakeMemoryStore(),
-        embedder=embedder,
-        vector_store=vector_store,
-    )
+    memories = []
 
     for i in range(10):
-        manager.remember(MemoryRecord(content=f"Memory {i}"))
+        memory = MemoryRecord(content=f"Memory {i}")
+        manager.remember(memory)
+        memories.append(memory)
+
+    vector_store.search.return_value = [
+        memory.id for memory in memories[:5]
+    ]
 
     retriever = MemoryRetriever(manager)
 
-    memories = retriever.retrieve("anything")
+    result = retriever.retrieve("anything")
 
-    assert len(memories) == 5
+    assert len(result) == 5
 
 
-def test_retrieve_ranks_relevant_memories_first():
-    embedder = Mock(spec=BaseEmbedder)
-    embedder.embed.return_value = [0.1, 0.2, 0.3]
+def test_retrieve_skips_missing_memories():
+    manager, _, vector_store = create_manager()
 
-    vector_store = Mock(spec=BaseVectorStore)
-
-    manager = MemoryManager(
-        store=FakeMemoryStore(),
-        embedder=embedder,
-        vector_store=vector_store,
-    )
-
-    python = MemoryRecord(content="User likes Python")
-    coffee = MemoryRecord(content="User likes coffee")
-    aether = MemoryRecord(content="User is building Aether")
-
-    manager.remember(coffee)
-    manager.remember(aether)
-    manager.remember(python)
+    vector_store.search.return_value = ["missing-id"]
 
     retriever = MemoryRetriever(manager)
 
-    memories = retriever.retrieve("Python")
-
-    assert memories[0] == python
-
-
-def test_retrieve_is_case_insensitive():
-    embedder = Mock(spec=BaseEmbedder)
-    embedder.embed.return_value = [0.1, 0.2, 0.3]
-
-    vector_store = Mock(spec=BaseVectorStore)
-
-    manager = MemoryManager(
-        store=FakeMemoryStore(),
-        embedder=embedder,
-        vector_store=vector_store,
-    )
-
-    memory = MemoryRecord(content="User likes Python")
-
-    manager.remember(memory)
-
-    retriever = MemoryRetriever(manager)
-
-    memories = retriever.retrieve("PYTHON")
-
-    assert memories[0] == memory
-
-
-def test_retrieve_returns_all_when_no_match():
-    embedder = Mock(spec=BaseEmbedder)
-    embedder.embed.return_value = [0.1, 0.2, 0.3]
-
-    vector_store = Mock(spec=BaseVectorStore)
-
-    manager = MemoryManager(
-        store=FakeMemoryStore(),
-        embedder=embedder,
-        vector_store=vector_store,
-    )
-
-    first = MemoryRecord(content="User likes coffee")
-    second = MemoryRecord(content="User is building Aether")
-
-    manager.remember(first)
-    manager.remember(second)
-
-    retriever = MemoryRetriever(manager)
-
-    memories = retriever.retrieve("Rust")
-
-    assert len(memories) == 2
+    assert retriever.retrieve("anything") == []
