@@ -140,17 +140,17 @@ Build the foundational architecture for Aether.
 ## Intelligent Memory
 
 - [x] Automatic memory extraction
-- [ ] Memory summarization
+- [x] Memory summarization
 - [x] Context management
 - [x] Memory ranking
 - [x] Forgetting strategy
 
 ## Semantic Memory
 
-- [ ] Embedding generation
-- [ ] Vector store integration
-- [ ] Semantic search
-- [ ] Hybrid retrieval
+- [x] Embedding generation
+- [x] Vector store integration
+- [x] Semantic search
+- [x] Hybrid retrieval
 
 # Phase 4 – Tool Framework
 

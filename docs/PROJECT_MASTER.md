@@ -170,14 +170,8 @@ Completed:
 * Phase 0 – Engineering Foundations
 * Phase 1 – Core Conversation Engine
 * Phase 2 – Engineering Excellence
-
-In Progress:
-
 * Phase 3 – Memory System
 
-Current milestone:
-
-* Memory Foundation
 
 ---
 

@@ -24,39 +24,74 @@ Each subsystem has a single responsibility and communicates through well-defined
 # High-Level Architecture
 
 ```text
-                    User
-                      │
-      ┌───────────────┼───────────────┐
-      │               │               │
-     CLI          Desktop (Planned)   Web (Planned)
-      │
-      ▼
- Application Bootstrap
-      │
-      ▼
-   Application
-      │
- ┌────┴──────────────────────┐
- ▼                           ▼
-Conversation Engine     Memory Manager
- │                           │
- ▼                           ▼
-Session             BaseMemoryStore
- │                           │
- ▼                           ▼
-Prompt Builder      JsonMemoryStore
- │                           │
- ▼                           ▼
-LLM Factory       data/memories.json
- │
- ▼
-BaseLLM
- │
- ▼
-OllamaLLM
- │
- ▼
-Local Ollama
+                                    +----------------------+
+                                   |        User          |
+                                   +----------+-----------+
+                                              |
+                                              v
+                                   +----------------------+
+                                   |        CLI           |
+                                   +----------+-----------+
+                                              |
+                                              v
+                               +-------------------------------+
+                               |      ApplicationBuilder       |
+                               +---------------+---------------+
+                                               |
+                                               v
+                               +-------------------------------+
+                               |     ConversationEngine        |
+                               +---------------+---------------+
+                                               |
+                      +------------------------+------------------------+
+                      |                         |                        |
+                      v                         v                        v
+            +----------------+       +--------------------+    +------------------+
+            | PromptBuilder  |       |      Session       |    |  DebugCollector  |
+            +----------------+       +--------------------+    +------------------+
+                                               |
+                                               v
+                               +-------------------------------+
+                               |        MemoryRetriever        |
+                               +---------------+---------------+
+                                               |
+                                               v
+                               +-------------------------------+
+                               |        MemoryManager          |
+                               +------+-------------+----------+
+                                      |             |
+                   +------------------+             +------------------+
+                   |                                         |
+                   v                                         v
+         +----------------------+                +----------------------+
+         |  JsonMemoryStore     |                |   VectorStore        |
+         | (Persistent Memory)  |                | (Semantic Index)     |
+         +----------------------+                +----------+-----------+
+                                                            |
+                                                            |
+                                                            v
+                                                +----------------------+
+                                                |      Embedder        |
+                                                | (Ollama Embeddings)  |
+                                                +----------------------+
+
+                     Background / Maintenance Components
+                     -----------------------------------
+
+                    +-------------------------------+
+                    |      MemoryConsolidator       |
+                    +---------------+---------------+
+                                    |
+                                    v
+                    +-------------------------------+
+                    |      MemorySummarizer         |
+                    +---------------+---------------+
+                                    |
+                                    v
+                           +-------------------+
+                           |      BaseLLM      |
+                           |    (OllamaLLM)    |
+                           +-------------------+
 ```
 
 ---

@@ -68,6 +68,13 @@ The project is guided by a small set of engineering principles:
 - Factory Pattern
 - Application Bootstrap
 - Interactive Command-Line Interface
+- Local-first conversations
+- Session management
+- Persistent memory
+- Semantic memory retrieval
+- Vector search
+- Automatic memory summarization
+- Memory consolidation
 
 ## Engineering Excellence
 
@@ -128,39 +135,74 @@ A detailed development roadmap is available in **docs/ROADMAP.md**.
 Aether follows a layered architecture designed to keep business logic independent from infrastructure.
 
 ```text
-                    User
-                      │
-                      ▼
-              Command-Line Interface
-                      │
-                      ▼
-             Application Bootstrap
-                      │
-          ┌───────────┴────────────┐
-          ▼                        ▼
- Conversation Engine         Memory Manager
-          │                        │
-          │                 BaseMemoryStore
-          │                        │
-          │                 JsonMemoryStore
-          │                        │
-          │                data/memories.json
-          │
- ┌────────┼─────────┐
- ▼        ▼         ▼
-Session  Debugger  Diagnostics
-   │
-   ▼
-Prompt Builder
-   │
-   ▼
-LLM Abstraction
-   │
-   ▼
-Provider Layer
-   │
-   ▼
-Local Ollama
+                                   +----------------------+
+                                   |        User          |
+                                   +----------+-----------+
+                                              |
+                                              v
+                                   +----------------------+
+                                   |        CLI           |
+                                   +----------+-----------+
+                                              |
+                                              v
+                               +-------------------------------+
+                               |      ApplicationBuilder       |
+                               +---------------+---------------+
+                                               |
+                                               v
+                               +-------------------------------+
+                               |     ConversationEngine        |
+                               +---------------+---------------+
+                                               |
+                      +------------------------+------------------------+
+                      |                         |                        |
+                      v                         v                        v
+            +----------------+       +--------------------+    +------------------+
+            | PromptBuilder  |       |      Session       |    |  DebugCollector  |
+            +----------------+       +--------------------+    +------------------+
+                                               |
+                                               v
+                               +-------------------------------+
+                               |        MemoryRetriever        |
+                               +---------------+---------------+
+                                               |
+                                               v
+                               +-------------------------------+
+                               |        MemoryManager          |
+                               +------+-------------+----------+
+                                      |             |
+                   +------------------+             +------------------+
+                   |                                         |
+                   v                                         v
+         +----------------------+                +----------------------+
+         |  JsonMemoryStore     |                |   VectorStore        |
+         | (Persistent Memory)  |                | (Semantic Index)     |
+         +----------------------+                +----------+-----------+
+                                                            |
+                                                            |
+                                                            v
+                                                +----------------------+
+                                                |      Embedder        |
+                                                | (Ollama Embeddings)  |
+                                                +----------------------+
+
+                     Background / Maintenance Components
+                     -----------------------------------
+
+                    +-------------------------------+
+                    |      MemoryConsolidator       |
+                    +---------------+---------------+
+                                    |
+                                    v
+                    +-------------------------------+
+                    |      MemorySummarizer         |
+                    +---------------+---------------+
+                                    |
+                                    v
+                           +-------------------+
+                           |      BaseLLM      |
+                           |    (OllamaLLM)    |
+                           +-------------------+
 ```
 
 Future subsystems—including Memory, Tool Execution, Retrieval-Augmented Generation (RAG), Web Intelligence, Voice, and Multi-Agent Collaboration—will integrate into this architecture while preserving the separation of concerns established during the first two development phases.
