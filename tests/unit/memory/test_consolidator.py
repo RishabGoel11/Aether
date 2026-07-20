@@ -1,5 +1,4 @@
 from unittest.mock import Mock
-from uuid import uuid4
 
 from app.memory.consolidator import MemoryConsolidator
 from app.memory.models import MemoryRecord
@@ -32,10 +31,7 @@ def test_calls_summarizer():
     manager = Mock()
     summarizer = Mock()
 
-    memories = [
-        MemoryRecord(content=f"Memory {i}")
-        for i in range(5)
-    ]
+    memories = [MemoryRecord(content=f"Memory {i}") for i in range(5)]
 
     manager.list.return_value = memories
 
@@ -57,10 +53,7 @@ def test_stores_summary():
     manager = Mock()
     summarizer = Mock()
 
-    memories = [
-        MemoryRecord(content=f"Memory {i}")
-        for i in range(5)
-    ]
+    memories = [MemoryRecord(content=f"Memory {i}") for i in range(5)]
 
     summary = MemoryRecord(content="Summary")
 
@@ -82,15 +75,10 @@ def test_deletes_old_memories():
     manager = Mock()
     summarizer = Mock()
 
-    memories = [
-        MemoryRecord(content=f"Memory {i}")
-        for i in range(5)
-    ]
+    memories = [MemoryRecord(content=f"Memory {i}") for i in range(5)]
 
     manager.list.return_value = memories
-    summarizer.summarize.return_value = MemoryRecord(
-        content="Summary"
-    )
+    summarizer.summarize.return_value = MemoryRecord(content="Summary")
 
     consolidator = MemoryConsolidator(
         manager,
