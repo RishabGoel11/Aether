@@ -2,10 +2,10 @@
 
 > **A modular, local-first AI engineering platform built with privacy, transparency, extensibility, and software engineering best practices at its core.**
 
-![Version](https://img.shields.io/badge/version-v0.2.0-blue)
+![Version](https://img.shields.io/badge/version-v0.3.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB)
 ![License](https://img.shields.io/badge/License-MIT-green)
-
+ 
 ---
 
 # What is Aether?
@@ -16,8 +16,8 @@ Rather than being developed as a rapid prototype, Aether is intentionally engine
 
 The project serves two complementary purposes:
 
-- Build a capable local-first AI assistant.
-- Demonstrate modern AI engineering through incremental, production-quality development.
+* Build a capable local-first AI assistant.
+* Demonstrate modern AI engineering through incremental, production-quality development.
 
 Every phase introduces new architectural concepts while maintaining a stable and extensible codebase.
 
@@ -27,15 +27,15 @@ Every phase introduces new architectural concepts while maintaining a stable and
 
 Aether aims to evolve into a complete AI engineering platform capable of:
 
-- Natural conversation
-- Long-term memory
-- Tool execution
-- Retrieval-Augmented Generation (RAG)
-- Web intelligence
-- Voice interaction
-- Multi-agent collaboration
-- Local-first execution
-- Privacy-preserving AI
+* Natural conversation
+* Long-term memory
+* Tool execution
+* Retrieval-Augmented Generation (RAG)
+* Web intelligence
+* Voice interaction
+* Multi-agent collaboration
+* Local-first execution
+* Privacy-preserving AI
 
 ---
 
@@ -43,13 +43,13 @@ Aether aims to evolve into a complete AI engineering platform capable of:
 
 The project is guided by a small set of engineering principles:
 
-- **Local First** — Execute locally whenever practical.
-- **Privacy Focused** — User data remains under the user's control.
-- **Framework Independent** — External frameworks remain integrations, not architectural foundations.
-- **Modular Architecture** — Components are independently replaceable.
-- **Production over Prototype** — Prioritize maintainability, testing, and documentation.
-- **Documentation First** — Architecture and design before implementation.
-- **Engineering Excellence** — Build features on top of strong engineering foundations.
+* **Local First** — Execute locally whenever practical.
+* **Privacy Focused** — User data remains under the user's control.
+* **Framework Independent** — External frameworks remain integrations, not architectural foundations.
+* **Modular Architecture** — Components are independently replaceable.
+* **Production over Prototype** — Prioritize maintainability, testing, and documentation.
+* **Documentation First** — Architecture and design before implementation.
+* **Engineering Excellence** — Build features on top of strong engineering foundations.
 
 ---
 
@@ -57,58 +57,58 @@ The project is guided by a small set of engineering principles:
 
 ## Core AI Platform
 
-- Local LLM integration using Ollama
-- Modular Conversation Engine
-- Session Management
-- Prompt Builder
-- YAML Configuration System
-- Typed Configuration Models
-- Structured Logging
-- Custom Exception Hierarchy
-- Factory Pattern
-- Application Bootstrap
-- Interactive Command-Line Interface
-- Local-first conversations
-- Session management
-- Persistent memory
-- Semantic memory retrieval
-- Vector search
-- Automatic memory summarization
-- Memory consolidation
-
-## Engineering Excellence
-
-- Modern Python packaging with `uv`
-- PEP 621 compliant project configuration
-- Hatchling build backend
-- GitHub Actions Continuous Integration
-- Ruff linting
-- Pytest unit & integration testing
-- 92% code coverage
-- Debug subsystem
-- Diagnostics subsystem
-- Documentation-first development workflow
+* Local LLM integration using Ollama
+* Modular Conversation Engine
+* Session Management
+* Prompt Builder
+* YAML Configuration System
+* Typed Configuration Models
+* Structured Logging
+* Custom Exception Hierarchy
+* Factory Pattern
+* Application Bootstrap
+* Interactive Command-Line Interface
+* Local-first conversations
 
 ## Memory System
 
-Aether now includes the foundation of a persistent, local-first memory system.
+Aether now includes a modular, persistent, local-first long-term memory system.
 
 Current capabilities:
 
-- Persistent JSON-based memory storage
-- Typed memory models using Pydantic
-- Modular memory architecture
-- Dependency-injected MemoryManager
-- Abstract storage interface (`BaseMemoryStore`)
-- JSON storage backend (`JsonMemoryStore`)
+* Persistent JSON-based memory storage
+* Typed memory models using Pydantic
+* Modular memory architecture
+* Dependency-injected `MemoryManager`
+* Abstract storage interface (`BaseMemoryStore`)
+* JSON storage backend (`JsonMemoryStore`)
+* Rule-based automatic memory extraction
+* Profile, preference, and project memory categories
+* Memory deduplication
+* Memory update and deletion
+* Embedding abstraction
+* Ollama-based embeddings
+* Abstract vector store interface (`BaseVectorStore`)
+* In-memory vector store
+* Semantic memory retrieval
+* Memory summarization
+* Memory consolidation
+* Integration with the `ConversationEngine`
 
-This foundation prepares Aether for future capabilities including:
+The current memory extractor uses deterministic rule-based patterns. This provides a reliable foundation for future LLM-based memory extraction.
 
-- Memory retrieval
-- Prompt integration
-- Automatic memory extraction
-- Memory summarization
-- Semantic search using vector embeddings
+## Engineering Excellence
+
+* Modern Python packaging with `uv`
+* PEP 621 compliant project configuration
+* Hatchling build backend
+* GitHub Actions Continuous Integration
+* Ruff linting
+* Pytest unit & integration testing
+* Approximately 89% automated code coverage
+* Debug subsystem
+* Diagnostics subsystem
+* Documentation-first development workflow
 
 ---
 
@@ -116,17 +116,17 @@ This foundation prepares Aether for future capabilities including:
 
 Aether's long-term roadmap includes:
 
-- Persistent Memory
-- Tool Framework
-- Retrieval-Augmented Generation (RAG)
-- LangChain Integration
-- LangGraph Integration
-- Web Intelligence
-- Voice Interface
-- Multi-Agent Collaboration
-- Production Deployment
+* Advanced Memory Extraction
+* Tool Framework
+* Retrieval-Augmented Generation (RAG)
+* LangChain Integration
+* LangGraph Integration
+* Web Intelligence
+* Voice Interface
+* Multi-Agent Collaboration
+* Production Deployment
 
-A detailed development roadmap is available in **docs/ROADMAP.md**.
+A detailed development roadmap is available in **`docs/ROADMAP.md`**.
 
 ---
 
@@ -154,16 +154,16 @@ Aether follows a layered architecture designed to keep business logic independen
                                |     ConversationEngine        |
                                +---------------+---------------+
                                                |
-                      +------------------------+------------------------+
-                      |                         |                        |
-                      v                         v                        v
-            +----------------+       +--------------------+    +------------------+
-            | PromptBuilder  |       |      Session       |    |  DebugCollector  |
-            +----------------+       +--------------------+    +------------------+
+                  +----------------------------+----------------------------+
+                  |                            |                            |
+                  v                            v                            v
+        +----------------+          +--------------------+        +------------------+
+        | PromptBuilder  |          |      Session       |        |  DebugCollector  |
+        +----------------+          +--------------------+        +------------------+
                                                |
                                                v
                                +-------------------------------+
-                               |        MemoryRetriever        |
+                               |       MemoryExtractor         |
                                +---------------+---------------+
                                                |
                                                v
@@ -175,16 +175,25 @@ Aether follows a layered architecture designed to keep business logic independen
                    |                                         |
                    v                                         v
          +----------------------+                +----------------------+
-         |  JsonMemoryStore     |                |   VectorStore        |
+         |  JsonMemoryStore     |                |    VectorStore       |
          | (Persistent Memory)  |                | (Semantic Index)     |
          +----------------------+                +----------+-----------+
                                                             |
-                                                            |
                                                             v
                                                 +----------------------+
-                                                |      Embedder        |
-                                                | (Ollama Embeddings)  |
+                                                |      Embedder         |
+                                                | (Ollama Embeddings)   |
                                                 +----------------------+
+
+                     Memory Retrieval
+                     ----------------
+
+                               +-------------------------------+
+                               |       MemoryRetriever          |
+                               +---------------+---------------+
+                                               |
+                                               v
+                                      MemoryManager
 
                      Background / Maintenance Components
                      -----------------------------------
@@ -195,7 +204,7 @@ Aether follows a layered architecture designed to keep business logic independen
                                     |
                                     v
                     +-------------------------------+
-                    |      MemorySummarizer         |
+                    |       MemorySummarizer        |
                     +---------------+---------------+
                                     |
                                     v
@@ -205,9 +214,9 @@ Aether follows a layered architecture designed to keep business logic independen
                            +-------------------+
 ```
 
-Future subsystems—including Memory, Tool Execution, Retrieval-Augmented Generation (RAG), Web Intelligence, Voice, and Multi-Agent Collaboration—will integrate into this architecture while preserving the separation of concerns established during the first two development phases.
+Future subsystems—including Tool Execution, Retrieval-Augmented Generation (RAG), Web Intelligence, Voice, and Multi-Agent Collaboration—will integrate into this architecture while preserving the separation of concerns established during the first development phases.
 
-Detailed architectural documentation is available in **docs/ARCHITECTURE.md**.
+Detailed architectural documentation is available in **`docs/ARCHITECTURE.md`**.
 
 ---
 
@@ -215,25 +224,25 @@ Detailed architectural documentation is available in **docs/ARCHITECTURE.md**.
 
 ## Current
 
-- Python
-- Ollama
-- Pydantic
-- PyYAML
-- uv
-- Hatchling
-- Ruff
-- Pytest
+* Python
+* Ollama
+* Pydantic
+* PyYAML
+* uv
+* Hatchling
+* Ruff
+* Pytest
 
 ## Planned
 
-- LangChain
-- LangGraph
-- SQLite
-- ChromaDB
-- FastAPI
-- Playwright
-- Faster-Whisper
-- Piper
+* LangChain
+* LangGraph
+* SQLite
+* ChromaDB
+* FastAPI
+* Playwright
+* Faster-Whisper
+* Piper
 
 ---
 
@@ -256,20 +265,22 @@ uv sync --extra dev
 Run the interactive chat:
 
 ```bash
-uv run python -m app.cli.main chat
+uv run aether chat
 ```
 
 Run diagnostics:
 
 ```bash
-uv run python -m app.cli.main doctor
+uv run aether doctor
 ```
 
 Display the version:
 
 ```bash
-uv run python -m app.cli.main version
+uv run aether version
 ```
+
+Aether requires a locally running Ollama installation with the configured LLM and embedding model available.
 
 ---
 
@@ -295,57 +306,66 @@ uv run ruff format .
 
 Aether uses:
 
-- `pyproject.toml` as the single source of truth for project configuration.
-- `uv.lock` to ensure reproducible development environments.
+* `pyproject.toml` as the single source of truth for project configuration.
+* `uv.lock` to ensure reproducible development environments.
 
 ---
 
 # Project Status
 
-| Phase | Status |
-|--------|--------|
-| Phase 0 – Engineering Foundations | ✅ Complete |
-| Phase 1 – Core Conversation Engine | ✅ Complete |
-| Phase 2 – Software Engineering | ✅ Complete |
-| Phase 3 – Memory System | ⬜ Planned |
-| Phase 4 – Tool Framework | ⬜ Planned |
-| Phase 5 – Retrieval-Augmented Generation | ⬜ Planned |
-| Phase 6 – AI Framework Integrations | ⬜ Planned |
-| Phase 7 – Web Intelligence | ⬜ Planned |
-| Phase 8 – Voice | ⬜ Planned |
-| Phase 9 – Multi-Agent System | ⬜ Planned |
-| Phase 10 – Production | ⬜ Planned |
+| Epic                                    | Status     |
+| --------------------------------------- | ---------- |
+| Epic 0 – Engineering Foundations        | ✅ Complete |
+| Epic 1 – Core Conversation Engine       | ✅ Complete |
+| Epic 2 – Engineering Excellence         | ✅ Complete |
+| Epic 3 – Memory System                  | ✅ Complete |
+| Epic 4 – Tool Framework                 | ⬜ Planned  |
+| Epic 5 – Retrieval-Augmented Generation | ⬜ Planned  |
+| Epic 6 – AI Framework Integrations      | ⬜ Planned  |
+| Epic 7 – Web Intelligence               | ⬜ Planned  |
+| Epic 8 – Voice                          | ⬜ Planned  |
+| Epic 9 – Multi-Agent System             | ⬜ Planned  |
+| Epic 10 – Production                    | ⬜ Planned  |
 
-For detailed milestones and implementation tasks, see **docs/ROADMAP.md**.
+For detailed milestones and implementation tasks, see **`docs/ROADMAP.md`**.
 
 ---
 
 # Latest Release
 
-## v0.2.0 — Engineering Excellence
+## v0.3.0 — Memory System
 
 Highlights of this release:
 
-- Application bootstrap architecture
-- Modular command-line interface
-- Debug subsystem
-- Diagnostics subsystem
-- GitHub Actions CI pipeline
-- 92% automated test coverage
-- Improved project architecture and developer experience
+* Persistent JSON-based long-term memory
+* Typed memory models and categories
+* Rule-based automatic memory extraction
+* Profile, preference, and project memory support
+* Memory deduplication and CRUD operations
+* Ollama embedding integration
+* Vector store abstraction
+* Semantic memory retrieval
+* Memory summarization
+* Memory consolidation
+* ConversationEngine memory integration
+* Persistent memory verified through the real CLI
+* 142 automated tests passing
+* Improved CLI packaging with the `aether` command
 
-The next major milestone is **Phase 3 – Memory System**, which introduces persistent conversational memory and lays the foundation for long-term AI capabilities.
+The next major milestone is **Epic 4 – Tool Framework**, which will introduce a modular foundation for tool execution.
+
+---
 
 # Documentation
 
-The **docs/** directory contains the project's technical documentation, including:
+The **`docs/`** directory contains the project's technical documentation, including:
 
-- Architecture
-- Development Roadmap
-- Engineering Decisions
-- Project Master
-- Engineering Journal
-- Changelog
+* Architecture
+* Development Roadmap
+* Engineering Decisions
+* Project Master
+* Engineering Journal
+* Changelog
 
 ---
 
