@@ -1,4 +1,5 @@
 from app.tools.base import BaseTool
+from app.tools.errors import ToolNotFoundError, ToolRegistrationError
 
 
 class ToolRegistry:
@@ -10,7 +11,7 @@ class ToolRegistry:
     def register(self, tool: BaseTool) -> None:
         """Register a tool by its unique name."""
         if tool.name in self._tools:
-            raise ValueError(f"Tool already registered: {tool.name}")
+            raise ToolRegistrationError(f"Tool already registered: {tool.name}")
 
         self._tools[tool.name] = tool
 
@@ -19,7 +20,7 @@ class ToolRegistry:
         try:
             return self._tools[name]
         except KeyError as exc:
-            raise KeyError(f"Tool not found: {name}") from exc
+            raise ToolNotFoundError(f"Tool not found: {name}") from exc
 
     def list(self) -> list[BaseTool]:
         """Return all registered tools."""

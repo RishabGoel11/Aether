@@ -2,6 +2,7 @@ import pytest
 from pydantic import BaseModel
 
 from app.tools import BaseTool, ToolResult
+from app.tools.errors import ToolNotFoundError, ToolRegistrationError
 from app.tools.registry import ToolRegistry
 
 
@@ -44,9 +45,7 @@ def test_list_tools():
     registry.register(echo)
     registry.register(calculator)
 
-    tools = registry.list()
-
-    assert tools == [echo, calculator]
+    assert registry.list() == [echo, calculator]
 
 
 def test_duplicate_tool_registration_raises_error():
@@ -54,12 +53,18 @@ def test_duplicate_tool_registration_raises_error():
 
     registry.register(EchoTool())
 
-    with pytest.raises(ValueError, match="Tool already registered: echo"):
+    with pytest.raises(
+        ToolRegistrationError,
+        match="Tool already registered: echo",
+    ):
         registry.register(EchoTool())
 
 
 def test_missing_tool_raises_error():
     registry = ToolRegistry()
 
-    with pytest.raises(KeyError, match="Tool not found: missing"):
+    with pytest.raises(
+        ToolNotFoundError,
+        match="Tool not found: missing",
+    ):
         registry.get("missing")
