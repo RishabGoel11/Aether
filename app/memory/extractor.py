@@ -17,6 +17,7 @@ class MemoryExtractor:
     """
 
     MEMORY_PATTERNS: tuple[tuple[str, MemoryCategory], ...] = (
+        ("my name is", MemoryCategory.PROFILE),
         ("my favorite", MemoryCategory.PREFERENCE),
         ("i prefer", MemoryCategory.PREFERENCE),
         ("i'm building", MemoryCategory.PROJECT),

@@ -57,6 +57,8 @@ class ApplicationBuilder:
             llm=llm,
             session=session,
             memory_retriever=memory_retriever,
+            memory_extractor=extractor,
+            memory_manager=memory_manager,
         )
 
         return Application(

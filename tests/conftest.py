@@ -5,6 +5,7 @@ import pytest
 from app.core.engine import ConversationEngine
 from app.core.session import Session
 from app.embedding.base import BaseEmbedder
+from app.memory.extractor import MemoryExtractor
 from app.memory.manager import MemoryManager
 from app.memory.retrieval import MemoryRetriever
 from app.memory.stores.json_store import JsonMemoryStore
@@ -33,7 +34,7 @@ def memory_manager(tmp_path):
 
     vector_store = Mock(spec=BaseVectorStore)
 
-    vector_store.search.return_value = []   
+    vector_store.search.return_value = []
 
     return MemoryManager(
         store=memory_store,
@@ -53,10 +54,13 @@ def memory_retriever(
 def engine(
     fake_llm: FakeLLM,
     session: Session,
+    memory_manager: MemoryManager,
     memory_retriever: MemoryRetriever,
 ) -> ConversationEngine:
     return ConversationEngine(
         llm=fake_llm,
         session=session,
         memory_retriever=memory_retriever,
+        memory_extractor=MemoryExtractor(),
+        memory_manager=memory_manager,
     )

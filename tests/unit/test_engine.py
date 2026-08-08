@@ -9,6 +9,7 @@ from app.llm.models import (
     LLMResponse,
     Role,
 )
+from app.memory.extractor import MemoryExtractor
 from app.memory.manager import MemoryManager
 from app.memory.retrieval import MemoryRetriever
 from app.memory.stores.json_store import JsonMemoryStore
@@ -44,6 +45,8 @@ def create_engine(tmp_path):
         llm=llm,
         session=session,
         memory_retriever=memory_retriever,
+        memory_extractor=MemoryExtractor(),
+        memory_manager=memory_manager,
     )
 
     return engine, session
