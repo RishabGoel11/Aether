@@ -5,6 +5,9 @@ from app.llm.factory import LLMFactory
 from app.memory.extractor import MemoryExtractor
 from app.memory.manager import MemoryManager
 from app.session.manager import SessionManager
+from app.tools.builtin import CalculatorTool
+from app.tools.executor import ToolExecutor
+from app.tools.registry import ToolRegistry
 from tests.fakes.fake_llm import FakeLLM
 
 
@@ -17,6 +20,8 @@ def test_builder_creates_application():
     assert isinstance(app.memory, MemoryManager)
     assert isinstance(app.session, SessionManager)
     assert isinstance(app.extractor, MemoryExtractor)
+    assert isinstance(app.tools, ToolRegistry)
+    assert isinstance(app.tool_executor, ToolExecutor)
 
 
 def test_builder_returns_application(monkeypatch):
@@ -101,6 +106,38 @@ def test_builder_creates_memory_extractor(monkeypatch):
     app = builder.build()
 
     assert isinstance(app.extractor, MemoryExtractor)
+
+
+def test_builder_creates_tool_registry(monkeypatch):
+    monkeypatch.setattr(
+        LLMFactory,
+        "create",
+        lambda settings: FakeLLM(),
+    )
+
+    builder = ApplicationBuilder()
+
+    app = builder.build()
+
+    assert isinstance(app.tools, ToolRegistry)
+
+    calculator = app.tools.get("calculator")
+
+    assert isinstance(calculator, CalculatorTool)
+
+
+def test_builder_creates_tool_executor(monkeypatch):
+    monkeypatch.setattr(
+        LLMFactory,
+        "create",
+        lambda settings: FakeLLM(),
+    )
+
+    builder = ApplicationBuilder()
+
+    app = builder.build()
+
+    assert isinstance(app.tool_executor, ToolExecutor)
 
 
 def test_builder_uses_fake_llm(monkeypatch):

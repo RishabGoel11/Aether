@@ -3,6 +3,8 @@ from app.core.engine import ConversationEngine
 from app.memory.extractor import MemoryExtractor
 from app.memory.manager import MemoryManager
 from app.session.manager import SessionManager
+from app.tools.executor import ToolExecutor
+from app.tools.registry import ToolRegistry
 
 
 class Application:
@@ -20,12 +22,16 @@ class Application:
         session: SessionManager,
         memory: MemoryManager,
         extractor: MemoryExtractor,
+        tools: ToolRegistry,
+        tool_executor: ToolExecutor,
     ):
         self.settings = settings
         self.engine = engine
         self.session = session
         self.memory = memory
         self.extractor = extractor
+        self.tools = tools
+        self.tool_executor = tool_executor
 
     def chat(self, user_input: str):
         """

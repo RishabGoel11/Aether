@@ -12,6 +12,8 @@ from app.memory.retrieval import MemoryRetriever
 from app.memory.stores.json_store import JsonMemoryStore
 from app.session.manager import SessionManager
 from app.session.stores.json_store import JsonSessionStore
+from app.tools.defaults import create_default_registry
+from app.tools.executor import ToolExecutor
 from app.vectorstore.in_memory import InMemoryVectorStore
 
 
@@ -61,10 +63,15 @@ class ApplicationBuilder:
             memory_manager=memory_manager,
         )
 
+        tools = create_default_registry()
+        tool_executor = ToolExecutor()
+
         return Application(
             settings=settings,
             engine=engine,
             memory=memory_manager,
             session=session_manager,
             extractor=extractor,
+            tools=tools,
+            tool_executor=tool_executor,
         )
