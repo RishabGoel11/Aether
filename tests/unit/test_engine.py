@@ -178,3 +178,111 @@ def test_engine_executes_tool_call(tmp_path):
 
     assert len(tool_messages) == 1
     assert "15" in tool_messages[0].content
+
+class MultiRoundToolCallingFakeLLM(BaseLLM):
+    def __init__(self):
+        self.calls = 0
+
+    def generate(self, messages, tools=None):
+        self.calls += 1
+
+        if self.calls == 1:
+            return LLMResponse(
+                content="",
+                tool_calls=[
+                    ToolCall(
+                        id="call_1",
+                        name="calculator",
+                        arguments={
+                            "operation": "add",
+                            "left": 10,
+                            "right": 5,
+                        },
+                    )
+                ],
+            )
+
+        if self.calls == 2:
+            return LLMResponse(
+                content="",
+                tool_calls=[
+                    ToolCall(
+                        id="call_2",
+                        name="calculator",
+                        arguments={
+                            "operation": "multiply",
+                            "left": 15,
+                            "right": 2,
+                        },
+                    )
+                ],
+            )
+
+        return LLMResponse(
+            content="The final answer is 30.",
+        )
+
+def test_engine_supports_multiple_tool_rounds(tmp_path):
+    engine, _ = create_engine(tmp_path)
+
+    llm = MultiRoundToolCallingFakeLLM()
+    engine.llm = llm
+
+    response = engine.chat(
+        "Calculate 10 + 5 and then multiply the result by 2."
+    )
+
+    assert response.content == "The final answer is 30."
+    assert llm.calls == 3
+
+    messages = engine.session.get_messages()
+
+    tool_messages = [
+        message
+        for message in messages
+        if message.role == Role.TOOL
+    ]
+
+    assert len(tool_messages) == 2
+    assert "15" in tool_messages[0].content
+    assert "30" in tool_messages[1].content
+
+class InfiniteToolCallingFakeLLM(BaseLLM):
+    def __init__(self):
+        self.calls = 0
+
+    def generate(self, messages, tools=None):
+        self.calls += 1
+
+        return LLMResponse(
+            content="",
+            tool_calls=[
+                ToolCall(
+                    id=f"call_{self.calls}",
+                    name="calculator",
+                    arguments={
+                        "operation": "add",
+                        "left": 1,
+                        "right": 1,
+                    },
+                )
+            ],
+        )
+
+def test_engine_stops_after_max_tool_rounds(tmp_path):
+    engine, _ = create_engine(tmp_path)
+
+    engine.max_tool_rounds = 3
+
+    llm = InfiniteToolCallingFakeLLM()
+    engine.llm = llm
+
+    response = engine.chat("Keep calculating.")
+
+    assert llm.calls == 4
+    assert response.tool_calls
+
+    assert any(
+        "Maximum tool rounds reached" in event.name
+        for event in engine.debug_collector.debug_info.events
+    )

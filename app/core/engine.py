@@ -31,6 +31,7 @@ class ConversationEngine:
         memory_manager: MemoryManager,
         tools: ToolRegistry,
         tool_executor: ToolExecutor,
+        max_tool_rounds: int = 5,
     ):
         self.llm = llm
         self.session = session
@@ -39,6 +40,10 @@ class ConversationEngine:
         self.memory_manager = memory_manager
         self.tools = tools
         self.tool_executor = tool_executor
+        if max_tool_rounds < 1:
+            raise ValueError("max_tool_rounds must be at least 1.")
+
+        self.max_tool_rounds = max_tool_rounds
         self.debug_collector: DebugCollector | None = None
 
     def _execute_tool_calls(
@@ -167,13 +172,21 @@ class ConversationEngine:
                 "LLM response received",
             )
 
-            if response.tool_calls:
+            tool_round = 0
+
+            while response.tool_calls and tool_round < self.max_tool_rounds:
+                tool_round += 1
+
+                self.debug_collector.add_event(
+                    f"Tool round {tool_round} started",
+                )
+
                 tool_messages = self._execute_tool_calls(response)
 
                 prompt.extend(tool_messages)
 
                 self.debug_collector.add_event(
-                    "Sending tool results to LLM",
+                    f"Sending tool results to LLM (round {tool_round})",
                 )
 
                 response = self.llm.generate(
@@ -181,6 +194,15 @@ class ConversationEngine:
                     tools=tool_definitions,
                 )
 
+                self.debug_collector.add_event(
+                    f"Tool round {tool_round} completed",
+                )
+
+            if response.tool_calls:
+                self.debug_collector.add_event(
+                    "Maximum tool rounds reached",
+                )
+            else:
                 self.debug_collector.add_event(
                     "Final LLM response received",
                 )
