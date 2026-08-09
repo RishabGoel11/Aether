@@ -7,6 +7,8 @@ from app.logger.logger import get_logger
 from app.memory.extractor import MemoryExtractor
 from app.memory.manager import MemoryManager
 from app.memory.retrieval import MemoryRetriever
+from app.tools.executor import ToolExecutor
+from app.tools.registry import ToolRegistry
 
 logger = get_logger(__name__)
 
@@ -16,7 +18,8 @@ class ConversationEngine:
     The central orchestrator for user conversations.
 
     It receives user input, extracts long-term memories,
-    prepares messages for the LLM, and returns the generated response.
+    prepares messages for the LLM, executes requested tools,
+    and returns the generated response.
     """
 
     def __init__(
@@ -26,13 +29,70 @@ class ConversationEngine:
         memory_retriever: MemoryRetriever,
         memory_extractor: MemoryExtractor,
         memory_manager: MemoryManager,
+        tools: ToolRegistry,
+        tool_executor: ToolExecutor,
     ):
         self.llm = llm
         self.session = session
         self.memory_retriever = memory_retriever
         self.memory_extractor = memory_extractor
         self.memory_manager = memory_manager
+        self.tools = tools
+        self.tool_executor = tool_executor
         self.debug_collector: DebugCollector | None = None
+
+    def _execute_tool_calls(
+        self,
+        response: LLMResponse,
+    ) -> list[Message]:
+        """Execute requested tools and return their results as messages."""
+        tool_messages = []
+
+        for tool_call in response.tool_calls:
+            self.debug_collector.add_event(
+                f"Tool requested: {tool_call.name}",
+            )
+
+            try:
+                tool = self.tools.get(tool_call.name)
+
+                result = self.tool_executor.execute(
+                    tool,
+                    tool_call.arguments,
+                )
+
+            except Exception as exc:
+                logger.error(
+                    "Failed to execute tool '%s'.",
+                    tool_call.name,
+                    exc_info=True,
+                )
+
+                result_content = f"Tool execution failed: {exc}"
+
+            else:
+                if result.success:
+                    result_content = str(result.output)
+                else:
+                    result_content = (
+                        f"Tool execution failed: {result.error}"
+                    )
+
+            tool_messages.append(
+                Message(
+                    role=Role.USER,
+                    content=(
+                        f"Tool result for '{tool_call.name}': "
+                        f"{result_content}"
+                    ),
+                )
+            )
+
+            self.debug_collector.add_event(
+                f"Tool completed: {tool_call.name}",
+            )
+
+        return tool_messages
 
     def chat(self, user_input: str) -> LLMResponse:
         # Create a fresh collector for this request.
@@ -84,15 +144,45 @@ class ConversationEngine:
                 "Prompt built",
             )
 
+            tool_definitions = [
+                tool.definition()
+                for tool in self.tools.list()
+            ]
+
+            self.debug_collector.add_event(
+                f"Provided {len(tool_definitions)} tools",
+            )
+
             self.debug_collector.add_event(
                 "LLM request started",
             )
 
-            response = self.llm.generate(prompt)
+            response = self.llm.generate(
+                prompt,
+                tools=tool_definitions,
+            )
 
             self.debug_collector.add_event(
                 "LLM response received",
             )
+
+            if response.tool_calls:
+                tool_messages = self._execute_tool_calls(response)
+
+                prompt.extend(tool_messages)
+
+                self.debug_collector.add_event(
+                    "Sending tool results to LLM",
+                )
+
+                response = self.llm.generate(
+                    prompt,
+                    tools=tool_definitions,
+                )
+
+                self.debug_collector.add_event(
+                    "Final LLM response received",
+                )
 
             assistant_message = Message(
                 role=Role.ASSISTANT,

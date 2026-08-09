@@ -9,6 +9,8 @@ from app.memory.extractor import MemoryExtractor
 from app.memory.manager import MemoryManager
 from app.memory.retrieval import MemoryRetriever
 from app.memory.stores.json_store import JsonMemoryStore
+from app.tools.defaults import create_default_registry
+from app.tools.executor import ToolExecutor
 from app.vectorstore.base import BaseVectorStore
 from tests.fakes.fake_llm import FakeLLM
 
@@ -57,10 +59,15 @@ def engine(
     memory_manager: MemoryManager,
     memory_retriever: MemoryRetriever,
 ) -> ConversationEngine:
+    tools = create_default_registry()
+    tool_executor = ToolExecutor()
+
     return ConversationEngine(
         llm=fake_llm,
         session=session,
         memory_retriever=memory_retriever,
         memory_extractor=MemoryExtractor(),
         memory_manager=memory_manager,
+        tools=tools,
+        tool_executor=tool_executor,
     )

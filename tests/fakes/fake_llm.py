@@ -1,5 +1,6 @@
 from app.llm.base import BaseLLM
 from app.llm.models import LLMResponse, Message
+from app.tools.models import ToolDefinition
 
 
 class FakeLLM(BaseLLM):
@@ -20,10 +21,16 @@ class FakeLLM(BaseLLM):
 
         self.call_count = 0
         self.received_messages: list[list[Message]] = []
+        self.received_tools: list[list[ToolDefinition] | None] = []
 
-    def generate(self, messages: list[Message]) -> LLMResponse:
+    def generate(
+        self,
+        messages: list[Message],
+        tools: list[ToolDefinition] | None = None,
+    ) -> LLMResponse:
         self.call_count += 1
         self.received_messages.append(messages)
+        self.received_tools.append(tools)
 
         if self.exception is not None:
             raise self.exception
@@ -34,3 +41,4 @@ class FakeLLM(BaseLLM):
         """Reset recorded interactions."""
         self.call_count = 0
         self.received_messages.clear()
+        self.received_tools.clear()

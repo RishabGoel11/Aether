@@ -55,12 +55,17 @@ class ApplicationBuilder:
 
         extractor = MemoryExtractor()
 
+        tools = create_default_registry()
+        tool_executor = ToolExecutor()
+
         engine = ConversationEngine(
             llm=llm,
             session=session,
             memory_retriever=memory_retriever,
             memory_extractor=extractor,
             memory_manager=memory_manager,
+            tools=tools,
+            tool_executor=tool_executor,
         )
 
         tools = create_default_registry()
