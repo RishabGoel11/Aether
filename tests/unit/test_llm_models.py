@@ -1,4 +1,4 @@
-from app.llm.models import LLMResponse, ToolCall
+from app.llm.models import LLMResponse, Message, Role, ToolCall
 
 
 def test_llm_response_defaults_to_text_response():
@@ -43,3 +43,13 @@ def test_llm_response_can_contain_tool_calls():
     assert len(response.tool_calls) == 1
     assert response.tool_calls[0].name == "calculator"
     assert response.tool_calls[0].arguments["right"] == 5
+
+
+def test_tool_role_is_supported():
+    message = Message(
+        role=Role.TOOL,
+        content="15",
+    )
+
+    assert message.role == Role.TOOL
+    assert message.role.value == "tool"

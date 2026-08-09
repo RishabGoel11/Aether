@@ -167,3 +167,14 @@ def test_engine_executes_tool_call(tmp_path):
         "Tool completed: calculator" in event.name
         for event in engine.debug_collector.debug_info.events
     )
+
+    messages = engine.session.get_messages()
+
+    tool_messages = [
+        message
+        for message in messages
+        if message.role == Role.TOOL
+    ]
+
+    assert len(tool_messages) == 1
+    assert "15" in tool_messages[0].content

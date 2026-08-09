@@ -78,15 +78,16 @@ class ConversationEngine:
                         f"Tool execution failed: {result.error}"
                     )
 
-            tool_messages.append(
-                Message(
-                    role=Role.USER,
-                    content=(
-                        f"Tool result for '{tool_call.name}': "
-                        f"{result_content}"
-                    ),
-                )
+            tool_message = Message(
+                role=Role.TOOL,
+                content=(
+                    f"Tool result for '{tool_call.name}': "
+                    f"{result_content}"
+                ),
             )
+
+            tool_messages.append(tool_message)
+            self.session.add_message(tool_message)
 
             self.debug_collector.add_event(
                 f"Tool completed: {tool_call.name}",
