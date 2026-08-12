@@ -15,11 +15,12 @@ def test_default_registry_contains_expected_tools():
 
     tools = registry.list()
 
-    assert len(tools) == 2
+    assert len(tools) == 3
 
     names = {tool.name for tool in tools}
 
     assert names == {
         "calculator",
         "datetime",
+        "file_info",
     }
