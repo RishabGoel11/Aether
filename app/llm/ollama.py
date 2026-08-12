@@ -71,7 +71,7 @@ class OllamaLLM(BaseLLM):
             tool_calls = []
 
             for index, tool_call in enumerate(
-                response["message"].get("tool_calls", []),
+                response["message"].get("tool_calls") or [],
             ):
                 function = tool_call["function"]
 
