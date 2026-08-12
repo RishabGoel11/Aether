@@ -1,5 +1,5 @@
 from app.tools import ToolRegistry
-from app.tools.builtin import CalculatorTool
+from app.tools.builtin import CalculatorTool, DateTimeTool
 
 
 def create_default_registry() -> ToolRegistry:
@@ -7,5 +7,6 @@ def create_default_registry() -> ToolRegistry:
     registry = ToolRegistry()
 
     registry.register(CalculatorTool())
+    registry.register(DateTimeTool())
 
     return registry

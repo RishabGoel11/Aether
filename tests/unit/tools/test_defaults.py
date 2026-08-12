@@ -15,5 +15,11 @@ def test_default_registry_contains_expected_tools():
 
     tools = registry.list()
 
-    assert len(tools) == 1
-    assert tools[0].name == "calculator"
+    assert len(tools) == 2
+
+    names = {tool.name for tool in tools}
+
+    assert names == {
+        "calculator",
+        "datetime",
+    }
