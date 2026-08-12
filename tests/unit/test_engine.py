@@ -11,6 +11,7 @@ from app.memory.retrieval import MemoryRetriever
 from app.memory.stores.json_store import JsonMemoryStore
 from app.tools.builtin import CalculatorTool
 from app.tools.executor import ToolExecutor
+from app.tools.policy import ToolPolicy
 from app.tools.registry import ToolRegistry
 from app.vectorstore.base import BaseVectorStore
 
@@ -44,7 +45,7 @@ def create_engine(tmp_path):
 
     tools = ToolRegistry()
     tools.register(CalculatorTool())
-
+    tool_policy =  ToolPolicy()
     tool_executor = ToolExecutor()
 
     engine = ConversationEngine(
@@ -55,6 +56,7 @@ def create_engine(tmp_path):
         memory_manager=memory_manager,
         tools=tools,
         tool_executor=tool_executor,
+        tool_policy=tool_policy,
     )
 
     return engine, session
@@ -95,10 +97,7 @@ def test_engine_retrieves_memories(tmp_path):
 
     engine.chat("Hello")
 
-    assert any(
-        "Retrieved" in event.name
-        for event in engine.debug_collector.debug_info.events
-    )
+    assert any("Retrieved" in event.name for event in engine.debug_collector.debug_info.events)
 
 
 def test_engine_provides_tools_to_llm(tmp_path):
@@ -170,14 +169,11 @@ def test_engine_executes_tool_call(tmp_path):
 
     messages = engine.session.get_messages()
 
-    tool_messages = [
-        message
-        for message in messages
-        if message.role == Role.TOOL
-    ]
+    tool_messages = [message for message in messages if message.role == Role.TOOL]
 
     assert len(tool_messages) == 1
     assert "15" in tool_messages[0].content
+
 
 class MultiRoundToolCallingFakeLLM(BaseLLM):
     def __init__(self):
@@ -222,30 +218,26 @@ class MultiRoundToolCallingFakeLLM(BaseLLM):
             content="The final answer is 30.",
         )
 
+
 def test_engine_supports_multiple_tool_rounds(tmp_path):
     engine, _ = create_engine(tmp_path)
 
     llm = MultiRoundToolCallingFakeLLM()
     engine.llm = llm
 
-    response = engine.chat(
-        "Calculate 10 + 5 and then multiply the result by 2."
-    )
+    response = engine.chat("Calculate 10 + 5 and then multiply the result by 2.")
 
     assert response.content == "The final answer is 30."
     assert llm.calls == 3
 
     messages = engine.session.get_messages()
 
-    tool_messages = [
-        message
-        for message in messages
-        if message.role == Role.TOOL
-    ]
+    tool_messages = [message for message in messages if message.role == Role.TOOL]
 
     assert len(tool_messages) == 2
     assert "15" in tool_messages[0].content
     assert "30" in tool_messages[1].content
+
 
 class InfiniteToolCallingFakeLLM(BaseLLM):
     def __init__(self):
@@ -269,6 +261,7 @@ class InfiniteToolCallingFakeLLM(BaseLLM):
             ],
         )
 
+
 def test_engine_stops_after_max_tool_rounds(tmp_path):
     engine, _ = create_engine(tmp_path)
 
@@ -286,3 +279,28 @@ def test_engine_stops_after_max_tool_rounds(tmp_path):
         "Maximum tool rounds reached" in event.name
         for event in engine.debug_collector.debug_info.events
     )
+
+def test_engine_denies_tool_blocked_by_policy(tmp_path):
+    engine, _ = create_engine(tmp_path)
+
+    engine.tool_policy = ToolPolicy(
+        allowed_tools=set(),
+    )
+
+    llm = ToolCallingFakeLLM()
+    engine.llm = llm
+
+    response = engine.chat("What is 10 + 5?")
+
+    assert response.content == "The answer is 15."
+
+    messages = engine.session.get_messages()
+
+    tool_messages = [
+        message
+        for message in messages
+        if message.role == Role.TOOL
+    ]
+
+    assert len(tool_messages) == 1
+    assert "denied by policy" in tool_messages[0].content

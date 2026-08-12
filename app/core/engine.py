@@ -8,6 +8,7 @@ from app.memory.extractor import MemoryExtractor
 from app.memory.manager import MemoryManager
 from app.memory.retrieval import MemoryRetriever
 from app.tools.executor import ToolExecutor
+from app.tools.policy import ToolPolicy
 from app.tools.registry import ToolRegistry
 
 logger = get_logger(__name__)
@@ -31,6 +32,7 @@ class ConversationEngine:
         memory_manager: MemoryManager,
         tools: ToolRegistry,
         tool_executor: ToolExecutor,
+        tool_policy: ToolPolicy,
         max_tool_rounds: int = 5,
     ):
         self.llm = llm
@@ -40,6 +42,7 @@ class ConversationEngine:
         self.memory_manager = memory_manager
         self.tools = tools
         self.tool_executor = tool_executor
+        self.tool_policy = tool_policy
         if max_tool_rounds < 1:
             raise ValueError("max_tool_rounds must be at least 1.")
 
@@ -61,10 +64,23 @@ class ConversationEngine:
             try:
                 tool = self.tools.get(tool_call.name)
 
-                result = self.tool_executor.execute(
-                    tool,
-                    tool_call.arguments,
-                )
+                if not self.tool_policy.is_allowed(tool.definition()):
+                    result_content = (
+                        f"Tool execution denied by policy: "
+                        f"{tool_call.name}"
+                    )
+                else:
+                    result = self.tool_executor.execute(
+                        tool,
+                        tool_call.arguments,
+                    )
+
+                    if result.success:
+                        result_content = str(result.output)
+                    else:
+                        result_content = (
+                            f"Tool execution failed: {result.error}"
+                        )
 
             except Exception as exc:
                 logger.error(
@@ -74,14 +90,6 @@ class ConversationEngine:
                 )
 
                 result_content = f"Tool execution failed: {exc}"
-
-            else:
-                if result.success:
-                    result_content = str(result.output)
-                else:
-                    result_content = (
-                        f"Tool execution failed: {result.error}"
-                    )
 
             tool_message = Message(
                 role=Role.TOOL,
@@ -150,10 +158,7 @@ class ConversationEngine:
                 "Prompt built",
             )
 
-            tool_definitions = [
-                tool.definition()
-                for tool in self.tools.list()
-            ]
+            tool_definitions = [tool.definition() for tool in self.tools.list()]
 
             self.debug_collector.add_event(
                 f"Provided {len(tool_definitions)} tools",

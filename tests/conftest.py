@@ -11,6 +11,7 @@ from app.memory.retrieval import MemoryRetriever
 from app.memory.stores.json_store import JsonMemoryStore
 from app.tools.defaults import create_default_registry
 from app.tools.executor import ToolExecutor
+from app.tools.policy import ToolPolicy
 from app.vectorstore.base import BaseVectorStore
 from tests.fakes.fake_llm import FakeLLM
 
@@ -61,6 +62,7 @@ def engine(
 ) -> ConversationEngine:
     tools = create_default_registry()
     tool_executor = ToolExecutor()
+    tool_policy = ToolPolicy()
 
     return ConversationEngine(
         llm=fake_llm,
@@ -70,4 +72,5 @@ def engine(
         memory_manager=memory_manager,
         tools=tools,
         tool_executor=tool_executor,
+        tool_policy=tool_policy
     )

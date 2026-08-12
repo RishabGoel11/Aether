@@ -14,6 +14,7 @@ from app.session.manager import SessionManager
 from app.session.stores.json_store import JsonSessionStore
 from app.tools.defaults import create_default_registry
 from app.tools.executor import ToolExecutor
+from app.tools.policy import ToolPolicy
 from app.vectorstore.in_memory import InMemoryVectorStore
 
 
@@ -57,6 +58,7 @@ class ApplicationBuilder:
 
         tools = create_default_registry()
         tool_executor = ToolExecutor()
+        tool_policy = ToolPolicy()
 
         engine = ConversationEngine(
             llm=llm,
@@ -66,6 +68,7 @@ class ApplicationBuilder:
             memory_manager=memory_manager,
             tools=tools,
             tool_executor=tool_executor,
+            tool_policy=tool_policy,    
         )
 
         tools = create_default_registry()
