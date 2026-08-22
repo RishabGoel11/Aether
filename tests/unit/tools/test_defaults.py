@@ -1,4 +1,4 @@
-from app.tools.builtin import CalculatorTool, PythonTool
+from app.tools.builtin import CalculatorTool, PythonTool, TerminalTool
 from app.tools.defaults import create_default_registry
 
 
@@ -18,12 +18,20 @@ def test_default_registry_contains_python():
     assert isinstance(python_tool, PythonTool)
 
 
+def test_default_registry_contains_terminal():
+    registry = create_default_registry()
+
+    terminal = registry.get("terminal")
+
+    assert isinstance(terminal, TerminalTool)
+
+
 def test_default_registry_contains_expected_tools():
     registry = create_default_registry()
 
     tools = registry.list()
 
-    assert len(tools) == 4
+    assert len(tools) == 5
 
     names = {tool.name for tool in tools}
 
@@ -32,4 +40,5 @@ def test_default_registry_contains_expected_tools():
         "datetime",
         "file_info",
         "python",
+        "terminal",
     }

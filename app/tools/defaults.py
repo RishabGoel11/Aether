@@ -4,6 +4,7 @@ from app.tools.builtin import (
     DateTimeTool,
     FileInfoTool,
     PythonTool,
+    TerminalTool,
 )
 
 
@@ -15,6 +16,6 @@ def create_default_registry() -> ToolRegistry:
     registry.register(DateTimeTool())
     registry.register(FileInfoTool())
     registry.register(PythonTool())
+    registry.register(TerminalTool())
 
     return registry
-    
