@@ -145,8 +145,8 @@ class MemoryManager:
         embedding = self._embedder.embed(updated.content)
 
         self._vector_store.update(
-        updated.id,
-        embedding,
+            updated.id,
+            embedding,
         )
 
         return updated

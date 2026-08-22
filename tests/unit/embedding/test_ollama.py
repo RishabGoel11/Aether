@@ -53,7 +53,8 @@ def test_embed_batch():
                 "World",
             ],
         )
-    
+
+
 def test_custom_model():
     response = MagicMock()
     response.embeddings = [[0.1]]

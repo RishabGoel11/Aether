@@ -86,9 +86,7 @@ def test_retrieve_respects_limit():
         manager.remember(memory)
         memories.append(memory)
 
-    vector_store.search.return_value = [
-        memory.id for memory in memories[:5]
-    ]
+    vector_store.search.return_value = [memory.id for memory in memories[:5]]
 
     retriever = MemoryRetriever(manager)
 

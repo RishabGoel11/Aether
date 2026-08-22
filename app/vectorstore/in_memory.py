@@ -62,10 +62,7 @@ class InMemoryVectorStore(BaseVectorStore):
             reverse=True,
         )
 
-        return [
-            memory_id
-            for memory_id, _ in scored[:limit]
-        ]
+        return [memory_id for memory_id, _ in scored[:limit]]
 
     @staticmethod
     def _cosine_similarity(
@@ -75,10 +72,7 @@ class InMemoryVectorStore(BaseVectorStore):
         if len(first) != len(second):
             raise ValueError("Embeddings must have the same dimensions.")
 
-        dot_product = sum(
-            x * y
-            for x, y in zip(first, second, strict=True)
-        )
+        dot_product = sum(x * y for x, y in zip(first, second, strict=True))
 
         first_norm = math.sqrt(sum(x * x for x in first))
         second_norm = math.sqrt(sum(y * y for y in second))

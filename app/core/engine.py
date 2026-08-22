@@ -65,10 +65,7 @@ class ConversationEngine:
                 tool = self.tools.get(tool_call.name)
 
                 if not self.tool_policy.is_allowed(tool.definition()):
-                    result_content = (
-                        f"Tool execution denied by policy: "
-                        f"{tool_call.name}"
-                    )
+                    result_content = f"Tool execution denied by policy: {tool_call.name}"
                 else:
                     result = self.tool_executor.execute(
                         tool,
@@ -78,9 +75,7 @@ class ConversationEngine:
                     if result.success:
                         result_content = str(result.output)
                     else:
-                        result_content = (
-                            f"Tool execution failed: {result.error}"
-                        )
+                        result_content = f"Tool execution failed: {result.error}"
 
             except Exception as exc:
                 logger.error(
@@ -93,10 +88,7 @@ class ConversationEngine:
 
             tool_message = Message(
                 role=Role.TOOL,
-                content=(
-                    f"Tool result for '{tool_call.name}': "
-                    f"{result_content}"
-                ),
+                content=(f"Tool result for '{tool_call.name}': {result_content}"),
             )
 
             tool_messages.append(tool_message)

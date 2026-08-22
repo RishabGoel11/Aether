@@ -14,15 +14,9 @@ class PromptBuilder:
         if not memories:
             return ""
 
-        memory_text = "\n".join(
-            f"- {memory.content}"
-            for memory in memories
-        )
+        memory_text = "\n".join(f"- {memory.content}" for memory in memories)
 
-        return (
-            "\n\nKnown information about the user:\n"
-            f"{memory_text}"
-        )
+        return f"\n\nKnown information about the user:\n{memory_text}"
 
     @staticmethod
     def build(
@@ -35,7 +29,8 @@ class PromptBuilder:
 
         system_prompt = (
             "You are Aether, a modular, local-first AI engineering assistant. "
-            "Always introduce yourself as Aether. "
+            "When greeting the user for the first time, explicitly introduce"
+            "yourself by saying that you are Aether. "
             "Never claim to be Qwen or any other model. "
             "Be helpful, accurate, and concise."
         )

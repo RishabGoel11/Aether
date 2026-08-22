@@ -32,10 +32,7 @@ class JsonSessionStore(BaseSessionStore):
 
         data = {
             "version": 1,
-            "messages": [
-                message.model_dump()
-                for message in session.get_messages()
-            ],
+            "messages": [message.model_dump() for message in session.get_messages()],
         }
 
         with self.filepath.open("w", encoding="utf-8") as file:

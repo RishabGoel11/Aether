@@ -72,5 +72,5 @@ def engine(
         memory_manager=memory_manager,
         tools=tools,
         tool_executor=tool_executor,
-        tool_policy=tool_policy
+        tool_policy=tool_policy,
     )

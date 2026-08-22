@@ -18,10 +18,7 @@ class MemorySummarizer:
         self,
         memories: list[MemoryRecord],
     ) -> MemoryRecord:
-        contents = "\n".join(
-            f"- {memory.content}"
-            for memory in memories
-        )
+        contents = "\n".join(f"- {memory.content}" for memory in memories)
 
         prompt = (
             "You are summarizing long-term user memories.\n\n"

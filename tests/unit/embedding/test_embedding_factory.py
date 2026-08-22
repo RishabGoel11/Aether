@@ -6,4 +6,3 @@ def test_factory_returns_ollama_embedder():
     embedder = EmbeddingFactory.create()
 
     assert isinstance(embedder, OllamaEmbedder)
-

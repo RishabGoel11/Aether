@@ -19,8 +19,7 @@ class FileInfoTool(BaseTool[FileInfoArgs]):
 
     name = "file_info"
     description = (
-        "Inspect basic metadata about a file or directory. "
-        "Does not read or modify its contents."
+        "Inspect basic metadata about a file or directory. Does not read or modify its contents."
     )
     args_schema = FileInfoArgs
 
@@ -52,4 +51,4 @@ class FileInfoTool(BaseTool[FileInfoArgs]):
             return ToolResult(
                 success=False,
                 error=f"Unable to inspect path: {exc}",
-            )   
+            )

@@ -68,11 +68,8 @@ class ApplicationBuilder:
             memory_manager=memory_manager,
             tools=tools,
             tool_executor=tool_executor,
-            tool_policy=tool_policy,    
+            tool_policy=tool_policy,
         )
-
-        tools = create_default_registry()
-        tool_executor = ToolExecutor()
 
         return Application(
             settings=settings,

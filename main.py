@@ -7,7 +7,6 @@ from app.logger.logger import get_logger
 
 
 def main():
-
     app = ApplicationBuilder()
 
     application = app.build()

@@ -40,11 +40,7 @@ class MemoryExtractor:
         """
 
         latest_user_message = next(
-            (
-                message
-                for message in reversed(messages)
-                if message.role == Role.USER
-            ),
+            (message for message in reversed(messages) if message.role == Role.USER),
             None,
         )
 

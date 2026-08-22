@@ -117,7 +117,8 @@ def test_dimension_mismatch_raises():
         match="Embeddings must have the same dimensions.",
     ):
         store.search([1.0])
-    
+
+
 def test_search_returns_results_in_similarity_order():
     store = InMemoryVectorStore()
 

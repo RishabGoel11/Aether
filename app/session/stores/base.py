@@ -9,7 +9,7 @@ class BaseSessionStore(ABC):
     """
     Abstract interface for persistent session storage.
     """
-    
+
     @abstractmethod
     def load(self) -> Session: ...
 

@@ -12,10 +12,7 @@ class DateTimeArgs(BaseModel):
 
     timezone: str = Field(
         default="UTC",
-        description=(
-            "IANA timezone name, such as "
-            "'UTC', 'Asia/Kolkata', or 'America/New_York'."
-        ),
+        description=("IANA timezone name, such as 'UTC', 'Asia/Kolkata', or 'America/New_York'."),
     )
 
 

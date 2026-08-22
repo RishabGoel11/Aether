@@ -45,7 +45,7 @@ def create_engine(tmp_path):
 
     tools = ToolRegistry()
     tools.register(CalculatorTool())
-    tool_policy =  ToolPolicy()
+    tool_policy = ToolPolicy()
     tool_executor = ToolExecutor()
 
     engine = ConversationEngine(
@@ -280,6 +280,7 @@ def test_engine_stops_after_max_tool_rounds(tmp_path):
         for event in engine.debug_collector.debug_info.events
     )
 
+
 def test_engine_denies_tool_blocked_by_policy(tmp_path):
     engine, _ = create_engine(tmp_path)
 
@@ -296,11 +297,7 @@ def test_engine_denies_tool_blocked_by_policy(tmp_path):
 
     messages = engine.session.get_messages()
 
-    tool_messages = [
-        message
-        for message in messages
-        if message.role == Role.TOOL
-    ]
+    tool_messages = [message for message in messages if message.role == Role.TOOL]
 
     assert len(tool_messages) == 1
     assert "denied by policy" in tool_messages[0].content
