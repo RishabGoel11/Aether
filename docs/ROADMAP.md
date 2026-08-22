@@ -158,18 +158,18 @@ Transform Aether from a conversational assistant into an AI capable of performin
 
 ## Tool Architecture
 
-- [ ] Tool abstraction
-- [ ] Tool registry
-- [ ] Tool manager
-- [ ] Tool execution pipeline
+- [x] Tool abstraction
+- [x] Tool registry
+- [x] Tool manager
+- [x] Tool execution pipeline
 
 ## Built-in Tools
 
-- [ ] Calculator
-- [ ] Python execution
-- [ ] File management
-- [ ] Terminal execution
-- [ ] Safety mechanisms
+- [x] Calculator
+- [x] Python execution
+- [x] File management
+- [x] Terminal execution
+- [x] Safety mechanisms
 
 ---
 
