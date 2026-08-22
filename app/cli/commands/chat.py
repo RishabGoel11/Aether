@@ -8,7 +8,7 @@ def run() -> None:
     app = ApplicationBuilder().build()
 
     print("Welcome to Aether!")
-    print("Type 'exit' to quit.\n")
+    print("Type 'exit' to quit or '/clear' to start a new conversation.\n")
 
     while True:
         user_input = input("You: ").strip()
@@ -16,6 +16,11 @@ def run() -> None:
         if user_input.lower() == "exit":
             print("Goodbye!")
             break
+
+        if user_input.lower() == "/clear":
+            app.clear_conversation()
+            print("Conversation cleared.\n")
+            continue
 
         if not user_input:
             continue

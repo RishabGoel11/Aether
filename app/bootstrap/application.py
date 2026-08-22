@@ -48,3 +48,9 @@ class Application:
         self.session.save(self.engine.session)
 
         return response
+
+    def clear_conversation(self) -> None:
+        """
+        Clear the current conversation and start a new session.
+        """
+        self.engine.session = self.session.clear()
