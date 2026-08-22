@@ -1,3 +1,4 @@
+import ast
 import subprocess
 import sys
 import tempfile
@@ -28,8 +29,63 @@ class PythonTool(BaseTool[PythonArgs]):
     )
     args_schema = PythonArgs
 
+    blocked_modules = {
+        "os",
+        "subprocess",
+        "shutil",
+        "socket",
+    }
+
+    blocked_functions = {
+        "eval",
+        "exec",
+        "compile",
+        "__import__",
+    }
+
+    def _is_safe(self, code: str) -> str | None:
+        """Return an error message if Python code is unsafe."""
+
+        try:
+            tree = ast.parse(code)
+        except SyntaxError as exc:
+            return f"Invalid Python code: {exc.msg}"
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    module = alias.name.split(".")[0]
+
+                    if module in self.blocked_modules:
+                        return f"Blocked unsafe module: {module}"
+
+            elif isinstance(node, ast.ImportFrom):
+                if node.module:
+                    module = node.module.split(".")[0]
+
+                    if module in self.blocked_modules:
+                        return f"Blocked unsafe module: {module}"
+
+            elif isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name):
+                    if node.func.id in self.blocked_functions:
+                        return (
+                            "Blocked unsafe function: "
+                            f"{node.func.id}"
+                        )
+
+        return None
+
     def execute(self, args: PythonArgs) -> ToolResult:
         """Execute Python code in a separate process."""
+
+        safety_error = self._is_safe(args.code)
+
+        if safety_error:
+            return ToolResult(
+                success=False,
+                error=safety_error,
+            )
 
         temp_path: Path | None = None
 
@@ -76,4 +132,3 @@ class PythonTool(BaseTool[PythonArgs]):
         finally:
             if temp_path and temp_path.exists():
                 temp_path.unlink()
-                

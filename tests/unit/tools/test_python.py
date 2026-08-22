@@ -59,3 +59,34 @@ def test_python_empty_code(
     assert result.success is False
     assert result.output is None
     assert result.error is not None
+
+def test_python_blocks_unsafe_module(
+    executor: ToolExecutor,
+    python_tool: PythonTool,
+):
+    result = executor.execute(
+        python_tool,
+        {
+            "code": "import os",
+        },
+    )
+
+    assert result.success is False
+    assert result.output is None
+    assert result.error == "Blocked unsafe module: os"
+
+
+def test_python_blocks_unsafe_function(
+    executor: ToolExecutor,
+    python_tool: PythonTool,
+):
+    result = executor.execute(
+        python_tool,
+        {
+            "code": 'eval("2 + 2")',
+        },
+    )
+
+    assert result.success is False
+    assert result.output is None
+    assert result.error == "Blocked unsafe function: eval"  

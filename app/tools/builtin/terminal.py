@@ -1,3 +1,4 @@
+import re
 import subprocess
 
 from pydantic import BaseModel, Field
@@ -25,12 +26,48 @@ class TerminalTool(BaseTool[TerminalArgs]):
     )
     args_schema = TerminalArgs
 
+    blocked_commands = {
+        "del",
+        "erase",
+        "rmdir",
+        "rd",
+        "format",
+        "shutdown",
+        "restart",
+    }
+
+    command_separators = r"[&|;]"
+
     def execute(self, args: TerminalArgs) -> ToolResult:
         """Execute the requested terminal command."""
 
+        command = args.command.strip()
+
+        commands = re.split(
+            self.command_separators,
+            command,
+        )
+
+        for part in commands:
+            part = part.strip()
+
+            if not part:
+                continue
+
+            command_name = part.split()[0].lower()
+
+            if command_name in self.blocked_commands:
+                return ToolResult(
+                    success=False,
+                    error=(
+                        f"Blocked unsafe command: "
+                        f"{command_name}"
+                    ),
+                )
+
         try:
             result = subprocess.run(
-                args.command,
+                command,
                 capture_output=True,
                 text=True,
                 shell=True,

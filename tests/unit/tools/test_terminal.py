@@ -59,3 +59,33 @@ def test_terminal_empty_command(
     assert result.success is False
     assert result.output is None
     assert result.error is not None
+
+def test_terminal_blocks_unsafe_command(
+    executor: ToolExecutor,
+    terminal: TerminalTool,
+):
+    result = executor.execute(
+        terminal,
+        {
+            "command": "del important.txt",
+        },
+    )
+
+    assert result.success is False
+    assert result.output is None
+    assert result.error == "Blocked unsafe command: del"
+
+def test_terminal_blocks_chained_unsafe_command(
+    executor: ToolExecutor,
+    terminal: TerminalTool,
+):
+    result = executor.execute(
+        terminal,
+        {
+            "command": "echo hello & del important.txt",
+        },
+    )
+
+    assert result.success is False
+    assert result.output is None
+    assert result.error == "Blocked unsafe command: del"
