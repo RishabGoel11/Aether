@@ -49,6 +49,14 @@ class RAGPipeline:
         )
         return cls(indexer=indexer, retriever=retriever)
 
+    def reindex(self) -> int:
+        """Re-embed all stored chunks into the vector store."""
+        return self.indexer.reindex()
+
+    def remove_source(self, source: str) -> None:
+        """Remove all chunks associated with a source path."""
+        self.indexer.remove_source(source)
+
     def index_document(self, document: Document) -> list[Chunk]:
         """Index a single Document object."""
         return self.indexer.index_document(document)

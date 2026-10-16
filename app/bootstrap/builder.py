@@ -12,6 +12,7 @@ from app.memory.retrieval import MemoryRetriever
 from app.memory.stores.json_store import JsonMemoryStore
 from app.rag.chunker import TextChunker
 from app.rag.pipeline import RAGPipeline
+from app.rag.stores.json_store import JsonChunkStore
 from app.session.manager import SessionManager
 from app.session.stores.json_store import JsonSessionStore
 from app.tools.defaults import create_default_registry
@@ -66,13 +67,20 @@ class ApplicationBuilder:
 
         rag_pipeline = None
         if settings.rag.enabled:
+            rag_chunk_store = JsonChunkStore(
+                Path("data") / "rag_chunks.json",
+            )
+            rag_vector_store = InMemoryVectorStore()
             rag_pipeline = RAGPipeline.create(
                 embedder=embedder,
+                chunk_store=rag_chunk_store,
+                vector_store=rag_vector_store,
                 chunker=TextChunker(
                     chunk_size=settings.rag.chunk_size,
                     chunk_overlap=settings.rag.chunk_overlap,
                 ),
             )
+            rag_pipeline.reindex()
 
         engine = ConversationEngine(
             llm=llm,

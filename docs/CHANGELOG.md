@@ -9,25 +9,28 @@ All notable changes to Aether will be documented in this file.
 - **RAG Architecture (`app/rag/`)**:
   - `models.py`: `Document`, `Chunk`, `SearchResult` models.
   - `stores/chunk_store.py`: `BaseChunkStore` interface and `InMemoryChunkStore`.
+  - `stores/json_store.py`: `JsonChunkStore` for persistent on-disk chunk storage (`data/rag_chunks.json`).
   - `loader.py`: `TextLoader`, `MarkdownLoader`, and `DocumentLoaderFactory` with directory traversal.
   - `chunker.py`: `TextChunker` featuring configurable sliding window, overlap, and natural boundary snapping (newlines/whitespace).
-  - `indexer.py`: `DocumentIndexer` orchestrating document loading, chunking, embedding, and dual-storage.
+  - `indexer.py`: `DocumentIndexer` orchestrating document loading, chunking, deduplication by source, embedding, and dual-storage.
   - `retriever.py`: `DocumentRetriever` supporting cosine similarity search, result scoring, and minimum score thresholding.
-  - `pipeline.py`: `RAGPipeline` high-level facade unifying indexing, retrieval, and contextual snippet formatting with citations.
+  - `pipeline.py`: `RAGPipeline` high-level facade unifying indexing, retrieval, startup re-indexing (`reindex()`), and contextual snippet formatting with citations.
 - **Engine & System Prompt Integration**:
-  - `ConversationEngine` now supports optional `RAGPipeline` for automatic query retrieval per chat turn.
+  - `ConversationEngine` supports optional `RAGPipeline` for automatic query retrieval per chat turn.
   - `PromptBuilder` formats retrieved passages with source citations directly into system context.
   - `DebugCollector` logs RAG retrieval events and chunk counts.
 - **Configuration & Bootstrap**:
   - Added `RAGSettings` to `Settings` (`enabled`, `chunk_size`, `chunk_overlap`, `retrieval_limit`, `min_score`).
-  - `ApplicationBuilder` and `Application` wired to instantiate and expose `app.rag`.
-- **CLI `index` Command**:
-  - Added `aether index <path>` CLI command with `--no-recursive` option to index files and directories from the command line.
+  - `ApplicationBuilder` wired to instantiate `JsonChunkStore` and automatically run `rag_pipeline.reindex()` on startup.
+- **CLI `index` Command & Windows UTF-8 Support**:
+  - Added `aether index <path>` CLI command with `--no-recursive` option to index files and directories from the command line into persistent storage.
+  - Configured CLI `main.py` entry point with UTF-8 encoding support for Windows terminal diagnostics.
 
 ### Tested
 
-- 36 new unit tests covering models, chunk stores, loaders, chunkers, indexers, retrievers, pipelines, CLI commands, and engine RAG integration.
-- 240/240 tests passing with 92% total test coverage.
+- 44 new unit tests covering models, in-memory and persistent JSON chunk stores, loaders, chunkers, indexers, retrievers, pipelines, CLI commands, and engine RAG integration.
+- 248/248 tests passing with 91% total test coverage.
+
 
 ## [0.4.1]
 

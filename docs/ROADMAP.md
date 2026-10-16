@@ -173,17 +173,20 @@ Transform Aether from a conversational assistant into an AI capable of performin
 
 ---
 
-# Phase 5 – Retrieval-Augmented Generation (RAG)
+# Phase 5 – Retrieval-Augmented Generation (RAG) ✅
 
 Enable knowledge retrieval from external documents.
 
-- [ ] Document loading
-- [ ] Document parsing
-- [ ] Chunking
-- [ ] Embedding generation
-- [ ] Vector database
-- [ ] Retrieval pipeline
-- [ ] Citation support
+- [x] Document loading (.txt, .md, directories)
+- [x] Document parsing
+- [x] Chunking (sliding window with boundary snapping)
+- [x] Embedding generation (Ollama / nomic-embed-text)
+- [x] Vector database (InMemoryVectorStore with cosine similarity)
+- [x] Persistent chunk storage (`data/rag_chunks.json` & startup re-indexing)
+- [x] Retrieval pipeline (similarity scoring & threshold filtering)
+- [x] Citation support & system prompt context injection
+- [x] CLI `index` command
+
 
 ---
 

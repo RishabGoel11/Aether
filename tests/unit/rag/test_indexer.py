@@ -65,3 +65,59 @@ def test_indexer_index_file(tmp_path: Path):
     chunks = indexer.index_file(file)
     assert len(chunks) == 1
     assert chunks[0].content == "Articles are helpful text."
+
+
+def test_indexer_replaces_duplicate_source():
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.1, 0.2]
+
+    chunk_store = InMemoryChunkStore()
+    vector_store = InMemoryVectorStore()
+
+    indexer = DocumentIndexer(
+        embedder=embedder,
+        chunk_store=chunk_store,
+        vector_store=vector_store,
+    )
+
+    doc_v1 = Document(source="note.txt", content="Version 1 content")
+    indexer.index_document(doc_v1)
+    assert len(chunk_store.list()) == 1
+
+    doc_v2 = Document(source="note.txt", content="Version 2 updated content")
+    indexer.index_document(doc_v2)
+
+    # Should still be 1 chunk, replaced
+    all_chunks = chunk_store.list()
+    assert len(all_chunks) == 1
+    assert all_chunks[0].content == "Version 2 updated content"
+
+
+def test_indexer_reindex():
+    from uuid import uuid4
+    from app.rag.models import Chunk
+
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.3, 0.4]
+
+    chunk_store = InMemoryChunkStore()
+    vector_store = InMemoryVectorStore()
+
+    # Pre-populate chunk store without vector store
+    chunk = Chunk(document_id=uuid4(), content="Pre-existing chunk", source="old.txt")
+    chunk_store.add(chunk)
+    assert vector_store.get(chunk.id) is None
+
+    indexer = DocumentIndexer(
+        embedder=embedder,
+        chunk_store=chunk_store,
+        vector_store=vector_store,
+    )
+
+    reindexed_count = indexer.reindex()
+    assert reindexed_count == 1
+    assert vector_store.get(chunk.id) == [0.3, 0.4]
+
+    # Second call should be a no-op
+    assert indexer.reindex() == 0
+

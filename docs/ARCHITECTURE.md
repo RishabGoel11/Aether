@@ -422,6 +422,52 @@ Testing philosophy:
 
 ---
 
+# RAG Architecture (Retrieval-Augmented Generation)
+
+Aether includes a local-first RAG subsystem for external knowledge retrieval:
+
+```text
+Document (file / directory)
+     │
+     ▼
+DocumentLoaderFactory (TextLoader, MarkdownLoader)
+     │
+     ▼
+TextChunker (Sliding window + boundary snapping)
+     │
+     ▼
+DocumentIndexer
+     ├──► BaseChunkStore (JsonChunkStore -> data/rag_chunks.json)
+     └──► BaseVectorStore (InMemoryVectorStore -> Cosine Similarity)
+
+User Query
+     │
+     ▼
+DocumentRetriever (OllamaEmbedder / nomic-embed-text)
+     │
+     ▼
+SearchResult (Ranked passages + similarity scores)
+     │
+     ▼
+RAGPipeline.format_context() (Source citations [N])
+     │
+     ▼
+PromptBuilder (Injected into System Context)
+     │
+     ▼
+ConversationEngine -> LLM Response
+```
+
+Components:
+* **Models**: `Document`, `Chunk`, `SearchResult`
+* **Loaders**: Extensible loaders (`TextLoader`, `MarkdownLoader`, `DocumentLoaderFactory`) with directory traversal
+* **Chunker**: Character-level sliding window with natural boundary snapping on whitespace/newlines
+* **Storage**: Persistent `JsonChunkStore` with startup re-indexing into `InMemoryVectorStore`
+* **Retriever**: Cosine similarity search with score thresholding
+* **CLI**: `aether index <path>` command for ingestion
+
+---
+
 # Current Core Modules
 
 Implemented
@@ -429,60 +475,24 @@ Implemented
 * Configuration System
 * Logging System
 * Conversation Engine
-* Session Management
-* Prompt Builder
-* LLM Abstraction
-* Ollama Provider
-* Memory Foundation
-* Diagnostics
+* Session Management (with sliding history window)
+* Prompt Builder (Memories + RAG context injection)
+* LLM Abstraction & Ollama Provider
+* Memory Foundation & Vector Store
+* Tool Framework (Calculator, Datetime, Python, Terminal, FileInfo)
+* Retrieval-Augmented Generation (RAG)
+* Diagnostics (Doctor)
 * Debug System
 * Bootstrap Layer
-* CLI
+* CLI (`chat`, `doctor`, `version`, `index`)
 
 Planned
 
-* Retrieval (RAG)
-* Tool Framework
-* Agent Orchestrator
+* Agent Orchestrator & Multi-Step Loops
+* Framework Integrations (LangChain, LangGraph)
+* Web Intelligence & Scraping
 * Voice System
-* Automation Framework
-* Multi-Agent Coordination
-* Desktop Interface
-* Web Interface
-
----
-
-# Future Direction
-
-The long-term architecture will evolve toward:
-
-```text
-Presentation
-
-↓
-
-Bootstrap
-
-↓
-
-Application Services
-
-├── Conversation
-├── Memory
-├── Agents
-├── Tools
-├── Retrieval
-
-↓
-
-Domain Contracts
-
-↓
-
-Infrastructure
-```
-
-Each subsystem should remain independently testable, replaceable, and extensible.
+* Desktop & Web Interface
 
 ---
 
@@ -490,13 +500,15 @@ Each subsystem should remain independently testable, replaceable, and extensible
 
 Current Version
 
-**v0.3.0-alpha.1**
+**v0.5.0**
 
 Completed
 
 * Engineering Foundations
 * Core Conversation Engine
-* Engineering Excellence
-* Memory Foundation
+* Long-Term Memory & Vector Retrieval
+* Extensible Tool System
+* Retrieval-Augmented Generation (RAG) with Persistent Storage
 
-The next architectural milestone is integrating memory retrieval into the conversation pipeline, allowing Aether to actively use persistent memories during conversations.
+The next architectural milestone is Phase 6: Multi-Step Agentic Tool Execution and Framework Integrations.
+

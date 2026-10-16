@@ -25,8 +25,32 @@ class DocumentIndexer:
         self.vector_store = vector_store
         self.chunker = chunker or TextChunker()
 
+    def remove_source(self, source: str) -> None:
+        """Remove all existing chunks for a given source from both stores."""
+        old_chunks = [c for c in self.chunk_store.list() if c.source == source]
+        for c in old_chunks:
+            self.vector_store.delete(c.id)
+        self.chunk_store.delete_by_source(source)
+
+    def reindex(self) -> int:
+        """
+        Re-embed all chunks currently in the chunk store into the vector store.
+        Ensures search readiness after a restart.
+        """
+        chunks = self.chunk_store.list()
+        count = 0
+        for chunk in chunks:
+            if self.vector_store.get(chunk.id) is None:
+                embedding = self.embedder.embed(chunk.content)
+                self.vector_store.add(chunk.id, embedding)
+                count += 1
+        return count
+
     def index_document(self, document: Document) -> list[Chunk]:
-        """Chunk, embed, and store a single document."""
+        """Chunk, embed, and store a single document. Replaces existing chunks for the same source."""
+        if document.source:
+            self.remove_source(document.source)
+
         chunks = self.chunker.chunk(document)
         if not chunks:
             return []

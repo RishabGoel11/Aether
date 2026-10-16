@@ -1,4 +1,4 @@
-from unittest.mock import patch
+import pytest
 
 from app.bootstrap.application import Application
 from app.bootstrap.builder import ApplicationBuilder
@@ -14,15 +14,23 @@ from app.tools.registry import ToolRegistry
 from tests.fakes.fake_llm import FakeLLM
 
 
-def test_builder_creates_application():
-    with (
-        patch.object(LLMFactory, "create", return_value=FakeLLM()),
-        patch.object(MemoryManager, "reindex"),
-    ):
-        builder = ApplicationBuilder()
-        app = builder.build()
+@pytest.fixture(autouse=True)
+def _mock_reindex(monkeypatch):
+    monkeypatch.setattr(MemoryManager, "reindex", lambda self: None)
+    monkeypatch.setattr(RAGPipeline, "reindex", lambda self: 0)
+
+
+def test_builder_creates_application(monkeypatch):
+    monkeypatch.setattr(
+        LLMFactory,
+        "create",
+        lambda settings: FakeLLM(),
+    )
+    builder = ApplicationBuilder()
+    app = builder.build()
 
     assert isinstance(app, Application)
+
     assert isinstance(app.memory, MemoryManager)
     assert isinstance(app.session, SessionManager)
     assert isinstance(app.extractor, MemoryExtractor)

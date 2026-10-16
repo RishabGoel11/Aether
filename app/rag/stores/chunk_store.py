@@ -34,6 +34,10 @@ class BaseChunkStore(ABC):
         """Delete all chunks belonging to a document ID."""
 
     @abstractmethod
+    def delete_by_source(self, source: str) -> None:
+        """Delete all chunks originating from a source path."""
+
+    @abstractmethod
     def clear(self) -> None:
         """Remove all chunks from the store."""
 
@@ -67,6 +71,15 @@ class InMemoryChunkStore(BaseChunkStore):
             cid
             for cid, chunk in self._chunks.items()
             if chunk.document_id == document_id
+        ]
+        for cid in to_delete:
+            del self._chunks[cid]
+
+    def delete_by_source(self, source: str) -> None:
+        to_delete = [
+            cid
+            for cid, chunk in self._chunks.items()
+            if chunk.source == source
         ]
         for cid in to_delete:
             del self._chunks[cid]
