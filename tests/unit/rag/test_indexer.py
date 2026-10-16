@@ -95,6 +95,7 @@ def test_indexer_replaces_duplicate_source():
 
 def test_indexer_reindex():
     from uuid import uuid4
+
     from app.rag.models import Chunk
 
     embedder = Mock(spec=BaseEmbedder)
@@ -120,4 +121,3 @@ def test_indexer_reindex():
 
     # Second call should be a no-op
     assert indexer.reindex() == 0
-

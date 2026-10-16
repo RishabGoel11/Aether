@@ -67,20 +67,12 @@ class InMemoryChunkStore(BaseChunkStore):
         self._chunks.pop(chunk_id, None)
 
     def delete_by_document(self, document_id: UUID) -> None:
-        to_delete = [
-            cid
-            for cid, chunk in self._chunks.items()
-            if chunk.document_id == document_id
-        ]
+        to_delete = [cid for cid, chunk in self._chunks.items() if chunk.document_id == document_id]
         for cid in to_delete:
             del self._chunks[cid]
 
     def delete_by_source(self, source: str) -> None:
-        to_delete = [
-            cid
-            for cid, chunk in self._chunks.items()
-            if chunk.source == source
-        ]
+        to_delete = [cid for cid, chunk in self._chunks.items() if chunk.source == source]
         for cid in to_delete:
             del self._chunks[cid]
 

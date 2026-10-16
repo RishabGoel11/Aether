@@ -17,10 +17,10 @@ from pydantic import BaseModel, Field
 class StepType(StrEnum):
     """The role of a single step in the agent trace."""
 
-    THOUGHT = "thought"   # Internal reasoning produced by the LLM
-    ACTION = "action"     # A tool call the LLM decided to make
+    THOUGHT = "thought"  # Internal reasoning produced by the LLM
+    ACTION = "action"  # A tool call the LLM decided to make
     OBSERVATION = "observation"  # Result of executing a tool
-    ANSWER = "answer"     # Final natural-language answer to the user
+    ANSWER = "answer"  # Final natural-language answer to the user
 
 
 class AgentStep(BaseModel):

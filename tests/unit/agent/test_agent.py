@@ -187,9 +187,7 @@ class TestAgentRunnerDirectAnswer:
     """LLM responds immediately with text — no tool calls."""
 
     def test_returns_success(self):
-        runner = make_runner(
-            [LLMResponse(content="Paris is the capital of France.")]
-        )
+        runner = make_runner([LLMResponse(content="Paris is the capital of France.")])
         result = runner.run("What is the capital of France?")
 
         assert result.success is True

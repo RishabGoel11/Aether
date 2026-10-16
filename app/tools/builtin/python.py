@@ -24,8 +24,7 @@ class PythonTool(BaseTool[PythonArgs]):
 
     name = "python"
     description = (
-        "Execute Python code and return its output. "
-        "Use this tool when Python execution is needed."
+        "Execute Python code and return its output. Use this tool when Python execution is needed."
     )
     args_schema = PythonArgs
 
@@ -69,10 +68,7 @@ class PythonTool(BaseTool[PythonArgs]):
             elif isinstance(node, ast.Call):
                 if isinstance(node.func, ast.Name):
                     if node.func.id in self.blocked_functions:
-                        return (
-                            "Blocked unsafe function: "
-                            f"{node.func.id}"
-                        )
+                        return f"Blocked unsafe function: {node.func.id}"
 
         return None
 

@@ -346,4 +346,3 @@ def test_engine_retrieves_rag_context(tmp_path):
     assert "[1] Source: docs/project.md" in system_message.content
 
     rag_mock.retrieve.assert_called_once_with("What is the codename?")
-

@@ -114,4 +114,3 @@ class ApplicationBuilder:
             agent=agent,
             rag=rag_pipeline,
         )
-

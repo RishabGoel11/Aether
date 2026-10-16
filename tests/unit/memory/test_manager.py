@@ -513,7 +513,6 @@ def test_semantic_search_empty():
     assert manager.semantic_search("python") == []
 
 
-
 def test_semantic_search_skips_missing_memory():
     store = FakeMemoryStore()
 
@@ -585,4 +584,3 @@ def test_reindex_is_noop_when_store_is_empty():
 
     embedder.embed.assert_not_called()
     vector_store.add.assert_not_called()
-

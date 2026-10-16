@@ -60,6 +60,7 @@ def test_python_empty_code(
     assert result.output is None
     assert result.error is not None
 
+
 def test_python_blocks_unsafe_module(
     executor: ToolExecutor,
     python_tool: PythonTool,
@@ -89,4 +90,4 @@ def test_python_blocks_unsafe_function(
 
     assert result.success is False
     assert result.output is None
-    assert result.error == "Blocked unsafe function: eval"  
+    assert result.error == "Blocked unsafe function: eval"

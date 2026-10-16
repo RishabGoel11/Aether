@@ -59,10 +59,7 @@ class TerminalTool(BaseTool[TerminalArgs]):
             if command_name in self.blocked_commands:
                 return ToolResult(
                     success=False,
-                    error=(
-                        f"Blocked unsafe command: "
-                        f"{command_name}"
-                    ),
+                    error=(f"Blocked unsafe command: {command_name}"),
                 )
 
         try:
@@ -77,8 +74,7 @@ class TerminalTool(BaseTool[TerminalArgs]):
             if result.returncode != 0:
                 return ToolResult(
                     success=False,
-                    error=result.stderr.strip()
-                    or f"Command exited with code {result.returncode}.",
+                    error=result.stderr.strip() or f"Command exited with code {result.returncode}.",
                 )
 
             return ToolResult(

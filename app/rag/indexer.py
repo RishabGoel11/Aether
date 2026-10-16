@@ -47,7 +47,10 @@ class DocumentIndexer:
         return count
 
     def index_document(self, document: Document) -> list[Chunk]:
-        """Chunk, embed, and store a single document. Replaces existing chunks for the same source."""
+        """Chunk, embed, and store a single document.
+
+        Replaces existing chunks for the same source.
+        """
         if document.source:
             self.remove_source(document.source)
 

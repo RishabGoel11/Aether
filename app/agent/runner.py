@@ -109,9 +109,7 @@ class AgentRunner:
 
         trace = AgentTrace(goal=goal)
         messages: list[Message] = self._build_initial_messages(goal)
-        tool_definitions = [
-            tool.definition() for tool in self.tools.list()
-        ]
+        tool_definitions = [tool.definition() for tool in self.tools.list()]
 
         steps_taken = 0
 
@@ -131,17 +129,14 @@ class AgentRunner:
                         content=response.content.strip(),
                     )
                     trace.add(thought)
-                    messages.append(
-                        Message(role=Role.ASSISTANT, content=response.content)
-                    )
+                    messages.append(Message(role=Role.ASSISTANT, content=response.content))
 
                 # Process every tool call in the response.
                 for tool_call in response.tool_calls:
                     action = AgentStep(
                         type=StepType.ACTION,
                         content=(
-                            f"Calling tool '{tool_call.name}' "
-                            f"with args {tool_call.arguments}"
+                            f"Calling tool '{tool_call.name}' with args {tool_call.arguments}"
                         ),
                         tool_name=tool_call.name,
                         tool_args=tool_call.arguments,
@@ -165,10 +160,7 @@ class AgentRunner:
                     messages.append(
                         Message(
                             role=Role.TOOL,
-                            content=(
-                                f"Tool result for '{tool_call.name}': "
-                                f"{observation_content}"
-                            ),
+                            content=(f"Tool result for '{tool_call.name}': {observation_content}"),
                         )
                     )
 
@@ -178,8 +170,7 @@ class AgentRunner:
 
                 if not answer_text:
                     answer_text = (
-                        "I wasn't able to produce a final answer. "
-                        "Please try rephrasing your goal."
+                        "I wasn't able to produce a final answer. Please try rephrasing your goal."
                     )
 
                 answer_step = AgentStep(
@@ -188,9 +179,7 @@ class AgentRunner:
                 )
                 trace.add(answer_step)
 
-                logger.info(
-                    "Agent run complete in %d steps.", steps_taken
-                )
+                logger.info("Agent run complete in %d steps.", steps_taken)
 
                 return AgentResult(
                     success=True,

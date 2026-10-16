@@ -193,4 +193,3 @@ def test_builder_creates_rag_pipeline(monkeypatch):
 
     assert isinstance(app.rag, RAGPipeline)
     assert app.engine.rag_pipeline is app.rag
-

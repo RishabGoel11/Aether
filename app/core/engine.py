@@ -73,10 +73,7 @@ class ConversationEngine:
                 if not self.tool_policy.is_allowed(
                     tool.definition(),
                 ):
-                    result_content = (
-                        "Tool execution denied by policy: "
-                        f"{tool_call.name}"
-                    )
+                    result_content = f"Tool execution denied by policy: {tool_call.name}"
                 else:
                     result = self.tool_executor.execute(
                         tool,
@@ -86,9 +83,7 @@ class ConversationEngine:
                     if result.success:
                         result_content = str(result.output)
                     else:
-                        result_content = (
-                            f"Tool execution failed: {result.error}"
-                        )
+                        result_content = f"Tool execution failed: {result.error}"
 
             except Exception as exc:
                 logger.error(
@@ -97,16 +92,11 @@ class ConversationEngine:
                     exc_info=True,
                 )
 
-                result_content = (
-                    f"Tool execution failed: {exc}"
-                )
+                result_content = f"Tool execution failed: {exc}"
 
             tool_message = Message(
                 role=Role.TOOL,
-                content=(
-                    f"Tool result for '{tool_call.name}': "
-                    f"{result_content}"
-                ),
+                content=(f"Tool result for '{tool_call.name}': {result_content}"),
             )
 
             tool_messages.append(tool_message)
@@ -181,20 +171,14 @@ class ConversationEngine:
             )
 
             self.debug_collector.set_prompt_length(
-                sum(
-                    len(message.content)
-                    for message in prompt
-                ),
+                sum(len(message.content) for message in prompt),
             )
 
             self.debug_collector.add_event(
                 "Prompt built",
             )
 
-            tool_definitions = [
-                tool.definition()
-                for tool in self.tools.list()
-            ]
+            tool_definitions = [tool.definition() for tool in self.tools.list()]
 
             self.debug_collector.add_event(
                 f"Provided {len(tool_definitions)} tools",
@@ -215,10 +199,7 @@ class ConversationEngine:
 
             tool_round = 0
 
-            while (
-                response.tool_calls
-                and tool_round < self.max_tool_rounds
-            ):
+            while response.tool_calls and tool_round < self.max_tool_rounds:
                 tool_round += 1
 
                 self.debug_collector.add_event(
@@ -232,8 +213,7 @@ class ConversationEngine:
                 prompt.extend(tool_messages)
 
                 self.debug_collector.add_event(
-                    "Sending tool results to LLM "
-                    f"(round {tool_round})",
+                    f"Sending tool results to LLM (round {tool_round})",
                 )
 
                 response = self.llm.generate(
@@ -267,10 +247,7 @@ class ConversationEngine:
                     )
                 else:
                     response = LLMResponse(
-                        content=(
-                            "I wasn't able to generate a response. "
-                            "Please try again."
-                        ),
+                        content=("I wasn't able to generate a response. Please try again."),
                     )
 
             assistant_message = Message(

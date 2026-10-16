@@ -30,10 +30,7 @@ class JsonChunkStore(BaseChunkStore):
                 self._chunks = {}
                 return
 
-        self._chunks = {
-            chunk.id: chunk
-            for chunk in (Chunk.model_validate(item) for item in data)
-        }
+        self._chunks = {chunk.id: chunk for chunk in (Chunk.model_validate(item) for item in data)}
 
     def save(self) -> None:
         """Persist all stored chunks to the JSON file."""
@@ -67,22 +64,14 @@ class JsonChunkStore(BaseChunkStore):
             self.save()
 
     def delete_by_document(self, document_id: UUID) -> None:
-        to_delete = [
-            cid
-            for cid, chunk in self._chunks.items()
-            if chunk.document_id == document_id
-        ]
+        to_delete = [cid for cid, chunk in self._chunks.items() if chunk.document_id == document_id]
         for cid in to_delete:
             del self._chunks[cid]
         if to_delete:
             self.save()
 
     def delete_by_source(self, source: str) -> None:
-        to_delete = [
-            cid
-            for cid, chunk in self._chunks.items()
-            if chunk.source == source
-        ]
+        to_delete = [cid for cid, chunk in self._chunks.items() if chunk.source == source]
         for cid in to_delete:
             del self._chunks[cid]
         if to_delete:
