@@ -46,5 +46,28 @@ def create_parser() -> argparse.ArgumentParser:
         help="Do not scan subdirectories recursively.",
     )
 
+    run_parser = subparsers.add_parser(
+        "run",
+        help="Run the agentic loop to complete a multi-step goal.",
+    )
+    run_parser.add_argument(
+        "goal",
+        help="Natural-language goal for the agent to accomplish.",
+    )
+    run_parser.add_argument(
+        "--max-steps",
+        dest="max_steps",
+        type=int,
+        default=20,
+        help="Maximum number of think/act/observe steps (default: 20).",
+    )
+    run_parser.add_argument(
+        "--show-trace",
+        dest="show_trace",
+        action="store_true",
+        default=False,
+        help="Print the full step-by-step reasoning trace.",
+    )
+
     return parser
 

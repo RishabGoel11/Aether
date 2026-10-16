@@ -1,3 +1,4 @@
+from app.agent.runner import AgentRunner
 from app.config.config import Settings
 from app.core.engine import ConversationEngine
 from app.memory.extractor import MemoryExtractor
@@ -25,6 +26,7 @@ class Application:
         extractor: MemoryExtractor,
         tools: ToolRegistry,
         tool_executor: ToolExecutor,
+        agent: AgentRunner,
         rag: RAGPipeline | None = None,
     ):
         self.settings = settings
@@ -34,6 +36,7 @@ class Application:
         self.extractor = extractor
         self.tools = tools
         self.tool_executor = tool_executor
+        self.agent = agent
         self.rag = rag
 
     def chat(self, user_input: str):

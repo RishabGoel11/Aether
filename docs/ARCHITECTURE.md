@@ -1,6 +1,6 @@
 # Aether System Architecture
 
-> **Version:** v0.3.0-alpha.1 (Memory Foundation)
+> **Version:** v0.6.0 (Agentic ReAct Loop)
 > This document describes the current architecture of Aether and its intended long-term evolution.
 
 ---

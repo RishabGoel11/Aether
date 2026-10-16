@@ -190,7 +190,23 @@ Enable knowledge retrieval from external documents.
 
 ---
 
-# Phase 6 – AI Framework Integrations
+# Phase 6 – Agentic ReAct Loop ✅
+
+Give Aether the ability to autonomously plan and execute multi-step tasks.
+
+- [x] `AgentStep` / `AgentTrace` / `AgentResult` data models
+- [x] `AgentRunner` -- ReAct (Reason -> Act -> Observe) loop
+- [x] Multi-step tool chaining with per-step observations
+- [x] Thought capture alongside tool calls
+- [x] Graceful fallback synthesis when `max_steps` is exhausted
+- [x] Tool-not-found and policy-denial handling inside the loop
+- [x] Bootstrap integration (`ApplicationBuilder` + `Application.agent`)
+- [x] CLI `run` command (`aether run GOAL [--max-steps N] [--show-trace]`)
+- [x] 269/269 unit tests passing, 90% coverage
+
+---
+
+# Phase 7 – AI Framework Integrations
 
 Integrate external frameworks without making them architectural dependencies.
 
@@ -210,7 +226,7 @@ Integrate external frameworks without making them architectural dependencies.
 
 ---
 
-# Phase 7 – Web Intelligence
+# Phase 8 – Web Intelligence
 
 Enable internet-aware capabilities.
 
@@ -222,7 +238,7 @@ Enable internet-aware capabilities.
 
 ---
 
-# Phase 8 – Voice
+# Phase 9 – Voice
 
 Enable natural voice interaction.
 
@@ -233,7 +249,7 @@ Enable natural voice interaction.
 
 ---
 
-# Phase 9 – Multi-Agent System
+# Phase 10 – Multi-Agent System
 
 Expand Aether into a collaborative AI platform.
 
@@ -246,7 +262,7 @@ Expand Aether into a collaborative AI platform.
 
 ---
 
-# Phase 10 – Production
+# Phase 11 – Production
 
 Prepare Aether for real-world deployment.
 
@@ -282,6 +298,7 @@ Aether aims to become a complete AI engineering platform that:
 - Maintains long-term memory.
 - Executes tools safely.
 - Retrieves knowledge through RAG.
+- Plans and executes multi-step agentic tasks autonomously.
 - Coordinates multiple AI agents.
 - Supports both CLI and graphical interfaces.
 - Remains modular and extensible.

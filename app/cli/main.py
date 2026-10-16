@@ -3,6 +3,7 @@ import sys
 from app.cli.commands.chat import run as chat_command
 from app.cli.commands.doctor import run as doctor_command
 from app.cli.commands.index import run as index_command
+from app.cli.commands.run import run as run_command
 from app.cli.commands.version import run as version_command
 from app.cli.parser import create_parser
 
@@ -28,6 +29,13 @@ def main() -> None:
 
     elif args.command == "index":
         index_command(args.path, recursive=args.recursive)
+
+    elif args.command == "run":
+        run_command(
+            args.goal,
+            max_steps=args.max_steps,
+            show_trace=args.show_trace,
+        )
 
 
 if __name__ == "__main__":

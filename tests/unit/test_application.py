@@ -1,5 +1,7 @@
 from pathlib import Path
+from unittest.mock import Mock
 
+from app.agent.runner import AgentRunner
 from app.bootstrap.application import Application
 from app.config.config import Settings
 from app.embedding.factory import EmbeddingFactory
@@ -27,6 +29,7 @@ def test_application_stores_components(
     extractor = MemoryExtractor()
     tools = ToolRegistry()
     tool_executor = ToolExecutor()
+    agent = Mock(spec=AgentRunner)
 
     app = Application(
         settings=settings,
@@ -36,6 +39,7 @@ def test_application_stores_components(
         extractor=extractor,
         tools=tools,
         tool_executor=tool_executor,
+        agent=agent,
     )
 
     assert app.settings is settings
@@ -45,6 +49,7 @@ def test_application_stores_components(
     assert app.extractor is extractor
     assert app.tools is tools
     assert app.tool_executor is tool_executor
+    assert app.agent is agent
 
 
 def test_application_chat_delegates_to_engine(
@@ -74,6 +79,7 @@ def test_application_chat_delegates_to_engine(
     extractor = MemoryExtractor()
     tools = ToolRegistry()
     tool_executor = ToolExecutor()
+    agent = Mock(spec=AgentRunner)
 
     app = Application(
         settings=settings,
@@ -83,6 +89,7 @@ def test_application_chat_delegates_to_engine(
         extractor=extractor,
         tools=tools,
         tool_executor=tool_executor,
+        agent=agent,
     )
 
     response = app.chat("Hello")

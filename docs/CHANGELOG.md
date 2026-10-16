@@ -2,6 +2,35 @@
 
 All notable changes to Aether will be documented in this file.
 
+## [0.6.0] - Phase 6: Agentic ReAct Loop
+
+### Added
+
+- **Agent Module (`app/agent/`)**:
+  - `models.py`: `AgentStep`, `AgentTrace`, `AgentResult`, `StepType` -- data models for the full reasoning trace.
+  - `runner.py`: `AgentRunner` -- implements the ReAct (Reason -> Act -> Observe) agentic loop:
+    - Iterates up to `max_steps` think/act/observe cycles.
+    - Captures LLM reasoning as `THOUGHT` steps alongside tool calls.
+    - Executes tools via `ToolExecutor` / `ToolPolicy` and records `OBSERVATION` steps.
+    - Terminates cleanly when the LLM produces a plain-text answer.
+    - Gracefully handles max-steps exhaustion by prompting the LLM for a best-effort synthesis.
+    - Handles tool-not-found and policy-denial errors as observations (loop continues).
+  - `__init__.py`: Public exports for the `app.agent` package.
+- **Bootstrap integration**:
+  - `ApplicationBuilder` constructs an `AgentRunner` and injects it into `Application.agent`.
+  - `Application` now exposes `.agent` for any caller (CLI, API, tests).
+- **CLI `run` command**:
+  - `aether run GOAL` -- runs the agentic loop for any natural-language goal.
+  - `--max-steps N` flag controls the step budget (default: 20).
+  - `--show-trace` flag prints the full Thought/Action/Observation/Answer trace.
+
+### Tested
+
+- 21 new unit tests covering models, direct answers, single and multi-step tool calls, max-steps exhaustion, fallback synthesis, missing tools, and policy denials.
+- 269/269 tests passing with 90% total test coverage.
+
+---
+
 ## [0.5.0] - Phase 5: Retrieval-Augmented Generation (RAG)
 
 ### Added

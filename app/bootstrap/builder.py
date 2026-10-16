@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from app.agent.runner import AgentRunner
 from app.bootstrap.application import Application
 from app.config.loader import ConfigLoader
 from app.core.engine import ConversationEngine
@@ -95,6 +96,13 @@ class ApplicationBuilder:
             rag_pipeline=rag_pipeline,
         )
 
+        agent = AgentRunner(
+            llm=llm,
+            tools=tools,
+            tool_executor=tool_executor,
+            tool_policy=tool_policy,
+        )
+
         return Application(
             settings=settings,
             engine=engine,
@@ -103,6 +111,7 @@ class ApplicationBuilder:
             extractor=extractor,
             tools=tools,
             tool_executor=tool_executor,
+            agent=agent,
             rag=rag_pipeline,
         )
 
