@@ -52,6 +52,8 @@ class ApplicationBuilder:
             vector_store=vector_store,
         )
 
+        memory_manager.reindex()
+
         memory_retriever = MemoryRetriever(memory_manager)
 
         extractor = MemoryExtractor()
@@ -69,6 +71,7 @@ class ApplicationBuilder:
             tools=tools,
             tool_executor=tool_executor,
             tool_policy=tool_policy,
+            history_window=settings.session.history_window,
         )
 
         return Application(

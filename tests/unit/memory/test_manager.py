@@ -513,6 +513,7 @@ def test_semantic_search_empty():
     assert manager.semantic_search("python") == []
 
 
+
 def test_semantic_search_skips_missing_memory():
     store = FakeMemoryStore()
 
@@ -532,3 +533,56 @@ def test_semantic_search_skips_missing_memory():
     vector_store.search.return_value = [missing_id]
 
     assert manager.semantic_search("python") == []
+
+
+def test_reindex_embeds_existing_records():
+    """
+    reindex() must re-embed every record already in the store so that
+    semantic search works immediately after a cold start.
+    """
+    store = FakeMemoryStore()
+
+    # Pre-populate the store with two records (bypassing manager).
+    record_a = MemoryRecord(content="User likes Python")
+    record_b = MemoryRecord(content="User likes Rust")
+    store.records[record_a.id] = record_a
+    store.records[record_b.id] = record_b
+
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.1, 0.2, 0.3]
+
+    vector_store = Mock(spec=BaseVectorStore)
+
+    manager = MemoryManager(
+        store=store,
+        embedder=embedder,
+        vector_store=vector_store,
+    )
+
+    manager.reindex()
+
+    # One embed + one vector_store.add call per record.
+    assert embedder.embed.call_count == 2
+    assert vector_store.add.call_count == 2
+
+    added_ids = {call.args[0] for call in vector_store.add.call_args_list}
+    assert added_ids == {record_a.id, record_b.id}
+
+
+def test_reindex_is_noop_when_store_is_empty():
+    store = FakeMemoryStore()
+
+    embedder = Mock(spec=BaseEmbedder)
+    vector_store = Mock(spec=BaseVectorStore)
+
+    manager = MemoryManager(
+        store=store,
+        embedder=embedder,
+        vector_store=vector_store,
+    )
+
+    manager.reindex()
+
+    embedder.embed.assert_not_called()
+    vector_store.add.assert_not_called()
+

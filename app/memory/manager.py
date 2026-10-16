@@ -21,6 +21,17 @@ class MemoryManager:
         self._embedder = embedder
         self._vector_store = vector_store
 
+    def reindex(self) -> None:
+        """
+        Re-embed all persisted memories into the vector store.
+
+        Called at startup so that memories loaded from disk are
+        immediately searchable via semantic search.
+        """
+        for record in self._store.list():
+            embedding = self._embedder.embed(record.content)
+            self._vector_store.add(record.id, embedding)
+
     def remember(
         self,
         record: MemoryRecord,

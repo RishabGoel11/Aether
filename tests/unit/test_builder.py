@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from app.bootstrap.application import Application
 from app.bootstrap.builder import ApplicationBuilder
 from app.config.config import Settings
@@ -12,9 +14,12 @@ from tests.fakes.fake_llm import FakeLLM
 
 
 def test_builder_creates_application():
-    builder = ApplicationBuilder()
-
-    app = builder.build()
+    with (
+        patch.object(LLMFactory, "create", return_value=FakeLLM()),
+        patch.object(MemoryManager, "reindex"),
+    ):
+        builder = ApplicationBuilder()
+        app = builder.build()
 
     assert isinstance(app, Application)
     assert isinstance(app.memory, MemoryManager)
@@ -30,6 +35,7 @@ def test_builder_returns_application(monkeypatch):
         "create",
         lambda settings: FakeLLM(),
     )
+    monkeypatch.setattr(MemoryManager, "reindex", lambda self: None)
 
     builder = ApplicationBuilder()
 
@@ -44,6 +50,7 @@ def test_builder_creates_engine(monkeypatch):
         "create",
         lambda settings: FakeLLM(),
     )
+    monkeypatch.setattr(MemoryManager, "reindex", lambda self: None)
 
     builder = ApplicationBuilder()
 
@@ -58,6 +65,7 @@ def test_builder_creates_settings(monkeypatch):
         "create",
         lambda settings: FakeLLM(),
     )
+    monkeypatch.setattr(MemoryManager, "reindex", lambda self: None)
 
     builder = ApplicationBuilder()
 
@@ -72,6 +80,7 @@ def test_builder_creates_session(monkeypatch):
         "create",
         lambda settings: FakeLLM(),
     )
+    monkeypatch.setattr(MemoryManager, "reindex", lambda self: None)
 
     builder = ApplicationBuilder()
 
@@ -86,6 +95,7 @@ def test_builder_creates_memory_manager(monkeypatch):
         "create",
         lambda settings: FakeLLM(),
     )
+    monkeypatch.setattr(MemoryManager, "reindex", lambda self: None)
 
     builder = ApplicationBuilder()
 
@@ -100,6 +110,7 @@ def test_builder_creates_memory_extractor(monkeypatch):
         "create",
         lambda settings: FakeLLM(),
     )
+    monkeypatch.setattr(MemoryManager, "reindex", lambda self: None)
 
     builder = ApplicationBuilder()
 
@@ -114,6 +125,7 @@ def test_builder_creates_tool_registry(monkeypatch):
         "create",
         lambda settings: FakeLLM(),
     )
+    monkeypatch.setattr(MemoryManager, "reindex", lambda self: None)
 
     builder = ApplicationBuilder()
 
@@ -132,6 +144,7 @@ def test_builder_creates_tool_executor(monkeypatch):
         "create",
         lambda settings: FakeLLM(),
     )
+    monkeypatch.setattr(MemoryManager, "reindex", lambda self: None)
 
     builder = ApplicationBuilder()
 
@@ -148,6 +161,7 @@ def test_builder_uses_fake_llm(monkeypatch):
         "create",
         lambda settings: fake_llm,
     )
+    monkeypatch.setattr(MemoryManager, "reindex", lambda self: None)
 
     builder = ApplicationBuilder()
 

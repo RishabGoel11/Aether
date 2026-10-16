@@ -49,16 +49,14 @@ class MemoryExtractor:
 
         text = latest_user_message.content.lower()
 
-        memories: list[MemoryRecord] = []
-
         for pattern, category in self.MEMORY_PATTERNS:
             if pattern in text:
-                memories.append(
+                return [
                     MemoryRecord(
                         content=latest_user_message.content,
                         category=category,
                         source=MemorySource.AUTOMATIC,
                     )
-                )
+                ]
 
-        return memories
+        return []

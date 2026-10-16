@@ -34,6 +34,7 @@ class ConversationEngine:
         tool_executor: ToolExecutor,
         tool_policy: ToolPolicy,
         max_tool_rounds: int = 5,
+        history_window: int | None = 20,
     ):
         self.llm = llm
         self.session = session
@@ -48,6 +49,7 @@ class ConversationEngine:
             raise ValueError("max_tool_rounds must be at least 1.")
 
         self.max_tool_rounds = max_tool_rounds
+        self.history_window = history_window
         self.debug_collector: DebugCollector | None = None
 
     def _execute_tool_calls(
@@ -134,7 +136,9 @@ class ConversationEngine:
                 "User message added",
             )
 
-            messages = self.session.get_messages()
+            messages = self.session.get_messages(
+                window=self.history_window,
+            )
 
             extracted_memories = self.memory_extractor.extract(
                 messages,

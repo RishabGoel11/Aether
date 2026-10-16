@@ -21,6 +21,21 @@ class MemorySettings(BaseModel):
     enabled: bool = True
 
 
+class SessionSettings(BaseModel):
+    """
+    Configuration for session and conversation history management.
+    """
+
+    history_window: int = Field(
+        default=20,
+        ge=4,
+        description=(
+            "Maximum number of recent messages sent to the LLM. "
+            "Prevents context overflow with long conversations."
+        ),
+    )
+
+
 class ToolSettings(BaseModel):
     enabled: bool = True
 
@@ -48,6 +63,7 @@ class LoggingSettings(BaseModel):
 class Settings(BaseModel):
     llm: LLMSettings = Field(default_factory=LLMSettings)
     memory: MemorySettings = Field(default_factory=MemorySettings)
+    session: SessionSettings = Field(default_factory=SessionSettings)
     tools: ToolSettings = Field(default_factory=ToolSettings)
     logging: LoggingSettings = Field(default_factory=LoggingSettings)
     debug: DebugSettings = Field(default_factory=DebugSettings)

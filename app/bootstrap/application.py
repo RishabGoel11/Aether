@@ -39,12 +39,6 @@ class Application:
         """
         response = self.engine.chat(user_input)
 
-        messages = self.engine.session.get_messages()
-
-        memories = self.extractor.extract(messages)
-
-        self.memory.add_all(memories)
-
         self.session.save(self.engine.session)
 
         return response
