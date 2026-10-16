@@ -24,74 +24,58 @@ Each subsystem has a single responsibility and communicates through well-defined
 # High-Level Architecture
 
 ```text
-                                    +----------------------+
-                                   |        User          |
-                                   +----------+-----------+
+                                  +----------------------+
+                                  |        User          |
+                                  +----------+-----------+
+                                             |
+                                             v
+               +-------------------------------------------------------------+
+               |                  Command-Line Interface                     |
+               |         chat   |   run   |   index   |  doctor  |  version  |
+               +-----------------------------+-------------------------------+
+                                             |
+                                             v
+                              +-------------------------------+
+                              |      ApplicationBuilder       |
+                              +---------------+---------------+
                                               |
-                                              v
-                                   +----------------------+
-                                   |        CLI           |
-                                   +----------+-----------+
-                                              |
-                                              v
-                               +-------------------------------+
-                               |      ApplicationBuilder       |
-                               +---------------+---------------+
-                                               |
-                                               v
-                               +-------------------------------+
-                               |     ConversationEngine        |
-                               +---------------+---------------+
-                                               |
-                      +------------------------+------------------------+
-                      |                         |                        |
-                      v                         v                        v
-            +----------------+       +--------------------+    +------------------+
-            | PromptBuilder  |       |      Session       |    |  DebugCollector  |
-            +----------------+       +--------------------+    +------------------+
-                                               |
-                                               v
-                               +-------------------------------+
-                               |        MemoryRetriever        |
-                               +---------------+---------------+
-                                               |
-                                               v
-                               +-------------------------------+
-                               |        MemoryManager          |
-                               +------+-------------+----------+
-                                      |             |
-                   +------------------+             +------------------+
-                   |                                         |
-                   v                                         v
-         +----------------------+                +----------------------+
-         |  JsonMemoryStore     |                |   VectorStore        |
-         | (Persistent Memory)  |                | (Semantic Index)     |
-         +----------------------+                +----------+-----------+
-                                                            |
-                                                            |
-                                                            v
-                                                +----------------------+
-                                                |      Embedder        |
-                                                | (Ollama Embeddings)  |
-                                                +----------------------+
-
-                     Background / Maintenance Components
-                     -----------------------------------
-
-                    +-------------------------------+
-                    |      MemoryConsolidator       |
-                    +---------------+---------------+
-                                    |
-                                    v
-                    +-------------------------------+
-                    |      MemorySummarizer         |
-                    +---------------+---------------+
-                                    |
-                                    v
-                           +-------------------+
-                           |      BaseLLM      |
-                           |    (OllamaLLM)    |
-                           +-------------------+
+                     +------------------------+------------------------+
+                     |                                                 |
+                     v                                                 v
+      +-------------------------------+                 +-------------------------------+
+      |      ConversationEngine       |                 |          AgentRunner          |
+      |   (Interactive Multi-Turn)    |                 |   (Autonomous ReAct Loop)     |
+      +---------------+---------------+                 +---------------+---------------+
+                      |                                                 |
+      +---------------+---------------+----------------+                |
+      |               |               |                |                |
+      v               v               v                v                v
++------------+ +-------------+ +--------------+ +-------------------------------+
+|PromptBuildr| |   Session   | |DebugCollector| |        Tool Framework         |
++-----+------+ +------+------+ +--------------+ |  Registry | Executor | Policy |
+      |               |                         +---------------+---------------+
+      v               v                                         |
++-------------+ +-------------+                                 v
+| RAGPipeline | |MemoryManager|                         +---------------+
++------+------+ +------+------+                         | Builtin Tools |
+       |               |                                | Python | Term |
+       v               v                                | Calc | Time   |
++-------------+ +-------------+                         +---------------+
+|JsonChunkStor| |JsonMemStore |
+| (Disk RAG)  | | (Disk Mem)  |
++------+------+ +------+------+
+       \               /
+        v             v
+      +-----------------+
+      |   VectorStore   |
+      | (Cosine Search) |
+      +--------+--------+
+               |
+               v
+      +-----------------+
+      |    Embedder     |
+      | (Ollama Embed)  |
+      +-----------------+
 ```
 
 ---
@@ -183,102 +167,100 @@ Examples include:
 
 ## Presentation Layer
 
-Responsible for user interaction.
+Responsible for user interaction and command dispatching.
 
 ### Current Components
 
-* CLI
-* Commands
-* Parser
+* CLI (`main.py`, `parser.py`)
+* Commands: `chat`, `run`, `index`, `doctor`, `version`
 
 ### Responsibilities
 
-* Accept user input
-* Display responses
-* Handle user-facing errors
+* Parse command-line flags and positional arguments
+* Display formatted responses, streaming output, and diagnostic check tables
+* Present full agent execution traces when `--show-trace` is supplied
+* Handle user-facing errors gracefully
 
 ---
 
 ## Bootstrap Layer
 
-Responsible for constructing the application.
+Responsible for constructing and wiring the application composition root.
 
 ### Current Components
 
-* Application
-* ApplicationBuilder
+* `Application`
+* `ApplicationBuilder`
 
 ### Responsibilities
 
-* Load configuration
-* Configure logging
-* Create services
-* Wire dependencies
-* Perform dependency injection
+* Load configuration (`Settings`, `RAGSettings`, `ToolPolicyConfig`)
+* Configure structured logging
+* Instantiate infrastructure providers (`OllamaLLM`, `OllamaEmbedder`, `JsonMemoryStore`, `JsonChunkStore`, `InMemoryVectorStore`)
+* Instantiate application services (`ConversationEngine`, `AgentRunner`, `RAGPipeline`, `MemoryManager`, `ToolRegistry`, `ToolExecutor`)
+* Perform automated startup re-indexing (`rag_pipeline.reindex()`)
 
 ---
 
 ## Application Layer
 
-Coordinates workflows.
+Coordinates high-level AI workflows, agentic loops, and context assembly.
 
 ### Current Components
 
-* ConversationEngine
-* Session
-* PromptBuilder
-* MemoryManager
+* `ConversationEngine` (interactive multi-turn dialogue with memory and RAG context injection)
+* `AgentRunner` (autonomous multi-step ReAct Reason->Act->Observe execution)
+* `RAGPipeline` (high-level facade unifying indexing, vector retrieval, and citation formatting)
+* `MemoryManager` (semantic retrieval, rule extraction, consolidation, summarization)
+* `PromptBuilder` (dynamic prompt composition)
+* `Session` (sliding window message history)
 
 ### Responsibilities
 
-* Coordinate conversations
-* Maintain session state
-* Coordinate memory operations
-* Build prompts
+* Coordinate conversations and autonomous agent loops
+* Maintain conversation state across turns
+* Execute tool calls and feed back observations
+* Format retrieved documents into citations
 
 ---
 
 ## Domain Layer
 
-Defines business models and contracts.
+Defines core business models, contracts, and abstract interfaces.
 
 ### Current Components
 
-* BaseLLM
-* BaseMemoryStore
-* Message
-* Role
-* LLMResponse
-* MemoryRecord
-* Custom Exceptions
+* LLM Interfaces: `BaseLLM`, `LLMResponse`, `Message`, `Role`, `ToolCallRequest`
+* Memory Interfaces: `BaseMemoryStore`, `MemoryRecord`, `MemoryCategory`
+* Tool Interfaces: `BaseTool`, `ToolResult`, `ToolDefinition`
+* RAG Interfaces: `BaseChunkStore`, `Document`, `Chunk`, `SearchResult`
+* Agent Interfaces: `AgentStep`, `AgentTrace`, `AgentResult`, `StepType`
+* Vector Store Interfaces: `BaseVectorStore`, `BaseEmbedder`
+* Custom Exception Hierarchy
 
 ### Responsibilities
 
-* Define interfaces
-* Define shared models
-* Remain independent of infrastructure
+* Define abstract contracts and interfaces
+* Define shared Pydantic data models
+* Remain strictly independent of infrastructure details
 
 ---
 
 ## Infrastructure Layer
 
-Provides concrete implementations.
+Provides concrete external service integrations and persistent storage.
 
 ### Current Components
 
-* OllamaLLM
-* LLMFactory
-* JsonMemoryStore
-* ConfigLoader
-* Logger
-* Diagnostics
-
-### Responsibilities
-
-* Access external systems
-* Persist data
-* Configure runtime services
-* Translate external APIs into domain abstractions
+* `OllamaLLM` (local Ollama text completion / chat API)
+* `OllamaEmbedder` (local Ollama embeddings via `nomic-embed-text`)
+* `JsonMemoryStore` (`data/memories.json`)
+* `JsonChunkStore` (`data/rag_chunks.json`)
+* `InMemoryVectorStore` (cosine similarity search)
+* Built-in Tools: `PythonExecutionTool`, `TerminalExecutionTool`, `CalculatorTool`, `DateTimeTool`, `FileInfoTool`
+* `ConfigLoader` (YAML configuration parser)
+* `Logger` (structured JSON / console logging)
+* Diagnostics (`Doctor`, checks runner)
 
 ---
 
@@ -468,47 +450,100 @@ Components:
 
 ---
 
+# Agentic Architecture (ReAct Loop)
+
+Aether includes an autonomous multi-step reasoning and action loop (`AgentRunner`) implementing the ReAct pattern:
+
+```text
+User Goal: "Calculate 15 factorial and save to file"
+      │
+      ▼
+AgentRunner.run(goal, max_steps=20)
+      │
+      ▼
+┌───► Step N: Reason -> Act -> Observe
+│       │
+│       ├── 1. PROMPT: System prompt + Tool schemas + Trace history
+│       │
+│       ├── 2. REASON: LLM outputs Thought + ToolCallRequest
+│       │      Record: AgentStep(type=StepType.THOUGHT, content="...")
+│       │      Record: AgentStep(type=StepType.ACTION, tool="python_exec", input={...})
+│       │
+│       ├── 3. ACT: ToolExecutor dispatches via ToolPolicy
+│       │      Subprocess executes isolated Python / Terminal command
+│       │
+│       ├── 4. OBSERVE: Output captured
+│       │      Record: AgentStep(type=StepType.OBSERVATION, content="...")
+│       │
+│       └── 5. EVALUATE:
+│              ├── LLM answered with final text? ──► Terminate: StepType.ANSWER
+│              ├── Max steps reached? ────────────► Fallback LLM synthesis
+│              └── More work needed? ─────────────► Loop back to Step N+1
+└──────────────────────────────────────────────────┘
+      │
+      ▼
+AgentResult(success=True, answer="...", trace=AgentTrace, total_steps=N)
+```
+
+### Components (`app/agent/`)
+
+* **`models.py`**:
+  - `StepType`: `THOUGHT`, `ACTION`, `OBSERVATION`, `ANSWER`
+  - `AgentStep`: Immutable record of a single step in the reasoning chain
+  - `AgentTrace`: Collection of steps with formatted printable output
+  - `AgentResult`: Final outcome containing the final answer, trace, success status, and step count
+* **`runner.py` (`AgentRunner`)**:
+  - Decoupled from `ConversationEngine`
+  - Drives autonomous multi-turn loops up to `max_steps`
+  - Tolerates missing tools and policy rejections by passing error messages as observations
+  - Executes fallback synthesis if step budget is exhausted
+
+---
+
 # Current Core Modules
 
-Implemented
+### Implemented
 
-* Configuration System
-* Logging System
-* Conversation Engine
-* Session Management (with sliding history window)
-* Prompt Builder (Memories + RAG context injection)
-* LLM Abstraction & Ollama Provider
-* Memory Foundation & Vector Store
-* Tool Framework (Calculator, Datetime, Python, Terminal, FileInfo)
-* Retrieval-Augmented Generation (RAG)
-* Diagnostics (Doctor)
-* Debug System
-* Bootstrap Layer
-* CLI (`chat`, `doctor`, `version`, `index`)
+* Configuration System (YAML loader, typed Pydantic models)
+* Logging System (structured logs, console + file handlers)
+* Conversation Engine (multi-turn dialogue management)
+* Session Management (sliding history window)
+* Prompt Builder (dynamic context composition with memory and RAG injection)
+* LLM Abstraction (`BaseLLM`, `LLMFactory`) & Ollama Provider
+* Memory Foundation (`BaseMemoryStore`, `JsonMemoryStore`, semantic vector retrieval, consolidation)
+* Tool Framework (`BaseTool`, `ToolRegistry`, `ToolExecutor`, `ToolPolicy`, built-in tools)
+* Retrieval-Augmented Generation (`RAGPipeline`, `DocumentLoaderFactory`, `TextChunker`, `JsonChunkStore`, startup re-indexing)
+* Agentic ReAct Loop (`AgentRunner`, `AgentTrace`, multi-step autonomous execution)
+* Diagnostics (`Doctor`, environment & daemon check suite)
+* Debug System (`DebugCollector`, `DebugRenderer`)
+* Bootstrap Layer (`ApplicationBuilder` composition root)
+* CLI (`chat`, `run`, `index`, `doctor`, `version`)
 
-Planned
+### Planned
 
-* Agent Orchestrator & Multi-Step Loops
-* Framework Integrations (LangChain, LangGraph)
-* Web Intelligence & Scraping
-* Voice System
-* Desktop & Web Interface
+* AI Framework Integrations (LangChain & LangGraph adapters)
+* Web Intelligence & Browser Automation
+* Voice System (Whisper STT, Piper TTS)
+* Multi-Agent Collaboration & Role Delegation
+* Production REST API & Packaging
 
 ---
 
 # Current Status
 
-Current Version
+### Current Version
 
-**v0.5.0**
+**v0.6.0**
 
-Completed
+### Completed Epics
 
-* Engineering Foundations
-* Core Conversation Engine
-* Long-Term Memory & Vector Retrieval
-* Extensible Tool System
-* Retrieval-Augmented Generation (RAG) with Persistent Storage
+* Phase 0 – Engineering Foundations ✅
+* Phase 1 – Core Conversation Engine ✅
+* Phase 2 – Engineering Excellence ✅
+* Phase 3 – Long-Term Memory System ✅
+* Phase 4 – Extensible Tool Framework ✅
+* Phase 5 – Retrieval-Augmented Generation (RAG) ✅
+* Phase 6 – Agentic ReAct Loop ✅
 
-The next architectural milestone is Phase 6: Multi-Step Agentic Tool Execution and Framework Integrations.
+The next architectural milestone is **Phase 7: AI Framework Integrations (LangChain & LangGraph)**.
 

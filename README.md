@@ -2,8 +2,10 @@
 
 > **A modular, local-first AI engineering platform built with privacy, transparency, extensibility, and software engineering best practices at its core.**
 
-![Version](https://img.shields.io/badge/version-v0.4.0-blue)
+![Version](https://img.shields.io/badge/version-v0.6.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB)
+![Tests](https://img.shields.io/badge/tests-269%20passed-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
@@ -157,6 +159,36 @@ The current tool framework includes basic execution safety mechanisms:
 
 These mechanisms provide a basic safety layer and are intended as a foundation for stronger sandboxing and permission systems in future development.
 
+## Retrieval-Augmented Generation (RAG)
+
+Aether includes a local-first RAG subsystem enabling grounded conversations over external documents.
+
+Current capabilities:
+
+- **Document Loaders**: Extensible `TextLoader`, `MarkdownLoader`, and `DocumentLoaderFactory` with recursive directory traversal
+- **Sliding-Window Chunker**: `TextChunker` with configurable size, overlap, and natural boundary snapping (newlines and whitespace)
+- **Persistent Storage**: `JsonChunkStore` (`data/rag_chunks.json`) preserves chunks across application restarts
+- **Startup Re-indexing**: `rag_pipeline.reindex()` embeds all stored chunks on launch so `aether chat` immediately has document access
+- **Source Deduplication**: Re-indexing a file updates chunks in-place cleanly without duplicate accumulation
+- **Semantic Retrieval**: Cosine similarity search with minimum score thresholding
+- **Citations & System Injection**: Retrieved passages formatted as source-cited snippets and injected into system prompt context
+- **CLI Ingestion**: `aether index <path>` command to index files or directories on demand
+
+## Agentic ReAct Loop
+
+Aether features an autonomous multi-step reasoning and action loop (`AgentRunner`) implementing the ReAct pattern.
+
+Current capabilities:
+
+- **Reason -> Act -> Observe Cycle**: LLM reasons about the goal, decides on actions, and inspects observations
+- **Thought Capture**: Extracts LLM reasoning text (`THOUGHT`) alongside tool call requests
+- **Multi-Step Execution**: Chains tools dynamically across multiple rounds to solve complex goals
+- **Structured Tracing**: Typed `AgentStep` (`THOUGHT`, `ACTION`, `OBSERVATION`, `ANSWER`) recorded in `AgentTrace`
+- **Budget Control**: Configurable `max_steps` budget prevents infinite loops
+- **Graceful Fallback Synthesis**: If step limit is reached, prompts LLM for best-effort synthesis from observed evidence
+- **Fault-Tolerant Feedback**: Tool execution errors and policy denials are fed back as observations so the agent can self-correct
+- **CLI Execution**: `aether run "GOAL" [--max-steps N] [--show-trace]` for autonomous goal execution
+
 ## Engineering Excellence
 
 - Modern Python packaging with `uv`
@@ -164,25 +196,22 @@ These mechanisms provide a basic safety layer and are intended as a foundation f
 - Hatchling build backend
 - GitHub Actions Continuous Integration
 - Ruff linting and formatting
-- Pytest unit and integration testing
-- Automated code coverage
+- Pytest suite (269 tests, 90% test coverage)
 - Debug subsystem
-- Diagnostics subsystem
+- Diagnostics subsystem (`aether doctor`)
 - Documentation-first development workflow
 
 ---
 
 # Planned Capabilities
 
-Aether's long-term roadmap includes:
+Aether's future roadmap includes:
 
-- Retrieval-Augmented Generation (RAG)
-- LangChain Integration
-- LangGraph Integration
-- Web Intelligence
-- Voice Interface
+- AI Framework Integrations (LangChain, LangGraph adapters)
+- Web Intelligence & Scraping
+- Voice Interface (Faster-Whisper, Piper)
 - Multi-Agent Collaboration
-- Production Deployment
+- Production Deployment & API
 
 A detailed development roadmap is available in `docs/ROADMAP.md`.
 
@@ -192,60 +221,60 @@ A detailed development roadmap is available in `docs/ROADMAP.md`.
 
 Aether follows a layered architecture designed to keep business logic independent from infrastructure.
 
-```text
+`	ext
                                   +----------------------+
                                   |        User          |
                                   +----------+-----------+
                                              |
                                              v
-                                  +----------------------+
-                                  |         CLI          |
-                                  +----------+-----------+
+               +-------------------------------------------------------------+
+               |                  Command-Line Interface                     |
+               |         chat   |   run   |   index   |  doctor  |  version  |
+               +-----------------------------+-------------------------------+
                                              |
                                              v
-                               +-------------------------------+
-                               |      ApplicationBuilder       |
-                               +---------------+---------------+
-                                               |
-                                               v
-                               +-------------------------------+
-                               |      ConversationEngine       |
-                               +---------------+---------------+
-                                               |
-              +----------------+---------------+---------------+----------------+
-              |                |                               |                |
-              v                v                               v                v
-     +----------------+ +--------------------+      +------------------+ +------------------+
-     | PromptBuilder  | |      Session       |      |  DebugCollector  | |  Tool Framework  |
-     +----------------+ +--------------------+      +------------------+ +--------+---------+
-                             |                                           |
-                             v                                           v
-               +-------------------------------+              +----------------------+
-               |       MemoryExtractor         |              |     ToolRegistry     |
-               +---------------+---------------+              +----------+-----------+
-                               |                                         |
-                               v                                         v
-               +-------------------------------+              +----------------------+
-               |        MemoryManager          |              |    ToolExecutor      |
-               +------+-------------+----------+              +----------+-----------+
-                      |             |                                    |
-          +-----------+             +-----------+                        v
-          |                                     |              +----------------------+
-          v                                     v              |     ToolPolicy       |
-+----------------------+             +----------------------+   +----------------------+
-|  JsonMemoryStore     |             |     VectorStore      |
-| (Persistent Memory)  |             |  (Semantic Index)    |
-+----------------------+             +----------+-----------+
-                                               |
-                                               v
-                                     +----------------------+
-                                     |      Embedder        |
-                                     | (Ollama Embeddings)  |
-                                     +----------------------+
-
+                              +-------------------------------+
+                              |      ApplicationBuilder       |
+                              +---------------+---------------+
+                                              |
+                     +------------------------+------------------------+
+                     |                                                 |
+                     v                                                 v
+      +-------------------------------+                 +-------------------------------+
+      |      ConversationEngine       |                 |          AgentRunner          |
+      |   (Interactive Multi-Turn)    |                 |   (Autonomous ReAct Loop)     |
+      +---------------+---------------+                 +---------------+---------------+
+                      |                                                 |
+      +---------------+---------------+----------------+                |
+      |               |               |                |                |
+      v               v               v                v                v
++------------+ +-------------+ +--------------+ +-------------------------------+
+|PromptBuildr| |   Session   | |DebugCollector| |        Tool Framework         |
++-----+------+ +------+------+ +--------------+ |  Registry | Executor | Policy |
+      |               |                         +---------------+---------------+
+      v               v                                         |
++-------------+ +-------------+                                 v
+| RAGPipeline | |MemoryManager|                         +---------------+
++------+------+ +------+------+                         | Builtin Tools |
+       |               |                                | Python | Term |
+       v               v                                | Calc | Time   |
++-------------+ +-------------+                         +---------------+
+|JsonChunkStor| |JsonMemStore |
+| (Disk RAG)  | | (Disk Mem)  |
++------+------+ +------+------+
+       \               /
+        v             v
+      +-----------------+
+      |   VectorStore   |
+      | (Cosine Search) |
+      +--------+--------+
+               |
+               v
+      +-----------------+
+      |    Embedder     |
+      | (Ollama Embed)  |
+      +-----------------+
 ```
-
-Future subsystems—including Retrieval-Augmented Generation (RAG), Web Intelligence, Voice, and Multi-Agent Collaboration—will integrate into this architecture while preserving the separation of concerns established during previous epics.
 
 Detailed architectural documentation is available in `docs/ARCHITECTURE.md`.
 
@@ -296,6 +325,18 @@ Run the interactive chat:
 
 ```bash
 uv run aether chat
+```
+
+Run autonomous agentic goals (ReAct loop):
+
+```bash
+uv run aether run "Calculate 15 factorial" --show-trace
+```
+
+Index documents into the local RAG knowledge base:
+
+```bash
+uv run aether index ./docs
 ```
 
 Run diagnostics:
@@ -350,12 +391,13 @@ Aether uses:
 | Epic 2 – Engineering Excellence | ✅ Complete |
 | Epic 3 – Memory System | ✅ Complete |
 | Epic 4 – Tool Framework | ✅ Complete |
-| Epic 5 – Retrieval-Augmented Generation | ⬜ Planned |
-| Epic 6 – AI Framework Integrations | ⬜ Planned |
-| Epic 7 – Web Intelligence | ⬜ Planned |
-| Epic 8 – Voice | ⬜ Planned |
-| Epic 9 – Multi-Agent System | ⬜ Planned |
-| Epic 10 – Production | ⬜ Planned |
+| Epic 5 – Retrieval-Augmented Generation (RAG) | ✅ Complete |
+| Epic 6 – Agentic ReAct Loop | ✅ Complete |
+| Epic 7 – AI Framework Integrations | ⬜ Planned |
+| Epic 8 – Web Intelligence | ⬜ Planned |
+| Epic 9 – Voice | ⬜ Planned |
+| Epic 10 – Multi-Agent System | ⬜ Planned |
+| Epic 11 – Production | ⬜ Planned |
 
 For detailed milestones and implementation tasks, see `docs/ROADMAP.md`.
 
@@ -363,30 +405,25 @@ For detailed milestones and implementation tasks, see `docs/ROADMAP.md`.
 
 # Latest Release
 
-## v0.4.0 — Tool Framework
+## v0.6.0 — Agentic ReAct Loop
 
 Highlights of this release:
 
-- Modular `BaseTool` abstraction
-- Typed tool definitions and argument validation
-- Tool registry
-- Tool execution pipeline
-- Tool policy support
-- Multi-round LLM tool calling
-- Calculator tool
-- Date and time tool
-- File information tool
-- Python execution tool
-- Terminal execution tool
-- Tool execution error handling
-- Execution timeout handling
-- Terminal command safety restrictions
-- Python code safety restrictions
-- Persistent conversation clearing with `/clear`
-- Empty assistant response handling
-- Continued unit and integration test coverage
+- Autonomous `AgentRunner` driving Reason -> Act -> Observe multi-step execution
+- Full reasoning trace capturing: `THOUGHT`, `ACTION`, `OBSERVATION`, and `ANSWER` steps
+- Dynamic tool chaining across multiple steps to solve complex goals
+- Step budget control (`--max-steps`) with graceful LLM synthesis fallback
+- Error feedback loop for missing tools and policy denials
+- CLI `aether run GOAL [--max-steps N] [--show-trace]`
+- 269 total tests passing with 90% code coverage
 
-The next major milestone is **Epic 5 – Retrieval-Augmented Generation (RAG)**.
+### Prior Release Highlights
+
+- **v0.5.0 — Retrieval-Augmented Generation (RAG)**: Extensible document loaders (`TextLoader`, `MarkdownLoader`), sliding-window chunking with boundary snapping, persistent `JsonChunkStore` (`data/rag_chunks.json`), startup re-indexing, cosine similarity retrieval, source citation formatting, and `aether index` CLI command.
+- **v0.4.0 — Tool Framework**: Modular `BaseTool` abstraction, `ToolRegistry`, `ToolExecutor`, `ToolPolicy`, built-in tools (Calculator, Datetime, Python, Terminal, FileInfo).
+- **v0.3.0 — Memory System**: Persistent JSON memory store, rule-based extraction, semantic vector search, memory summarization & consolidation.
+
+The next major milestone is **Epic 7 – AI Framework Integrations (LangChain & LangGraph)**.
 
 ---
 

@@ -107,6 +107,9 @@ Current Usage
 * Message models
 * Response models
 * Memory models
+* Tool definitions and schema validation (`BaseTool`, `ToolResult`)
+* RAG models (`Document`, `Chunk`, `SearchResult`)
+* Agent models (`AgentStep`, `AgentTrace`, `AgentResult`)
 
 ## Alternatives Considered
 

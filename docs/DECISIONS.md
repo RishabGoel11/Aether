@@ -332,3 +332,126 @@ Each layer may depend only on lower-level abstractions and never on higher-level
 
 * More project structure
 * Slightly more boilerplate during development
+
+---
+
+# ADR-008 — Tool Calling and Subprocess Execution Safety
+
+## Status
+
+Accepted
+
+---
+
+## Context
+
+Allowing an LLM to invoke external tools (such as Python code execution or terminal commands) introduces security, stability, and resource exhaustion risks.
+
+We needed a tool execution architecture that balances capability with safety while remaining testable in isolation.
+
+---
+
+## Decision
+
+1. Tools inherit from `BaseTool` and define strongly-typed input schemas via Pydantic.
+2. Tool execution is managed via a dedicated `ToolExecutor` and governed by `ToolPolicy`.
+3. Hazardous tools (Python execution, Terminal commands) execute inside isolated subprocesses with strict timeouts rather than within the main application process.
+4. Python code is pre-validated with AST analysis to block unsafe module imports (`os`, `subprocess`, `shutil`, `socket`) and unsafe builtins (`eval`, `exec`, `compile`).
+5. Destructive terminal commands (`del`, `format`, `shutdown`, `rmdir`) are blocked via command token inspection.
+
+---
+
+## Consequences
+
+### Positive
+
+* Subprocess isolation prevents runaway processes or memory leaks from crashing the assistant.
+* AST inspection prevents accidental or malicious execution of hazardous libraries.
+* Uniform `ToolResult` interface simplifies multi-round tool loops.
+
+### Negative
+
+* Subprocess creation has a small latency overhead.
+* Static validation cannot prevent all theoretical sandboxing escapes without OS-level containerization.
+
+---
+
+# ADR-009 — RAG Document Chunking and Dual-Tier Chunk Storage
+
+## Status
+
+Accepted
+
+---
+
+## Context
+
+Retrieval-Augmented Generation (RAG) requires partitioning external documents into semantically coherent passages, embedding them, and retrieving them during user queries.
+
+Re-embedding entire documents on every application run with local models is slow. Conversely, storing only vectors in memory loses chunk text across restarts.
+
+---
+
+## Decision
+
+1. Adopt a character-level sliding-window chunker (`TextChunker`) with configurable chunk size and overlap, snapping to whitespace and newline boundaries to preserve sentence integrity.
+2. Use a dual-tier storage architecture:
+   - Persistent `JsonChunkStore` (`data/rag_chunks.json`) stores chunk metadata and raw text across sessions.
+   - Vector Store (`InMemoryVectorStore`) indexes embeddings for high-speed cosine similarity retrieval.
+3. At application bootstrap, `rag_pipeline.reindex()` embeds all stored chunks into the vector store so previously indexed files are instantly queryable without re-reading source files.
+4. Document indexing deduplicates chunks by source file path, allowing clean in-place re-indexing.
+
+---
+
+## Consequences
+
+### Positive
+
+* Chunks persist across CLI sessions on disk.
+* Natural boundary snapping avoids slicing words or sentences mid-character.
+* Source file deduplication prevents index bloat when files are re-indexed.
+
+### Negative
+
+* Embedding all persistent chunks on startup incurs an initialization delay when thousands of chunks are stored.
+* Future scale will necessitate persistent vector database integration (e.g. ChromaDB or SQLite-vec).
+
+---
+
+# ADR-010 — Decoupled Agentic ReAct Loop (AgentRunner)
+
+## Status
+
+Accepted
+
+---
+
+## Context
+
+Phase 6 required multi-step autonomous task planning and execution. We needed to choose whether to embed autonomous ReAct looping directly inside `ConversationEngine` or create a dedicated agent orchestrator.
+
+---
+
+## Decision
+
+1. Create a dedicated, standalone `AgentRunner` in `app/agent/runner.py`, completely decoupled from `ConversationEngine`.
+2. Implement the explicit ReAct pattern (Reason -> Act -> Observe -> Reason...):
+   - Extract the LLM's thought text alongside tool calling requests as `THOUGHT` steps.
+   - Execute tools and feed results back as `OBSERVATION` steps.
+   - Continue until the LLM produces a final natural language `ANSWER` or the step budget is exhausted.
+3. If `max_steps` is exhausted, prompt the LLM for a graceful fallback synthesis summarizing what was accomplished so far.
+4. Treat tool errors and policy denials as informative observation steps rather than raising fatal exceptions, allowing the agent to self-correct.
+
+---
+
+## Consequences
+
+### Positive
+
+* Clean separation between interactive conversational chat (`ConversationEngine`) and goal-oriented autonomous problem solving (`AgentRunner`).
+* Rich, structured `AgentTrace` containing typed `AgentStep` records enables detailed debugging and UI visualization (`--show-trace`).
+* Graceful synthesis ensures users always receive a meaningful answer even if complex multi-step reasoning hits limits.
+
+### Negative
+
+* Distinct message formatting requirements between chat and agent loops require independent prompt construction.

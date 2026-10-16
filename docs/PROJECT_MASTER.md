@@ -107,18 +107,21 @@ Business logic should remain independent from infrastructure wherever practical.
 
 The current implementation consists of:
 
-* Configuration System
-* Logging System
-* Conversation Engine
-* Prompt Builder
-* Session Management
-* LLM Abstraction
-* Ollama Provider
-* Memory Foundation
-* Diagnostics System
-* Debug System
-* Bootstrap Layer
-* Command-Line Interface
+* Configuration System (YAML loader, typed Pydantic models)
+* Logging System (structured logs, console + file handlers)
+* Conversation Engine (multi-turn conversation coordination)
+* Prompt Builder (dynamic context composition with memory and RAG injection)
+* Session Management (sliding message history window)
+* LLM Abstraction (`BaseLLM`, `LLMFactory`)
+* Ollama Provider (local LLM inference and embeddings)
+* Memory Foundation (`BaseMemoryStore`, `JsonMemoryStore`, semantic vector retrieval, consolidation)
+* Tool Framework (`BaseTool`, `ToolRegistry`, `ToolExecutor`, `ToolPolicy`, built-in tools)
+* Retrieval-Augmented Generation (`RAGPipeline`, `DocumentLoaderFactory`, `TextChunker`, `JsonChunkStore`, startup re-indexing)
+* Agentic ReAct Loop (`AgentRunner`, `AgentTrace`, Reason-Act-Observe multi-step execution)
+* Diagnostics System (`Doctor`, check runners, diagnostic renderers)
+* Debug System (`DebugCollector`, `DebugRenderer`)
+* Bootstrap Layer (`ApplicationBuilder`, dependency injection composition root)
+* Command-Line Interface (`chat`, `run`, `index`, `doctor`, `version`)
 
 All major services are created through dependency injection.
 
@@ -130,14 +133,11 @@ Aether will evolve into a platform composed of independent engineering subsystem
 
 Planned modules include:
 
-* Conversation Engine
-* Memory System
-* Retrieval (RAG)
-* Agent Orchestrator
-* Tool Framework
-* Model Manager
-* Voice System
-* Automation Framework
+* Framework Integrations (LangChain & LangGraph adapters)
+* Web Intelligence & Browser Automation
+* Voice System (STT / TTS)
+* Multi-Agent Orchestration
+* Production Deployment & REST API
 * Desktop Interface
 * Web Interface
 
@@ -167,10 +167,17 @@ Architecture should never be skipped.
 
 Completed:
 
-* Phase 0 – Engineering Foundations
-* Phase 1 – Core Conversation Engine
-* Phase 2 – Engineering Excellence
-* Phase 3 – Memory System
+* Phase 0 – Engineering Foundations ✅
+* Phase 1 – Core Conversation Engine ✅
+* Phase 2 – Engineering Excellence ✅
+* Phase 3 – Memory System ✅
+* Phase 4 – Tool Framework ✅
+* Phase 5 – Retrieval-Augmented Generation (RAG) ✅
+* Phase 6 – Agentic ReAct Loop ✅
+
+In Progress / Next:
+
+* Phase 7 – AI Framework Integrations (LangChain & LangGraph)
 
 
 ---
