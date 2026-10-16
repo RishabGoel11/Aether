@@ -30,4 +30,21 @@ def create_parser() -> argparse.ArgumentParser:
         help="Run Aether diagnostics.",
     )
 
+    index_parser = subparsers.add_parser(
+        "index",
+        help="Index documents into Aether's RAG knowledge base.",
+    )
+    index_parser.add_argument(
+        "path",
+        help="File or directory path to index.",
+    )
+    index_parser.add_argument(
+        "--no-recursive",
+        dest="recursive",
+        action="store_false",
+        default=True,
+        help="Do not scan subdirectories recursively.",
+    )
+
     return parser
+

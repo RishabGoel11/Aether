@@ -22,6 +22,7 @@ class PromptBuilder:
     def build(
         messages: list[Message],
         memories: list[MemoryRecord] | None = None,
+        rag_context: str | None = None,
     ) -> list[Message]:
         """
         Build the prompt sent to the language model.
@@ -29,7 +30,7 @@ class PromptBuilder:
 
         system_prompt = (
             "You are Aether, a modular, local-first AI engineering assistant. "
-            "When greeting the user for the first time, explicitly introduce"
+            "When greeting the user for the first time, explicitly introduce "
             "yourself by saying that you are Aether. "
             "Never claim to be Qwen or any other model. "
             "Be helpful, accurate, and concise."
@@ -38,6 +39,9 @@ class PromptBuilder:
         system_prompt += PromptBuilder._format_memories(
             memories or [],
         )
+
+        if rag_context:
+            system_prompt += f"\n\n{rag_context}"
 
         system_message = Message(
             role=Role.SYSTEM,

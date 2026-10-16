@@ -6,6 +6,7 @@ from app.config.config import Settings
 from app.llm.factory import LLMFactory
 from app.memory.extractor import MemoryExtractor
 from app.memory.manager import MemoryManager
+from app.rag.pipeline import RAGPipeline
 from app.session.manager import SessionManager
 from app.tools.builtin import CalculatorTool
 from app.tools.executor import ToolExecutor
@@ -27,6 +28,7 @@ def test_builder_creates_application():
     assert isinstance(app.extractor, MemoryExtractor)
     assert isinstance(app.tools, ToolRegistry)
     assert isinstance(app.tool_executor, ToolExecutor)
+    assert isinstance(app.rag, RAGPipeline)
 
 
 def test_builder_returns_application(monkeypatch):
@@ -168,3 +170,19 @@ def test_builder_uses_fake_llm(monkeypatch):
     app = builder.build()
 
     assert app.engine.llm is fake_llm
+
+
+def test_builder_creates_rag_pipeline(monkeypatch):
+    monkeypatch.setattr(
+        LLMFactory,
+        "create",
+        lambda settings: FakeLLM(),
+    )
+    monkeypatch.setattr(MemoryManager, "reindex", lambda self: None)
+
+    builder = ApplicationBuilder()
+    app = builder.build()
+
+    assert isinstance(app.rag, RAGPipeline)
+    assert app.engine.rag_pipeline is app.rag
+

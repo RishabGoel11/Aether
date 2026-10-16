@@ -7,6 +7,7 @@ from app.logger.logger import get_logger
 from app.memory.extractor import MemoryExtractor
 from app.memory.manager import MemoryManager
 from app.memory.retrieval import MemoryRetriever
+from app.rag.pipeline import RAGPipeline
 from app.tools.executor import ToolExecutor
 from app.tools.policy import ToolPolicy
 from app.tools.registry import ToolRegistry
@@ -35,6 +36,7 @@ class ConversationEngine:
         tool_policy: ToolPolicy,
         max_tool_rounds: int = 5,
         history_window: int | None = 20,
+        rag_pipeline: RAGPipeline | None = None,
     ):
         self.llm = llm
         self.session = session
@@ -50,6 +52,7 @@ class ConversationEngine:
 
         self.max_tool_rounds = max_tool_rounds
         self.history_window = history_window
+        self.rag_pipeline = rag_pipeline
         self.debug_collector: DebugCollector | None = None
 
     def _execute_tool_calls(
@@ -159,9 +162,18 @@ class ConversationEngine:
                 f"Retrieved {len(memories)} memories",
             )
 
+            rag_context = ""
+            if self.rag_pipeline is not None:
+                rag_results = self.rag_pipeline.retrieve(user_input)
+                rag_context = self.rag_pipeline.format_context(rag_results)
+                self.debug_collector.add_event(
+                    f"Retrieved {len(rag_results)} RAG chunks",
+                )
+
             prompt = PromptBuilder.build(
                 messages,
                 memories,
+                rag_context=rag_context,
             )
 
             self.debug_collector.set_message_count(

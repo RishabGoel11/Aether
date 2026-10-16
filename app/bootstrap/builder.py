@@ -10,6 +10,8 @@ from app.memory.extractor import MemoryExtractor
 from app.memory.manager import MemoryManager
 from app.memory.retrieval import MemoryRetriever
 from app.memory.stores.json_store import JsonMemoryStore
+from app.rag.chunker import TextChunker
+from app.rag.pipeline import RAGPipeline
 from app.session.manager import SessionManager
 from app.session.stores.json_store import JsonSessionStore
 from app.tools.defaults import create_default_registry
@@ -62,6 +64,16 @@ class ApplicationBuilder:
         tool_executor = ToolExecutor()
         tool_policy = ToolPolicy()
 
+        rag_pipeline = None
+        if settings.rag.enabled:
+            rag_pipeline = RAGPipeline.create(
+                embedder=embedder,
+                chunker=TextChunker(
+                    chunk_size=settings.rag.chunk_size,
+                    chunk_overlap=settings.rag.chunk_overlap,
+                ),
+            )
+
         engine = ConversationEngine(
             llm=llm,
             session=session,
@@ -72,6 +84,7 @@ class ApplicationBuilder:
             tool_executor=tool_executor,
             tool_policy=tool_policy,
             history_window=settings.session.history_window,
+            rag_pipeline=rag_pipeline,
         )
 
         return Application(
@@ -82,4 +95,6 @@ class ApplicationBuilder:
             extractor=extractor,
             tools=tools,
             tool_executor=tool_executor,
+            rag=rag_pipeline,
         )
+

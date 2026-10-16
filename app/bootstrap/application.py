@@ -2,6 +2,7 @@ from app.config.config import Settings
 from app.core.engine import ConversationEngine
 from app.memory.extractor import MemoryExtractor
 from app.memory.manager import MemoryManager
+from app.rag.pipeline import RAGPipeline
 from app.session.manager import SessionManager
 from app.tools.executor import ToolExecutor
 from app.tools.registry import ToolRegistry
@@ -24,6 +25,7 @@ class Application:
         extractor: MemoryExtractor,
         tools: ToolRegistry,
         tool_executor: ToolExecutor,
+        rag: RAGPipeline | None = None,
     ):
         self.settings = settings
         self.engine = engine
@@ -32,6 +34,7 @@ class Application:
         self.extractor = extractor
         self.tools = tools
         self.tool_executor = tool_executor
+        self.rag = rag
 
     def chat(self, user_input: str):
         """

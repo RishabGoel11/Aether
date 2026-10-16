@@ -301,3 +301,49 @@ def test_engine_denies_tool_blocked_by_policy(tmp_path):
 
     assert len(tool_messages) == 1
     assert "denied by policy" in tool_messages[0].content
+
+
+def test_engine_retrieves_rag_context(tmp_path):
+    from app.rag.models import Chunk, SearchResult
+    from app.rag.pipeline import RAGPipeline
+
+    engine, _ = create_engine(tmp_path)
+
+    # Mock RAGPipeline
+    rag_mock = Mock(spec=RAGPipeline)
+    from uuid import uuid4
+
+    chunk = Chunk(
+        document_id=uuid4(),
+        content="Project Codename: Zephyr.",
+        source="docs/project.md",
+    )
+    search_res = SearchResult(chunk=chunk, score=0.95)
+    rag_mock.retrieve.return_value = [search_res]
+    rag_mock.format_context.return_value = (
+        "Relevant Context:\n[1] Source: docs/project.md\nProject Codename: Zephyr."
+    )
+
+    engine.rag_pipeline = rag_mock
+
+    # Capture prompt received by LLM
+    recorded_prompts = []
+
+    class InspectingLLM(BaseLLM):
+        def generate(self, messages, tools=None):
+            recorded_prompts.append(messages)
+            return LLMResponse(content="Codename is Zephyr.")
+
+    engine.llm = InspectingLLM()
+
+    response = engine.chat("What is the codename?")
+    assert response.content == "Codename is Zephyr."
+    assert len(recorded_prompts) == 1
+
+    system_message = recorded_prompts[0][0]
+    assert system_message.role == Role.SYSTEM
+    assert "Project Codename: Zephyr." in system_message.content
+    assert "[1] Source: docs/project.md" in system_message.content
+
+    rag_mock.retrieve.assert_called_once_with("What is the codename?")
+
