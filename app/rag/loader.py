@@ -54,6 +54,53 @@ class MarkdownLoader(BaseDocumentLoader):
         )
 
 
+class PDFLoader(BaseDocumentLoader):
+    """Loads PDF documents extracting text page-by-page."""
+
+    def load(self, path: str | Path) -> Document:
+        file_path = Path(path)
+        if not file_path.exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+        if not file_path.is_file():
+            raise ValueError(f"Path is not a file: {file_path}")
+
+        from pypdf import PdfReader
+        from pypdf.errors import PdfReadError
+
+        try:
+            reader = PdfReader(str(file_path))
+        except PdfReadError as exc:
+            raise ValueError(f"Invalid or corrupted PDF file: {exc}") from exc
+
+        if reader.is_encrypted:
+            try:
+                decrypted = reader.decrypt("")
+                if decrypted == 0:
+                    raise ValueError(f"PDF file is password protected: {file_path.name}")
+            except Exception as exc:
+                raise ValueError(f"Unable to decrypt PDF: {exc}") from exc
+
+        page_texts: list[str] = []
+        for page_idx, page in enumerate(reader.pages):
+            text = (page.extract_text() or "").strip()
+            if text:
+                page_texts.append(f"--- Page {page_idx + 1} ---\n{text}")
+
+        total_pages = len(reader.pages)
+        content = "\n\n".join(page_texts)
+
+        return Document(
+            source=str(file_path),
+            content=content,
+            metadata={
+                "filename": file_path.name,
+                "extension": file_path.suffix,
+                "format": "pdf",
+                "page_count": total_pages,
+            },
+        )
+
+
 class DocumentLoaderFactory:
     """Factory to get the appropriate loader by file extension."""
 
@@ -61,6 +108,7 @@ class DocumentLoaderFactory:
         ".txt": TextLoader,
         ".md": MarkdownLoader,
         ".markdown": MarkdownLoader,
+        ".pdf": PDFLoader,
     }
 
     @classmethod

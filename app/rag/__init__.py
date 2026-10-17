@@ -4,6 +4,7 @@ from app.rag.loader import (
     BaseDocumentLoader,
     DocumentLoaderFactory,
     MarkdownLoader,
+    PDFLoader,
     TextLoader,
 )
 from app.rag.models import Chunk, Document, SearchResult
@@ -22,6 +23,7 @@ __all__ = [
     "DocumentRetriever",
     "InMemoryChunkStore",
     "MarkdownLoader",
+    "PDFLoader",
     "RAGPipeline",
     "SearchResult",
     "TextChunker",

@@ -1,6 +1,14 @@
 from app.tools.builtin.calculator import CalculatorArgs, CalculatorTool
 from app.tools.builtin.datetime import DateTimeTool
 from app.tools.builtin.file_info import FileInfoTool
+from app.tools.builtin.file_operations import (
+    ListDirectoryArgs,
+    ListDirectoryTool,
+    ReadFileArgs,
+    ReadFileTool,
+    WriteFileArgs,
+    WriteFileTool,
+)
 from app.tools.builtin.python import PythonArgs, PythonTool
 from app.tools.builtin.terminal import TerminalArgs, TerminalTool
 
@@ -9,8 +17,14 @@ __all__ = [
     "CalculatorTool",
     "DateTimeTool",
     "FileInfoTool",
+    "ListDirectoryArgs",
+    "ListDirectoryTool",
     "PythonArgs",
     "PythonTool",
+    "ReadFileArgs",
+    "ReadFileTool",
     "TerminalArgs",
     "TerminalTool",
+    "WriteFileArgs",
+    "WriteFileTool",
 ]

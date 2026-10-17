@@ -54,9 +54,71 @@ def test_factory_dispatches_correct_loader(tmp_path: Path):
 
 
 def test_factory_unsupported_extension_raises(tmp_path: Path):
-    pdf_file = tmp_path / "test.pdf"
+    unsupported_file = tmp_path / "test.docx"
     with pytest.raises(ValueError, match="Unsupported file type"):
-        DocumentLoaderFactory.get_loader(pdf_file)
+        DocumentLoaderFactory.get_loader(unsupported_file)
+
+
+def test_pdf_loader_reads_multi_page_pdf(tmp_path: Path):
+    from unittest.mock import patch
+
+    from pypdf import PdfWriter
+
+    from app.rag.loader import PDFLoader
+
+    pdf_file = tmp_path / "sample.pdf"
+    writer = PdfWriter()
+    writer.add_blank_page(width=100, height=100)
+    writer.add_blank_page(width=100, height=100)
+    with open(pdf_file, "wb") as f:
+        writer.write(f)
+
+    loader = PDFLoader()
+    with patch(
+        "pypdf.PageObject.extract_text",
+        side_effect=["Introduction to Aether", "Architecture Details"],
+    ):
+        doc = loader.load(pdf_file)
+
+    assert "--- Page 1 ---\nIntroduction to Aether" in doc.content
+    assert "--- Page 2 ---\nArchitecture Details" in doc.content
+    assert doc.metadata["page_count"] == 2
+    assert doc.metadata["format"] == "pdf"
+    assert doc.metadata["filename"] == "sample.pdf"
+
+
+def test_pdf_loader_missing_file_raises(tmp_path: Path):
+    from app.rag.loader import PDFLoader
+
+    missing = tmp_path / "missing.pdf"
+    loader = PDFLoader()
+    with pytest.raises(FileNotFoundError):
+        loader.load(missing)
+
+
+def test_pdf_loader_invalid_file_raises(tmp_path: Path):
+    from app.rag.loader import PDFLoader
+
+    corrupt = tmp_path / "corrupt.pdf"
+    corrupt.write_text("Not a valid PDF file content", encoding="utf-8")
+    loader = PDFLoader()
+    with pytest.raises(ValueError, match="Invalid or corrupted PDF file"):
+        loader.load(corrupt)
+
+
+def test_factory_dispatches_pdf_loader(tmp_path: Path):
+    from pypdf import PdfWriter
+
+    pdf_file = tmp_path / "test.pdf"
+    writer = PdfWriter()
+    writer.add_blank_page(width=100, height=100)
+    with open(pdf_file, "wb") as f:
+        writer.write(f)
+
+    loader = DocumentLoaderFactory.get_loader(pdf_file)
+    from app.rag.loader import PDFLoader
+
+    assert isinstance(loader, PDFLoader)
 
 
 def test_factory_load_directory(tmp_path: Path):

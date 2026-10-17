@@ -3,8 +3,11 @@ from app.tools.builtin import (
     CalculatorTool,
     DateTimeTool,
     FileInfoTool,
+    ListDirectoryTool,
     PythonTool,
+    ReadFileTool,
     TerminalTool,
+    WriteFileTool,
 )
 
 
@@ -17,5 +20,8 @@ def create_default_registry() -> ToolRegistry:
     registry.register(FileInfoTool())
     registry.register(PythonTool())
     registry.register(TerminalTool())
+    registry.register(ReadFileTool())
+    registry.register(WriteFileTool())
+    registry.register(ListDirectoryTool())
 
     return registry

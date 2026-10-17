@@ -16,6 +16,7 @@ license = { text = "MIT" }
 dependencies = [
     "ollama~=0.6.2",
     "pydantic~=2.13.4",
+    "pypdf>=6.21.0",
     "PyYAML~=6.0.3",
     "tzdata>=2026.3",
 ]

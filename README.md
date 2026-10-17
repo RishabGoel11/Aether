@@ -4,7 +4,7 @@
 
 ![Version](https://img.shields.io/badge/version-v0.7.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB)
-![Tests](https://img.shields.io/badge/tests-294%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-309%20passed-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -123,6 +123,9 @@ Current capabilities:
 - Calculator
 - Date and time lookup
 - File information
+- Read file (reads workspace text with line slicing)
+- Write file (writes or appends text, auto-creates parent folders)
+- List directory (inspects files and subdirectories with sizes and types)
 - Python code execution
 - Terminal command execution
 
@@ -132,6 +135,7 @@ The current tool framework includes basic execution safety mechanisms:
 
 - Tool access control through `ToolPolicy`
 - Configurable maximum tool execution rounds
+- File read size threshold guard (5MB limit prevents memory spikes)
 - Python execution timeout handling
 - Terminal execution timeout handling
 - Python execution in a separate subprocess
@@ -165,7 +169,7 @@ Aether includes a local-first RAG subsystem enabling grounded conversations over
 
 Current capabilities:
 
-- **Document Loaders**: Extensible `TextLoader`, `MarkdownLoader`, and `DocumentLoaderFactory` with recursive directory traversal
+- **Document Loaders**: Extensible `TextLoader`, `MarkdownLoader`, `PDFLoader` (multi-page PDF text extraction via `pypdf`), and `DocumentLoaderFactory` with recursive directory traversal
 - **Sliding-Window Chunker**: `TextChunker` with configurable size, overlap, and natural boundary snapping (newlines and whitespace)
 - **Persistent Storage**: `JsonChunkStore` (`data/rag_chunks.json`) preserves chunks across application restarts
 - **Startup Re-indexing**: `rag_pipeline.reindex()` embeds all stored chunks on launch so `aether chat` immediately has document access
