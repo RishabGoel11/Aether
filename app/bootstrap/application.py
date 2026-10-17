@@ -13,6 +13,7 @@ from app.tools.executor import ToolExecutor
 from app.tools.registry import ToolRegistry
 
 if TYPE_CHECKING:
+    from app.voice.pipeline import VoicePipeline
     from app.web.pipeline import WebPipeline
 
 
@@ -36,6 +37,7 @@ class Application:
         agent: AgentRunner,
         rag: RAGPipeline | None = None,
         web: WebPipeline | None = None,
+        voice: VoicePipeline | None = None,
     ):
         self.settings = settings
         self.engine = engine
@@ -47,6 +49,7 @@ class Application:
         self.agent = agent
         self.rag = rag
         self.web = web
+        self.voice = voice
 
     def chat(self, user_input: str):
         """

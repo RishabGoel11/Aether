@@ -103,9 +103,11 @@ class ApplicationBuilder:
             tool_policy=tool_policy,
         )
 
+        from app.voice.pipeline import VoicePipeline
         from app.web.pipeline import WebPipeline
 
         web_pipeline = WebPipeline(llm=llm)
+        voice_pipeline = VoicePipeline(engine=engine)
 
         return Application(
             settings=settings,
@@ -118,4 +120,5 @@ class ApplicationBuilder:
             agent=agent,
             rag=rag_pipeline,
             web=web_pipeline,
+            voice=voice_pipeline,
         )

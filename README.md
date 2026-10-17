@@ -2,9 +2,9 @@
 
 > **A modular, local-first AI engineering platform built with privacy, transparency, extensibility, and software engineering best practices at its core.**
 
-![Version](https://img.shields.io/badge/version-v0.8.0-blue)
+![Version](https://img.shields.io/badge/version-v0.9.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB)
-![Tests](https://img.shields.io/badge/tests-326%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-346%20passed-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -128,6 +128,7 @@ Current capabilities:
 - List directory (inspects files and subdirectories with sizes and types)
 - Web search (`web_search` - zero-API-key internet querying)
 - Web scrape (`web_scrape` - extracts clean text from URLs)
+- Speak (`speak` - vocalizes messages and audio responses via TTS)
 - Python code execution
 - Terminal command execution
 
@@ -222,6 +223,16 @@ Aether includes internet-aware capabilities enabling both conversational and aut
 - **Multi-Source Research Pipeline**: `WebPipeline` coordinates multi-page searches, page fetching, and LLM-grounded research synthesis.
 - **Agent Tool Integration**: `WebSearchTool` (`web_search`) and `WebScrapeTool` (`web_scrape`) registered by default in the tool registry.
 
+## Voice Subsystem
+
+Aether includes a local-first, low-latency audio interaction subsystem for speech input and vocal output:
+
+- **Local Speech-to-Text (STT)**: `WhisperSTT` supports local transcription via `faster-whisper` and `openai-whisper` with graceful fallback and lazy loading.
+- **Offline Text-to-Speech (TTS)**: `Pyttsx3TTS` provides 100% offline, local speech synthesis via Windows SAPI5 / system speech engines with zero cloud dependencies, configurable rate/volume, and `.wav` export.
+- **Wake Word Detection**: `KeywordWakeWordDetector` matches wake triggers (e.g., "Aether", "Hey Aether") with regex normalization and strips wake prefixes from voice queries.
+- **End-to-End Voice Pipeline**: `VoicePipeline` orchestrates audio transcription, wake word verification, conversation turn processing (`process_voice_turn`), and speech synthesis.
+- **Agent Vocalization Tool**: `SpeakTool` (`speak`) enables autonomous agents to speak directly to the user.
+
 ## Engineering Excellence
 
 - Modern Python packaging with `uv`
@@ -229,7 +240,7 @@ Aether includes internet-aware capabilities enabling both conversational and aut
 - Hatchling build backend
 - GitHub Actions Continuous Integration
 - Ruff linting and formatting
-- Pytest suite (326 tests, 89% test coverage)
+- Pytest suite (346 tests, 89% test coverage)
 - Debug subsystem
 - Diagnostics subsystem (`aether doctor`)
 - Documentation-first development workflow
@@ -240,9 +251,8 @@ Aether includes internet-aware capabilities enabling both conversational and aut
 
 Aether's future roadmap includes:
 
-- Voice Interface (Faster-Whisper STT, Piper TTS)
-- Multi-Agent Collaboration & Role Delegation
-- Production Deployment & API
+- Multi-Agent Collaboration & Role Delegation (Planner, Coder, Reviewer, Coordinator)
+- Production Deployment & REST API
 
 A detailed development roadmap is available in `docs/ROADMAP.md`.
 
@@ -261,6 +271,8 @@ flowchart TD
     subgraph Core ["Execution Engines"]
         App --> Engine["ConversationEngine<br/>(Interactive Dialogue)"]
         App --> Agent["AgentRunner<br/>(Autonomous ReAct Loop)"]
+        App --> Voice["VoicePipeline<br/>(STT, TTS, Wake Word)"]
+        Voice --> Engine
     end
 
     subgraph Intelligence ["Knowledge and Retrieval Systems"]
@@ -274,10 +286,10 @@ flowchart TD
     end
 
     subgraph Tools ["Tool and Integration Framework"]
-        Agent --> Registry["Tool Registry<br/>(10 Built-in Tools)"]
+        Agent --> Registry["Tool Registry<br/>(11 Built-in Tools)"]
         Engine --> Registry
         Registry --> Executor["Tool Executor and Safety Policy"]
-        Executor --> Builtins["Tools: Terminal, Python, Web Search, Web Scrape, File Ops, Calc, Datetime"]
+        Executor --> Builtins["Tools: Terminal, Python, Web Search, Web Scrape, File Ops, Calc, Datetime, Speak"]
         App -.-> Integrations["Framework Integrations<br/>(LangChain Adapters and LangGraph StateGraph)"]
     end
 ```
@@ -401,7 +413,7 @@ Aether uses:
 | Epic 6 – Agentic ReAct Loop | ✅ Complete |
 | Epic 7 – AI Framework Integrations | ✅ Complete |
 | Epic 8 – Web Intelligence | ✅ Complete |
-| Epic 9 – Voice | ⬜ Planned |
+| Epic 9 – Voice | ✅ Complete |
 | Epic 10 – Multi-Agent System | ⬜ Planned |
 | Epic 11 – Production | ⬜ Planned |
 
@@ -411,32 +423,32 @@ For detailed milestones and implementation tasks, see `docs/ROADMAP.md`.
 
 # Latest Release
 
-## v0.8.0 — Web Intelligence
+## v0.9.0 — Voice Subsystem
 
 Highlights of this release:
 
-- **Web Intelligence Subsystem**:
-  - `DuckDuckGoSearch`: Zero-API-key internet search engine with redirect URL unquoting and network error resilience
-  - `ContentExtractor`: BeautifulSoup-powered HTML cleaner stripping boilerplate and extracting semantic text
-  - `WebScraper`: HTTP/HTTPS webpage fetcher with status and timeout controls
-  - `WebPipeline`: High-level facade for search, page scraping, and LLM-grounded multi-source research synthesis
-- **Autonomous Web Agent Tools**:
-  - `web_search`: Search the internet and receive structured titles, URLs, and snippets
-  - `web_scrape`: Fetch clean, readable text from any website URL
-  - Built-in tool registry expanded to 10 tools
-- **Multi-Page PDF Ingestion**:
-  - `PDFLoader`: Full page-by-page PDF loading for persistent RAG retrieval
-- 326 total unit tests passing with 89% code coverage
+- **Voice Subsystem (`app/voice/`)**:
+  - `WhisperSTT`: Local Speech-to-Text supporting `faster-whisper` and `openai-whisper` with lazy engine initialization and graceful installation guidance
+  - `Pyttsx3TTS`: 100% offline, local speech synthesis using Windows SAPI5 / system drivers with rate/volume configuration and `.wav` export
+  - `KeywordWakeWordDetector`: Wake phrase detection ("Aether", "Hey Aether") with regex normalization and query prefix stripping
+  - `VoicePipeline`: High-level facade coordinating audio transcription, wake word verification, conversation engine turn execution, and TTS vocalization
+- **Autonomous Agent Vocalization Tool**:
+  - `SpeakTool` (`speak`): Vocalize responses or announce status via the active TTS engine
+  - Built-in tool registry expanded to 11 tools
+- **Test Suite & Engineering**:
+  - 20 new unit tests covering models, STT, TTS, wake word detector, speak tool, and voice pipeline
+  - 346 total unit tests passing with 89% code coverage
 
 ### Prior Release Highlights
 
+- **v0.8.0 — Web Intelligence**: Zero-API-key DuckDuckGo search, HTML content extraction, web scraping, multi-source research pipeline, `web_search` and `web_scrape` agent tools, and multi-page PDF ingestion (`PDFLoader`).
 - **v0.7.0 — AI Framework Integrations**: LangChain prompt/tool/LLM adapters, LCEL `|` pipe chains, LangGraph `StateGraph`, `CompiledGraph`, and `GraphReActAgent`.
 - **v0.6.0 — Agentic ReAct Loop**: Autonomous `AgentRunner` driving Reason -> Act -> Observe multi-step execution, full reasoning trace capturing (`THOUGHT`, `ACTION`, `OBSERVATION`, `ANSWER`), step budget control with graceful synthesis fallback, and `aether run` CLI.
 - **v0.5.0 — Retrieval-Augmented Generation (RAG)**: Extensible document loaders (`TextLoader`, `MarkdownLoader`), sliding-window chunking with boundary snapping, persistent `JsonChunkStore` (`data/rag_chunks.json`), startup re-indexing, cosine similarity retrieval, source citation formatting, and `aether index` CLI command.
 - **v0.4.0 — Tool Framework**: Modular `BaseTool` abstraction, `ToolRegistry`, `ToolExecutor`, `ToolPolicy`, built-in tools (Calculator, Datetime, Python, Terminal, FileInfo).
 - **v0.3.0 — Memory System**: Persistent JSON memory store, rule-based extraction, semantic vector search, memory summarization & consolidation.
 
-The next major milestone is **Epic 9 – Voice**.
+The next major milestone is **Epic 10 – Multi-Agent System**.
 
 ---
 

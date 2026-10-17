@@ -242,10 +242,10 @@ Enable internet-aware capabilities.
 
 Enable natural voice interaction.
 
-- [ ] Speech-to-Text
-- [ ] Text-to-Speech
-- [ ] Wake word
-- [ ] Streaming conversations
+- [x] Speech-to-Text (`BaseSTT`, `WhisperSTT` faster-whisper/whisper, `MockSTT`)
+- [x] Text-to-Speech (`BaseTTS`, `Pyttsx3TTS` offline native engine, `MockTTS`, `SpeakTool`)
+- [x] Wake word (`BaseWakeWordDetector`, `KeywordWakeWordDetector`)
+- [x] Voice Pipeline & Conversation (`VoicePipeline` coordinating STT + ConversationEngine + TTS)
 
 ---
 

@@ -9,6 +9,7 @@ from app.tools.builtin import (
     TerminalTool,
     WriteFileTool,
 )
+from app.voice.tools import SpeakTool
 from app.web.tools import WebScrapeTool, WebSearchTool
 
 
@@ -26,5 +27,6 @@ def create_default_registry() -> ToolRegistry:
     registry.register(ListDirectoryTool())
     registry.register(WebSearchTool())
     registry.register(WebScrapeTool())
+    registry.register(SpeakTool())
 
     return registry

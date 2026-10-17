@@ -1,6 +1,6 @@
 # Aether System Architecture
 
-> **Version:** v0.8.0 (Web Intelligence)
+> **Version:** v0.9.0 (Voice Subsystem)
 > This document describes the current architecture of Aether and its intended long-term evolution.
 
 ---
@@ -32,6 +32,8 @@ flowchart TD
     subgraph Core ["Core Execution Engines"]
         App --> Engine["ConversationEngine<br/>(Interactive Dialogue)"]
         App --> Agent["AgentRunner<br/>(Autonomous ReAct Loop)"]
+        App --> Voice["VoicePipeline<br/>(STT, TTS, Wake Word)"]
+        Voice --> Engine
     end
 
     subgraph Intelligence ["Knowledge and Retrieval Systems"]
@@ -45,10 +47,10 @@ flowchart TD
     end
 
     subgraph Tools ["Tool and Integration Framework"]
-        Agent --> Registry["Tool Registry<br/>(10 Built-in Tools)"]
+        Agent --> Registry["Tool Registry<br/>(11 Built-in Tools)"]
         Engine --> Registry
         Registry --> Executor["Tool Executor and Safety Policy"]
-        Executor --> Builtins["Tools: Terminal, Python, Web Search, Web Scrape, File Ops, Calc, Datetime"]
+        Executor --> Builtins["Tools: Terminal, Python, Web Search, Web Scrape, File Ops, Calc, Datetime, Speak"]
         App -.-> Integrations["Framework Integrations<br/>(LangChain Adapters and LangGraph StateGraph)"]
     end
 ```
@@ -548,6 +550,49 @@ The Web Intelligence subsystem grants Aether zero-API-key internet browsing, art
 
 ---
 
+# Voice Subsystem (`app/voice/`)
+
+The Voice Subsystem equips Aether with local-first, low-latency audio interaction capabilities: Speech-to-Text (STT), Text-to-Speech (TTS), Wake Word Detection, and direct vocalization through the Agent Tool framework.
+
+```text
+                               +-----------------------------+
+                               |        VoicePipeline        |
+                               +--------------+--------------+
+                                              |
+                       +----------------------+----------------------+
+                       |                      |                      |
+                       v                      v                      v
+        +-----------------------------+ +------------+ +-----------------------------+
+        |          BaseSTT            | | BaseWake-  | |          BaseTTS            |
+        | - WhisperSTT (faster/openai)| | WordDetect | | - Pyttsx3TTS (offline SAPI5)|
+        | - MockSTT (for test suites) | | - Keyword- | | - MockTTS (for test suites) |
+        | - Lazy engine loading       | |   Detector | | - Audio file export (.wav)  |
+        +--------------+--------------+ +------------+ +--------------+--------------+
+                       |                      |                       |
+                       +----------------------+-----------------------+
+                                              |
+                                              v
+                               +-----------------------------+
+                               |     ConversationEngine      |
+                               |    (process_voice_turn)     |
+                               +-----------------------------+
+                                              |
+                                              v
+                               +-----------------------------+
+                               |          SpeakTool          |
+                               |    ("speak" agent tool)     |
+                               +-----------------------------+
+```
+
+### Components
+* **Speech-to-Text (`app/voice/stt/`)**: `BaseSTT` abstract interface implemented by `WhisperSTT` (supporting `faster-whisper` and `openai-whisper` with graceful dependency fallback and lazy model initialization) and `MockSTT` for unit testing.
+* **Text-to-Speech (`app/voice/tts/`)**: `BaseTTS` abstract interface implemented by `Pyttsx3TTS` (providing 100% offline, local speech synthesis via Windows SAPI5 / system drivers with rate, volume, and voice selection) and `MockTTS` for deterministic testing.
+* **Wake Word Detection (`app/voice/wakeword/`)**: `BaseWakeWordDetector` abstract class implemented by `KeywordWakeWordDetector`, supporting case-insensitive regex pattern normalization for wake triggers (e.g., "Aether", "Hey Aether") and stripping prefixes from voice commands.
+* **Voice Pipeline (`app/voice/pipeline.py`)**: `VoicePipeline` coordinates STT audio transcription, wake word verification, conversation engine turn execution (`process_voice_turn`), and TTS vocalization.
+* **Speak Tool (`app/voice/tools/speak_tool.py`)**: `SpeakTool` (`speak`), registered in the agent `ToolRegistry`, allowing autonomous agents to vocally respond or alert the user.
+
+---
+
 # Current Core Modules
 
 ### Implemented
@@ -559,11 +604,12 @@ The Web Intelligence subsystem grants Aether zero-API-key internet browsing, art
 * Prompt Builder (dynamic context composition with memory and RAG injection)
 * LLM Abstraction (`BaseLLM`, `LLMFactory`) & Ollama Provider
 * Memory Foundation (`BaseMemoryStore`, `JsonMemoryStore`, semantic vector retrieval, consolidation)
-* Tool Framework (`BaseTool`, `ToolRegistry`, `ToolExecutor`, `ToolPolicy`, 10 built-in tools)
+* Tool Framework (`BaseTool`, `ToolRegistry`, `ToolExecutor`, `ToolPolicy`, 11 built-in tools)
 * Retrieval-Augmented Generation (`RAGPipeline`, `DocumentLoaderFactory`, `PDFLoader`, `TextChunker`, `JsonChunkStore`, startup re-indexing)
 * Agentic ReAct Loop (`AgentRunner`, `AgentTrace`, multi-step autonomous execution)
 * AI Framework Integrations (`LangChain` prompts/chains/tools/LLM & `LangGraph` state/workflow/agent)
 * Web Intelligence Subsystem (`WebSearchTool`, `WebScrapeTool`, `WebPipeline`, `DuckDuckGoSearch`, `ContentExtractor`)
+* Voice Subsystem (`WhisperSTT`, `Pyttsx3TTS`, `KeywordWakeWordDetector`, `VoicePipeline`, `SpeakTool`)
 * Diagnostics (`Doctor`, environment & daemon check suite)
 * Debug System (`DebugCollector`, `DebugRenderer`)
 * Bootstrap Layer (`ApplicationBuilder` composition root)
@@ -571,7 +617,6 @@ The Web Intelligence subsystem grants Aether zero-API-key internet browsing, art
 
 ### Planned
 
-* Voice System (Whisper STT, Piper TTS)
 * Multi-Agent Collaboration & Role Delegation
 * Production REST API & Packaging
 
@@ -581,7 +626,7 @@ The Web Intelligence subsystem grants Aether zero-API-key internet browsing, art
 
 ### Current Version
 
-**v0.8.0**
+**v0.9.0**
 
 ### Completed Epics
 
@@ -594,6 +639,7 @@ The Web Intelligence subsystem grants Aether zero-API-key internet browsing, art
 * Phase 6 – Agentic ReAct Loop ✅
 * Phase 7 – AI Framework Integrations (LangChain & LangGraph) ✅
 * Phase 8 – Web Intelligence ✅
+* Phase 9 – Voice Subsystem ✅
 
-The next architectural milestone is **Phase 9: Voice**.
+The next architectural milestone is **Phase 10: Multi-Agent System**.
 

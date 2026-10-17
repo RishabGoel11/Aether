@@ -2,6 +2,37 @@
 
 All notable changes to Aether will be documented in this file.
 
+## [0.9.0] - Phase 9: Voice
+
+### Added
+
+- **Voice Subsystem (`app/voice/`)**:
+  - `models.py`: Typed Pydantic models for `AudioData`, `TranscriptionResult`, `SpeechResult`, and `VoiceConfig`.
+  - `stt/`:
+    - `BaseSTT`: Abstract interface for Speech-to-Text transcription.
+    - `WhisperSTT`: Local Whisper integration supporting `faster-whisper` and `openai-whisper`.
+    - `MockSTT`: Deterministic STT provider for fast, repeatable testing.
+  - `tts/`:
+    - `BaseTTS`: Abstract interface for Text-to-Speech synthesis and playback.
+    - `Pyttsx3TTS`: 100% offline local speech synthesis using native system drivers (`pyttsx3`).
+    - `MockTTS`: Mock TTS engine recording spoken text for test verification.
+  - `wakeword/`:
+    - `BaseWakeWordDetector`: Abstract wake word detection interface.
+    - `KeywordWakeWordDetector`: Regex-normalized wake word triggering ("Aether", "Hey Aether").
+  - `pipeline.py`:
+    - `VoicePipeline`: High-level coordinator linking STT, wake word detection, `ConversationEngine`, and TTS.
+  - `tools/speak_tool.py`:
+    - `SpeakTool` (`speak`): Tool allowing both conversational agents and ReAct runners to speak aloud to the user.
+- **Application Bootstrap Integration**:
+  - `app.voice`: Direct access to `VoicePipeline(engine=engine)` on the `Application` facade.
+  - Default tool registry expanded to 11 built-in tools (including `speak`).
+
+### Tested
+
+- 346 total unit tests passing with 89% code coverage (20 new tests across STT, TTS, wake word, voice pipeline, and SpeakTool).
+
+---
+
 ## [0.8.0] - Phase 8: Web Intelligence
 
 ### Added
