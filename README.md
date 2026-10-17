@@ -2,9 +2,9 @@
 
 > **A modular, local-first AI engineering platform built with privacy, transparency, extensibility, and software engineering best practices at its core.**
 
-![Version](https://img.shields.io/badge/version-v0.9.0-blue)
+![Version](https://img.shields.io/badge/version-v0.10.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB)
-![Tests](https://img.shields.io/badge/tests-346%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-369%20passed-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -233,6 +233,20 @@ Aether includes a local-first, low-latency audio interaction subsystem for speec
 - **End-to-End Voice Pipeline**: `VoicePipeline` orchestrates audio transcription, wake word verification, conversation turn processing (`process_voice_turn`), and speech synthesis.
 - **Agent Vocalization Tool**: `SpeakTool` (`speak`) enables autonomous agents to speak directly to the user.
 
+## Multi-Agent Subsystem
+
+Aether expands into a collaborative multi-agent platform featuring specialized personas working together via a shared Blackboard:
+
+- **Planner Agent (`PlannerAgent`)**: Decomposes high-level user goals into structured `TaskPlan`s with subtask dependencies and role assignments.
+- **Research Agent (`ResearchAgent`)**: Specializes in gathering factual information using internet search (`web_search`), web page scraping (`web_scrape`), and workspace file inspection.
+- **Coder Agent (`CoderAgent`)**: Authors modular code, manipulates workspace files (`read_file`, `write_file`), executes Python scripts, and verifies terminal commands.
+- **Reviewer Agent (`ReviewerAgent`)**: Inspects deliverables for correctness, security, and edge cases, providing structured QA critiques with `APPROVED` or `NEEDS_REVISION` verdicts.
+- **Coordinator Agent (`CoordinatorAgent`)**: Supervises execution, resolves conflicts, and synthesizes unified, publication-grade user deliverables.
+- **Shared Blackboard (`Blackboard`)**: Central state repository for completed subtask results, shared artifacts, and inter-agent messages.
+- **Agent Team Orchestrator (`AgentTeam`)**: Manages the end-to-end multi-agent lifecycle (`solve()`) and direct specialist delegation (`delegate()`).
+- **Dynamic Delegation Tool (`DelegateTaskTool`)**: Enables any agent or ReAct loop to dynamically delegate subtasks to specialists during runtime.
+- **CLI Workflow**: `aether team "GOAL" [--no-plan]` executes the full collaborative multi-agent workflow.
+
 ## Engineering Excellence
 
 - Modern Python packaging with `uv`
@@ -240,7 +254,7 @@ Aether includes a local-first, low-latency audio interaction subsystem for speec
 - Hatchling build backend
 - GitHub Actions Continuous Integration
 - Ruff linting and formatting
-- Pytest suite (346 tests, 89% test coverage)
+- Pytest suite (369 tests, 89% test coverage)
 - Debug subsystem
 - Diagnostics subsystem (`aether doctor`)
 - Documentation-first development workflow
@@ -251,8 +265,9 @@ Aether includes a local-first, low-latency audio interaction subsystem for speec
 
 Aether's future roadmap includes:
 
-- Multi-Agent Collaboration & Role Delegation (Planner, Coder, Reviewer, Coordinator)
-- Production Deployment & REST API
+- Production Deployment & REST API (FastAPI)
+- Desktop / Web User Interface
+- Docker containerization & cloud packaging
 
 A detailed development roadmap is available in `docs/ROADMAP.md`.
 
@@ -264,15 +279,17 @@ Aether follows a layered architecture designed to keep business logic independen
 
 ```mermaid
 flowchart TD
-    User([User]) --> CLI["Command-Line Interface<br/>(chat | run | index | doctor | version)"]
+    User([User]) --> CLI["Command-Line Interface<br/>(chat | run | team | index | doctor | version)"]
     CLI --> Builder["ApplicationBuilder<br/>(Dependency Injection Composition Root)"]
     Builder --> App["Application Facade"]
 
     subgraph Core ["Execution Engines"]
         App --> Engine["ConversationEngine<br/>(Interactive Dialogue)"]
         App --> Agent["AgentRunner<br/>(Autonomous ReAct Loop)"]
+        App --> Team["AgentTeam<br/>(Planner, Coder, Researcher, Reviewer, Coordinator)"]
         App --> Voice["VoicePipeline<br/>(STT, TTS, Wake Word)"]
         Voice --> Engine
+        Team --> Engine
     end
 
     subgraph Intelligence ["Knowledge and Retrieval Systems"]
@@ -288,6 +305,7 @@ flowchart TD
     subgraph Tools ["Tool and Integration Framework"]
         Agent --> Registry["Tool Registry<br/>(11 Built-in Tools)"]
         Engine --> Registry
+        Team --> Registry
         Registry --> Executor["Tool Executor and Safety Policy"]
         Executor --> Builtins["Tools: Terminal, Python, Web Search, Web Scrape, File Ops, Calc, Datetime, Speak"]
         App -.-> Integrations["Framework Integrations<br/>(LangChain Adapters and LangGraph StateGraph)"]
@@ -349,6 +367,12 @@ Run autonomous agentic goals (ReAct loop):
 
 ```bash
 uv run aether run "Calculate 15 factorial" --show-trace
+```
+
+Run collaborative multi-agent problem solving:
+
+```bash
+uv run aether team "Design a Python CLI tool for checking site uptime"
 ```
 
 Index documents into the local RAG knowledge base:
@@ -414,7 +438,7 @@ Aether uses:
 | Epic 7 – AI Framework Integrations | ✅ Complete |
 | Epic 8 – Web Intelligence | ✅ Complete |
 | Epic 9 – Voice | ✅ Complete |
-| Epic 10 – Multi-Agent System | ⬜ Planned |
+| Epic 10 – Multi-Agent System | ✅ Complete |
 | Epic 11 – Production | ⬜ Planned |
 
 For detailed milestones and implementation tasks, see `docs/ROADMAP.md`.
@@ -423,24 +447,28 @@ For detailed milestones and implementation tasks, see `docs/ROADMAP.md`.
 
 # Latest Release
 
-## v0.9.0 — Voice Subsystem
+## v0.10.0 — Multi-Agent System
 
 Highlights of this release:
 
-- **Voice Subsystem (`app/voice/`)**:
-  - `WhisperSTT`: Local Speech-to-Text supporting `faster-whisper` and `openai-whisper` with lazy engine initialization and graceful installation guidance
-  - `Pyttsx3TTS`: 100% offline, local speech synthesis using Windows SAPI5 / system drivers with rate/volume configuration and `.wav` export
-  - `KeywordWakeWordDetector`: Wake phrase detection ("Aether", "Hey Aether") with regex normalization and query prefix stripping
-  - `VoicePipeline`: High-level facade coordinating audio transcription, wake word verification, conversation engine turn execution, and TTS vocalization
-- **Autonomous Agent Vocalization Tool**:
-  - `SpeakTool` (`speak`): Vocalize responses or announce status via the active TTS engine
-  - Built-in tool registry expanded to 11 tools
+- **Multi-Agent Subsystem (`app/multi_agent/`)**:
+  - `PlannerAgent`: Autonomous goal decomposition into structured `TaskPlan`s with dependency management
+  - `ResearchAgent`: Fact gathering, internet searches (`web_search`), web scraping (`web_scrape`), and document exploration
+  - `CoderAgent`: Software development, file operations (`read_file`, `write_file`), Python execution, and test runs
+  - `ReviewerAgent`: Quality assurance, security analysis, edge-case critiques, and structured verdicts (`APPROVED` / `NEEDS_REVISION`)
+  - `CoordinatorAgent`: Supervisor orchestrating workflow execution and synthesizing publication-ready deliverables
+  - `Blackboard`: Central state repository tracking task outputs, shared artifacts, and inter-agent messages
+  - `AgentTeam`: High-level orchestration facade executing the collaborative team workflow (`solve()`) and direct specialist delegation (`delegate()`)
+  - `DelegateTaskTool` (`delegate_task`): Tool enabling agents and ReAct runners to dynamically delegate subtasks to specialists
+- **CLI Workflow**:
+  - `aether team "GOAL" [--no-plan]`: Command to initiate collaborative multi-agent problem solving
 - **Test Suite & Engineering**:
-  - 20 new unit tests covering models, STT, TTS, wake word detector, speak tool, and voice pipeline
-  - 346 total unit tests passing with 89% code coverage
+  - 23 new unit tests across multi-agent models, blackboard, specialists, team orchestrator, delegate tool, builder, and CLI
+  - 369 total unit tests passing with 89% code coverage
 
 ### Prior Release Highlights
 
+- **v0.9.0 — Voice Subsystem**: Local Speech-to-Text (`WhisperSTT`), 100% offline Text-to-Speech (`Pyttsx3TTS`), Wake Word Detection (`KeywordWakeWordDetector`), end-to-end `VoicePipeline`, and agent `SpeakTool` (`speak`).
 - **v0.8.0 — Web Intelligence**: Zero-API-key DuckDuckGo search, HTML content extraction, web scraping, multi-source research pipeline, `web_search` and `web_scrape` agent tools, and multi-page PDF ingestion (`PDFLoader`).
 - **v0.7.0 — AI Framework Integrations**: LangChain prompt/tool/LLM adapters, LCEL `|` pipe chains, LangGraph `StateGraph`, `CompiledGraph`, and `GraphReActAgent`.
 - **v0.6.0 — Agentic ReAct Loop**: Autonomous `AgentRunner` driving Reason -> Act -> Observe multi-step execution, full reasoning trace capturing (`THOUGHT`, `ACTION`, `OBSERVATION`, `ANSWER`), step budget control with graceful synthesis fallback, and `aether run` CLI.
@@ -448,7 +476,7 @@ Highlights of this release:
 - **v0.4.0 — Tool Framework**: Modular `BaseTool` abstraction, `ToolRegistry`, `ToolExecutor`, `ToolPolicy`, built-in tools (Calculator, Datetime, Python, Terminal, FileInfo).
 - **v0.3.0 — Memory System**: Persistent JSON memory store, rule-based extraction, semantic vector search, memory summarization & consolidation.
 
-The next major milestone is **Epic 10 – Multi-Agent System**.
+The next major milestone is **Epic 11 – Production**.
 
 ---
 

@@ -1,6 +1,6 @@
 # Aether System Architecture
 
-> **Version:** v0.9.0 (Voice Subsystem)
+> **Version:** v0.10.0 (Multi-Agent System)
 > This document describes the current architecture of Aether and its intended long-term evolution.
 
 ---
@@ -25,15 +25,17 @@ Each subsystem has a single responsibility and communicates through well-defined
 
 ```mermaid
 flowchart TD
-    User([User]) --> CLI["Command-Line Interface<br/>(chat | run | index | doctor | version)"]
+    User([User]) --> CLI["Command-Line Interface<br/>(chat | run | team | index | doctor | version)"]
     CLI --> Builder["ApplicationBuilder<br/>(Dependency Injection Composition Root)"]
     Builder --> App["Application Facade"]
 
     subgraph Core ["Core Execution Engines"]
         App --> Engine["ConversationEngine<br/>(Interactive Dialogue)"]
         App --> Agent["AgentRunner<br/>(Autonomous ReAct Loop)"]
+        App --> Team["AgentTeam<br/>(Planner, Coder, Researcher, Reviewer, Coordinator)"]
         App --> Voice["VoicePipeline<br/>(STT, TTS, Wake Word)"]
         Voice --> Engine
+        Team --> Engine
     end
 
     subgraph Intelligence ["Knowledge and Retrieval Systems"]
@@ -49,6 +51,7 @@ flowchart TD
     subgraph Tools ["Tool and Integration Framework"]
         Agent --> Registry["Tool Registry<br/>(11 Built-in Tools)"]
         Engine --> Registry
+        Team --> Registry
         Registry --> Executor["Tool Executor and Safety Policy"]
         Executor --> Builtins["Tools: Terminal, Python, Web Search, Web Scrape, File Ops, Calc, Datetime, Speak"]
         App -.-> Integrations["Framework Integrations<br/>(LangChain Adapters and LangGraph StateGraph)"]
@@ -593,6 +596,60 @@ The Voice Subsystem equips Aether with local-first, low-latency audio interactio
 
 ---
 
+# Multi-Agent Subsystem (`app/multi_agent/`)
+
+The Multi-Agent Subsystem expands Aether into a collaborative AI platform featuring specialized agents with distinct personas, tools, and responsibilities working together via a shared Blackboard:
+
+```text
+                                +-----------------------------+
+                                |          AgentTeam          |
+                                +--------------+--------------+
+                                               |
+                        +----------------------+----------------------+
+                        |                      |                      |
+                        v                      v                      v
+         +-----------------------------+ +------------+ +-----------------------------+
+         |        PlannerAgent         | | Blackboard | |      CoordinatorAgent       |
+         | - Decomposes goals into     | | (Shared    | | - Synthesizes deliverables  |
+         |   structured TaskPlan       | |  artifacts | | - Resolves conflicts       |
+         | - Assigns tasks by role     | |  outputs   | | - Final user presentation   |
+         | - Validates dependencies    | |  messages) | |                             |
+         +--------------+--------------+ +-----+------+ +--------------+--------------+
+                        |                      |                       |
+                        +----------------------+-----------------------+
+                                               |
+                        +----------------------+----------------------+
+                        |                                             |
+                        v                                             v
+         +-----------------------------+               +-----------------------------+
+         |        ResearchAgent        |               |          CoderAgent         |
+         | - Web search & scraping     |               | - Code implementation       |
+         | - Document & workspace read |               | - Script & test execution   |
+         | - Factual synthesis         |               | - File reading & writing    |
+         +--------------+--------------+               +--------------+--------------+
+                        |                                             |
+                        +----------------------+----------------------+
+                                               |
+                                               v
+                                +-----------------------------+
+                                |        ReviewerAgent        |
+                                | - Correctness & QA review   |
+                                | - Edge cases & bug critique |
+                                | - Verdict: APPROVED/REVISION|
+                                +-----------------------------+
+```
+
+### Components
+* **Planner Agent (`app/multi_agent/agents/planner.py`)**: Decomposes high-level objectives into a structured `TaskPlan` with typed `SubTask`s, role assignments, and dependency chains.
+* **Research Agent (`app/multi_agent/agents/researcher.py`)**: Investigates topics, queries web search (`web_search`), scrapes pages (`web_scrape`), and analyzes documents to produce factual findings.
+* **Coder Agent (`app/multi_agent/agents/coder.py`)**: Authors clean, tested code, manipulates workspace files (`read_file`, `write_file`), executes Python snippets, and verifies results in the terminal.
+* **Reviewer Agent (`app/multi_agent/agents/reviewer.py`)**: Inspects deliverables against requirements, evaluates quality, identifies edge cases, and provides structured feedback with verdicts (`APPROVED` or `NEEDS_REVISION`).
+* **Coordinator Agent (`app/multi_agent/agents/coordinator.py`)**: Supervises execution, aggregates specialist outputs, and synthesizes unified, publication-ready answers.
+* **Shared Blackboard (`app/multi_agent/blackboard.py`)**: Central shared state bus storing subtask results, artifacts, and inter-agent messages.
+* **Delegation Tool (`app/multi_agent/tools/delegate_tool.py`)**: `DelegateTaskTool` (`delegate_task`) enables any agent to delegate subtasks dynamically to specialists.
+
+---
+
 # Current Core Modules
 
 ### Implemented
@@ -610,15 +667,16 @@ The Voice Subsystem equips Aether with local-first, low-latency audio interactio
 * AI Framework Integrations (`LangChain` prompts/chains/tools/LLM & `LangGraph` state/workflow/agent)
 * Web Intelligence Subsystem (`WebSearchTool`, `WebScrapeTool`, `WebPipeline`, `DuckDuckGoSearch`, `ContentExtractor`)
 * Voice Subsystem (`WhisperSTT`, `Pyttsx3TTS`, `KeywordWakeWordDetector`, `VoicePipeline`, `SpeakTool`)
+* Multi-Agent System (`PlannerAgent`, `ResearchAgent`, `CoderAgent`, `ReviewerAgent`, `CoordinatorAgent`, `AgentTeam`, `Blackboard`, `DelegateTaskTool`)
 * Diagnostics (`Doctor`, environment & daemon check suite)
 * Debug System (`DebugCollector`, `DebugRenderer`)
 * Bootstrap Layer (`ApplicationBuilder` composition root)
-* CLI (`chat`, `run`, `index`, `doctor`, `version`)
+* CLI (`chat`, `run`, `team`, `index`, `doctor`, `version`)
 
 ### Planned
 
-* Multi-Agent Collaboration & Role Delegation
 * Production REST API & Packaging
+* Desktop / Web User Interface
 
 ---
 
@@ -626,7 +684,7 @@ The Voice Subsystem equips Aether with local-first, low-latency audio interactio
 
 ### Current Version
 
-**v0.9.0**
+**v0.10.0**
 
 ### Completed Epics
 
@@ -640,6 +698,8 @@ The Voice Subsystem equips Aether with local-first, low-latency audio interactio
 * Phase 7 – AI Framework Integrations (LangChain & LangGraph) ✅
 * Phase 8 – Web Intelligence ✅
 * Phase 9 – Voice Subsystem ✅
+* Phase 10 – Multi-Agent System ✅
 
-The next architectural milestone is **Phase 10: Multi-Agent System**.
+The next architectural milestone is **Phase 11: Production**.
+
 

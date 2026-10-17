@@ -69,4 +69,20 @@ def create_parser() -> argparse.ArgumentParser:
         help="Print the full step-by-step reasoning trace.",
     )
 
+    team_parser = subparsers.add_parser(
+        "team",
+        help="Run collaborative multi-agent workflow (Planner, Researcher, Coder, Reviewer).",
+    )
+    team_parser.add_argument(
+        "goal",
+        help="Goal for the agent team to collaborate on.",
+    )
+    team_parser.add_argument(
+        "--no-plan",
+        dest="show_plan",
+        action="store_false",
+        default=True,
+        help="Do not display the initial execution plan.",
+    )
+
     return parser

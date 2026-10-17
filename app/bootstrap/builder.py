@@ -103,11 +103,18 @@ class ApplicationBuilder:
             tool_policy=tool_policy,
         )
 
+        from app.multi_agent.team import AgentTeam
         from app.voice.pipeline import VoicePipeline
         from app.web.pipeline import WebPipeline
 
         web_pipeline = WebPipeline(llm=llm)
         voice_pipeline = VoicePipeline(engine=engine)
+        team = AgentTeam(
+            llm=llm,
+            tools=tools,
+            executor=tool_executor,
+            policy=tool_policy,
+        )
 
         return Application(
             settings=settings,
@@ -121,4 +128,5 @@ class ApplicationBuilder:
             rag=rag_pipeline,
             web=web_pipeline,
             voice=voice_pipeline,
+            team=team,
         )

@@ -2,6 +2,36 @@
 
 All notable changes to Aether will be documented in this file.
 
+## [0.10.0] - Phase 10: Multi-Agent System
+
+### Added
+
+- **Multi-Agent Architecture (`app/multi_agent/`)**:
+  - `models.py`: Typed Pydantic models for `AgentRole`, `TaskStatus`, `SubTask`, `TaskPlan`, `AgentMessage`, `SpecialistResult`, and `TeamResult`.
+  - `blackboard.py`: `Blackboard` shared context bus tracking artifacts, subtask outputs, inter-agent messages, and dependency summaries.
+  - `base.py`: `BaseSpecialistAgent` abstract base class with ReAct runner integration and direct LLM generation.
+  - `agents/`:
+    - `PlannerAgent`: Decomposes high-level goals into structured `TaskPlan`s with dependencies and assigned roles.
+    - `ResearchAgent`: Specialist for fact gathering, web exploration, and document analysis.
+    - `CoderAgent`: Specialist for software engineering, file operations, Python execution, and testing.
+    - `ReviewerAgent`: Specialist for code review, verification, safety validation, and QA critique.
+    - `CoordinatorAgent`: High-level supervisor directing the team and synthesizing polished user deliverables.
+  - `team.py`:
+    - `AgentTeam`: High-level orchestrator executing the full collaborative workflow (`solve()`) and direct specialist delegation (`delegate()`).
+  - `tools/delegate_tool.py`:
+    - `DelegateTaskTool` (`delegate_task`): Tool allowing agents to dynamically delegate subtasks to specialists during execution.
+- **Application Integration**:
+  - `app.team`: Direct access to `AgentTeam` on the `Application` facade.
+  - `ApplicationBuilder`: Instantiates and wires `AgentTeam` into the composition root.
+- **CLI Subcommand**:
+  - `aether team "GOAL" [--no-plan]`: Command to launch collaborative multi-agent problem solving.
+
+### Tested
+
+- 14 new unit tests across multi-agent models, blackboard, specialists, team orchestrator, and delegate tool.
+
+---
+
 ## [0.9.0] - Phase 9: Voice
 
 ### Added

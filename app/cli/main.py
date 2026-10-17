@@ -4,6 +4,7 @@ from app.cli.commands.chat import run as chat_command
 from app.cli.commands.doctor import run as doctor_command
 from app.cli.commands.index import run as index_command
 from app.cli.commands.run import run as run_command
+from app.cli.commands.team import team as team_command
 from app.cli.commands.version import run as version_command
 from app.cli.parser import create_parser
 
@@ -35,6 +36,12 @@ def main() -> None:
             args.goal,
             max_steps=args.max_steps,
             show_trace=args.show_trace,
+        )
+
+    elif args.command == "team":
+        team_command(
+            args.goal,
+            show_plan=args.show_plan,
         )
 
 

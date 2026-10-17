@@ -193,3 +193,24 @@ def test_builder_creates_rag_pipeline(monkeypatch):
 
     assert isinstance(app.rag, RAGPipeline)
     assert app.engine.rag_pipeline is app.rag
+
+
+def test_builder_creates_agent_team(monkeypatch):
+    from app.multi_agent.team import AgentTeam
+
+    monkeypatch.setattr(
+        LLMFactory,
+        "create",
+        lambda settings: FakeLLM(),
+    )
+    monkeypatch.setattr(MemoryManager, "reindex", lambda self: None)
+
+    builder = ApplicationBuilder()
+    app = builder.build()
+
+    assert isinstance(app.team, AgentTeam)
+    assert app.team.planner is not None
+    assert app.team.researcher is not None
+    assert app.team.coder is not None
+    assert app.team.reviewer is not None
+    assert app.team.coordinator is not None

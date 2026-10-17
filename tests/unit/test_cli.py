@@ -50,3 +50,37 @@ def test_cli_index_file(tmp_path: Path, capsys):
     captured = capsys.readouterr()
     assert "Successfully indexed" in captured.out
     assert "(1 chunks)" in captured.out
+
+
+def test_parser_team_command():
+    parser = create_parser()
+    args = parser.parse_args(["team", "Design architecture"])
+    assert args.command == "team"
+    assert args.goal == "Design architecture"
+    assert args.show_plan is True
+
+    args_no_plan = parser.parse_args(["team", "Design architecture", "--no-plan"])
+    assert args_no_plan.show_plan is False
+
+
+def test_cli_team_command(capsys):
+    from app.cli.commands.team import team as run_team
+    from app.multi_agent.models import TeamResult
+
+    team_mock = Mock()
+    team_mock.solve.return_value = TeamResult(
+        goal="Test goal",
+        final_answer="Coordinated output",
+        success=True,
+    )
+
+    app_mock = Mock()
+    app_mock.team = team_mock
+
+    with patch("app.cli.commands.team.ApplicationBuilder") as builder_cls:
+        builder_cls.return_value.build.return_value = app_mock
+        run_team("Test goal", show_plan=False)
+
+    captured = capsys.readouterr()
+    assert "Aether Multi-Agent Team assembling" in captured.out
+    assert "Coordinated output" in captured.out

@@ -249,16 +249,18 @@ Enable natural voice interaction.
 
 ---
 
-# Phase 10 – Multi-Agent System
+# Phase 10 – Multi-Agent System ✅
 
 Expand Aether into a collaborative AI platform.
 
-- [ ] Planner Agent
-- [ ] Research Agent
-- [ ] Coding Agent
-- [ ] Reviewer Agent
-- [ ] Coordinator Agent
-- [ ] Agent communication
+- [x] Planner Agent (`PlannerAgent` decomposing goals into `TaskPlan` with dependencies)
+- [x] Research Agent (`ResearchAgent` gathering facts, web search, web scrape, file reading)
+- [x] Coding Agent (`CoderAgent` designing and writing code, running tests & scripts)
+- [x] Reviewer Agent (`ReviewerAgent` verifying outputs, QA critique, verdicts)
+- [x] Coordinator Agent (`CoordinatorAgent` supervising team and synthesizing final answers)
+- [x] Agent communication & orchestration (`Blackboard` shared state bus, `AgentTeam` orchestrator, `DelegateTaskTool` for ad-hoc specialist delegation)
+- [x] CLI `aether team` command (`aether team "GOAL" [--no-plan]`)
+
 
 ---
 

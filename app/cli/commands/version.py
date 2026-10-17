@@ -2,4 +2,4 @@ def run() -> None:
     """
     Display the current Aether version.
     """
-    print("Aether v0.9.0")
+    print("Aether v0.10.0")
