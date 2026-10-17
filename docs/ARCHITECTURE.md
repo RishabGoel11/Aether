@@ -23,59 +23,34 @@ Each subsystem has a single responsibility and communicates through well-defined
 
 # High-Level Architecture
 
-```text
-                                  +----------------------+
-                                  |        User          |
-                                  +----------+-----------+
-                                             |
-                                             v
-               +-------------------------------------------------------------+
-               |                  Command-Line Interface                     |
-               |         chat   |   run   |   index   |  doctor  |  version  |
-               +-----------------------------+-------------------------------+
-                                             |
-                                             v
-                              +-------------------------------+
-                              |      ApplicationBuilder       |
-                              +---------------+---------------+
-                                              |
-                     +------------------------+------------------------+
-                     |                                                 |
-                     v                                                 v
-      +-------------------------------+                 +-------------------------------+
-      |      ConversationEngine       |                 |          AgentRunner          |
-      |   (Interactive Multi-Turn)    |                 |   (Autonomous ReAct Loop)     |
-      +---------------+---------------+                 +---------------+---------------+
-                      |                                                 |
-      +---------------+---------------+----------------+                |
-      |               |               |                |                |
-      v               v               v                v                v
-+------------+ +-------------+ +--------------+ +-------------------------------+
-|PromptBuildr| |   Session   | |DebugCollector| |        Tool Framework         |
-+-----+------+ +------+------+ +--------------+ |  Registry | Executor | Policy |
-      |               |                         +---------------+---------------+
-      v               v                                         |
-+-------------+ +-------------+                                 v
-| RAGPipeline | |MemoryManager|                         +---------------+
-+------+------+ +------+------+                         | Builtin Tools |
-       |               |                                | Python | Term |
-       v               v                                | Calc | Time   |
-+-------------+ +-------------+                         +---------------+
-|JsonChunkStor| |JsonMemStore |
-| (Disk RAG)  | | (Disk Mem)  |
-+------+------+ +------+------+
-       \               /
-        v             v
-      +-----------------+
-      |   VectorStore   |
-      | (Cosine Search) |
-      +--------+--------+
-               |
-               v
-      +-----------------+
-      |    Embedder     |
-      | (Ollama Embed)  |
-      +-----------------+
+```mermaid
+flowchart TD
+    User([User]) --> CLI["Command-Line Interface<br/>(chat | run | index | doctor | version)"]
+    CLI --> Builder["ApplicationBuilder<br/>(Dependency Injection Composition Root)"]
+    Builder --> App["Application Facade"]
+
+    subgraph Core ["Core Execution Engines"]
+        App --> Engine["ConversationEngine<br/>(Interactive Dialogue)"]
+        App --> Agent["AgentRunner<br/>(Autonomous ReAct Loop)"]
+    end
+
+    subgraph Intelligence ["Knowledge and Retrieval Systems"]
+        Engine --> Prompt["PromptBuilder"]
+        Prompt --> RAG["RAG Pipeline<br/>(PDF, Markdown, Text)"]
+        Prompt --> Mem["Memory Manager<br/>(Semantic and Session Memory)"]
+        Prompt --> Web["Web Pipeline<br/>(DuckDuckGo Search and Scraper)"]
+        RAG --> VectorStore["Vector Store<br/>(Cosine Similarity)"]
+        Mem --> VectorStore
+        VectorStore --> Embedder["Ollama Embedder"]
+    end
+
+    subgraph Tools ["Tool and Integration Framework"]
+        Agent --> Registry["Tool Registry<br/>(10 Built-in Tools)"]
+        Engine --> Registry
+        Registry --> Executor["Tool Executor and Safety Policy"]
+        Executor --> Builtins["Tools: Terminal, Python, Web Search, Web Scrape, File Ops, Calc, Datetime"]
+        App -.-> Integrations["Framework Integrations<br/>(LangChain Adapters and LangGraph StateGraph)"]
+    end
 ```
 
 ---
