@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from app.core.engine import ConversationEngine
+from app.voice.audio.recorder import MicrophoneRecorder
 from app.voice.models import AudioData, SpeechResult, TranscriptionResult
 from app.voice.stt.base import BaseSTT
 from app.voice.stt.mock import MockSTT
@@ -14,18 +15,20 @@ from app.voice.wakeword.keyword import KeywordWakeWordDetector
 
 
 class VoicePipeline:
-    """Coordinates Speech-to-Text, Wake Word Detection, and Text-to-Speech synthesis."""
+    """Coordinates Speech-to-Text, Wake Word Detection, Text-to-Speech, and Microphone input."""
 
     def __init__(
         self,
         stt: BaseSTT | None = None,
         tts: BaseTTS | None = None,
         wakeword: BaseWakeWordDetector | None = None,
+        recorder: MicrophoneRecorder | None = None,
         engine: ConversationEngine | None = None,
     ) -> None:
         self.stt = stt or MockSTT()
         self.tts = tts or Pyttsx3TTS()
         self.wakeword = wakeword or KeywordWakeWordDetector()
+        self.recorder = recorder or MicrophoneRecorder()
         self.engine = engine
 
     def transcribe(
@@ -84,3 +87,34 @@ class VoicePipeline:
             "response_text": response_text,
             "speech": speech_result,
         }
+
+    def list_input_devices(self) -> list[dict[str, Any]]:
+        """List all detected audio input microphones on the machine."""
+        return self.recorder.list_devices()
+
+    def listen(self, duration: float = 5.0, until_silence: bool = False) -> AudioData:
+        """
+        Record audio from the microphone.
+
+        Parameters
+        ----------
+        duration:
+            Recording duration in seconds (or max duration if until_silence is True).
+        until_silence:
+            If True, automatically stops recording when silence is detected.
+        """
+        if until_silence:
+            return self.recorder.record_until_silence(max_duration=duration)
+        return self.recorder.record(duration=duration)
+
+    def listen_and_process(
+        self,
+        duration: float = 5.0,
+        until_silence: bool = False,
+        speak_response: bool = True,
+    ) -> dict[str, Any]:
+        """
+        Record live voice from microphone, transcribe it, query the engine, and speak the reply.
+        """
+        audio = self.listen(duration=duration, until_silence=until_silence)
+        return self.process_voice_turn(audio=audio, speak_response=speak_response)

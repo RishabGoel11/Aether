@@ -85,4 +85,30 @@ def create_parser() -> argparse.ArgumentParser:
         help="Do not display the initial execution plan.",
     )
 
+    voice_parser = subparsers.add_parser(
+        "voice",
+        help="Interactive voice assistant listening to your microphone and speaking replies.",
+    )
+    voice_parser.add_argument(
+        "--seconds",
+        dest="seconds",
+        type=float,
+        default=5.0,
+        help="Microphone listen duration per turn in seconds (default: 5.0).",
+    )
+    voice_parser.add_argument(
+        "--until-silence",
+        dest="until_silence",
+        action="store_true",
+        default=False,
+        help="Automatically stop recording when speech silence is detected.",
+    )
+    voice_parser.add_argument(
+        "--no-speak",
+        dest="speak_response",
+        action="store_false",
+        default=True,
+        help="Do not speak responses aloud (text-only output).",
+    )
+
     return parser
