@@ -2,9 +2,9 @@
 
 > **A modular, local-first AI engineering platform built with privacy, transparency, extensibility, and software engineering best practices at its core.**
 
-![Version](https://img.shields.io/badge/version-v0.7.0-blue)
+![Version](https://img.shields.io/badge/version-v0.8.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB)
-![Tests](https://img.shields.io/badge/tests-309%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-326%20passed-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -126,6 +126,8 @@ Current capabilities:
 - Read file (reads workspace text with line slicing)
 - Write file (writes or appends text, auto-creates parent folders)
 - List directory (inspects files and subdirectories with sizes and types)
+- Web search (`web_search` - zero-API-key internet querying)
+- Web scrape (`web_scrape` - extracts clean text from URLs)
 - Python code execution
 - Terminal command execution
 
@@ -210,6 +212,16 @@ Aether maintains strict architectural independence while offering zero-lock-in a
   - `app.get_langchain_model()`: Exposes the active LLM as a LangChain-compatible model.
   - `app.create_graph_agent()`: Instantiates a graph-driven ReAct agent backed by the application's engine and tool executor.
 
+## Web Intelligence Subsystem
+
+Aether includes internet-aware capabilities enabling both conversational and autonomous agents to explore the web:
+
+- **Zero-API-Key Web Search**: `DuckDuckGoSearch` queries internet sources and unwraps redirect URLs cleanly with no external API keys required.
+- **HTML Content Extraction**: `ContentExtractor` strips scripts, navigation, footers, and advertisement markup using BeautifulSoup, extracting clean article body text and metadata.
+- **Web Scraper**: `WebScraper` fetches HTTP/HTTPS URLs with realistic browser headers, redirect following, and size truncation safeguards.
+- **Multi-Source Research Pipeline**: `WebPipeline` coordinates multi-page searches, page fetching, and LLM-grounded research synthesis.
+- **Agent Tool Integration**: `WebSearchTool` (`web_search`) and `WebScrapeTool` (`web_scrape`) registered by default in the tool registry.
+
 ## Engineering Excellence
 
 - Modern Python packaging with `uv`
@@ -217,7 +229,7 @@ Aether maintains strict architectural independence while offering zero-lock-in a
 - Hatchling build backend
 - GitHub Actions Continuous Integration
 - Ruff linting and formatting
-- Pytest suite (294 tests, 89% test coverage)
+- Pytest suite (326 tests, 89% test coverage)
 - Debug subsystem
 - Diagnostics subsystem (`aether doctor`)
 - Documentation-first development workflow
@@ -228,9 +240,8 @@ Aether maintains strict architectural independence while offering zero-lock-in a
 
 Aether's future roadmap includes:
 
-- Web Intelligence & Scraping (Playwright / BeautifulSoup)
-- Voice Interface (Faster-Whisper, Piper)
-- Multi-Agent Collaboration
+- Voice Interface (Faster-Whisper STT, Piper TTS)
+- Multi-Agent Collaboration & Role Delegation
 - Production Deployment & API
 
 A detailed development roadmap is available in `docs/ROADMAP.md`.
@@ -414,7 +425,7 @@ Aether uses:
 | Epic 5 – Retrieval-Augmented Generation (RAG) | ✅ Complete |
 | Epic 6 – Agentic ReAct Loop | ✅ Complete |
 | Epic 7 – AI Framework Integrations | ✅ Complete |
-| Epic 8 – Web Intelligence | ⬜ Planned |
+| Epic 8 – Web Intelligence | ✅ Complete |
 | Epic 9 – Voice | ⬜ Planned |
 | Epic 10 – Multi-Agent System | ⬜ Planned |
 | Epic 11 – Production | ⬜ Planned |
@@ -425,31 +436,32 @@ For detailed milestones and implementation tasks, see `docs/ROADMAP.md`.
 
 # Latest Release
 
-## v0.7.0 — AI Framework Integrations (LangChain & LangGraph)
+## v0.8.0 — Web Intelligence
 
 Highlights of this release:
 
-- **LangChain Integration Suite**:
-  - `LangChainPromptTemplate`, `MessagePromptTemplate`, and `ChatPromptTemplate` with variable formatting
-  - Bidirectional tool adapters (`AetherToolAdapter` & `LangChainToolAdapter`) bridging Aether tools and LC tools
-  - `AetherLangChainLLM` with standard `.invoke()`, `.generate()`, and `.bind_tools()`
-  - `AetherChain` supporting LCEL pipe syntax (`prompt | llm | transform`) and `RouterChain`
-- **LangGraph Integration Engine**:
-  - `GraphState` schema and monotonic state reducers (`append_reducer`)
-  - `StateGraph` and `CompiledGraph` supporting cyclical nodes, conditional routers, streaming state updates, and step-budget protection
-  - `GraphReActAgent`: Cyclic Reason -> Act -> Observe workflow orchestrator with state checkpointing
-- **Application Factory Methods**:
-  - `app.get_langchain_model()` and `app.create_graph_agent()`
-- 294 total unit tests passing with 89% code coverage
+- **Web Intelligence Subsystem**:
+  - `DuckDuckGoSearch`: Zero-API-key internet search engine with redirect URL unquoting and network error resilience
+  - `ContentExtractor`: BeautifulSoup-powered HTML cleaner stripping boilerplate and extracting semantic text
+  - `WebScraper`: HTTP/HTTPS webpage fetcher with status and timeout controls
+  - `WebPipeline`: High-level facade for search, page scraping, and LLM-grounded multi-source research synthesis
+- **Autonomous Web Agent Tools**:
+  - `web_search`: Search the internet and receive structured titles, URLs, and snippets
+  - `web_scrape`: Fetch clean, readable text from any website URL
+  - Built-in tool registry expanded to 10 tools
+- **Multi-Page PDF Ingestion**:
+  - `PDFLoader`: Full page-by-page PDF loading for persistent RAG retrieval
+- 326 total unit tests passing with 89% code coverage
 
 ### Prior Release Highlights
 
+- **v0.7.0 — AI Framework Integrations**: LangChain prompt/tool/LLM adapters, LCEL `|` pipe chains, LangGraph `StateGraph`, `CompiledGraph`, and `GraphReActAgent`.
 - **v0.6.0 — Agentic ReAct Loop**: Autonomous `AgentRunner` driving Reason -> Act -> Observe multi-step execution, full reasoning trace capturing (`THOUGHT`, `ACTION`, `OBSERVATION`, `ANSWER`), step budget control with graceful synthesis fallback, and `aether run` CLI.
 - **v0.5.0 — Retrieval-Augmented Generation (RAG)**: Extensible document loaders (`TextLoader`, `MarkdownLoader`), sliding-window chunking with boundary snapping, persistent `JsonChunkStore` (`data/rag_chunks.json`), startup re-indexing, cosine similarity retrieval, source citation formatting, and `aether index` CLI command.
 - **v0.4.0 — Tool Framework**: Modular `BaseTool` abstraction, `ToolRegistry`, `ToolExecutor`, `ToolPolicy`, built-in tools (Calculator, Datetime, Python, Terminal, FileInfo).
 - **v0.3.0 — Memory System**: Persistent JSON memory store, rule-based extraction, semantic vector search, memory summarization & consolidation.
 
-The next major milestone is **Epic 8 – Web Intelligence**.
+The next major milestone is **Epic 9 – Voice**.
 
 ---
 

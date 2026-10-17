@@ -9,6 +9,7 @@ from app.tools.builtin import (
     TerminalTool,
     WriteFileTool,
 )
+from app.web.tools import WebScrapeTool, WebSearchTool
 
 
 def create_default_registry() -> ToolRegistry:
@@ -23,5 +24,7 @@ def create_default_registry() -> ToolRegistry:
     registry.register(ReadFileTool())
     registry.register(WriteFileTool())
     registry.register(ListDirectoryTool())
+    registry.register(WebSearchTool())
+    registry.register(WebScrapeTool())
 
     return registry

@@ -230,11 +230,11 @@ Integrate external frameworks without making them architectural dependencies.
 
 Enable internet-aware capabilities.
 
-- [ ] Web search
-- [ ] Browser automation
-- [ ] Web scraping
-- [ ] Information extraction
-- [ ] Page summarization
+- [x] Web search (`DuckDuckGoSearch`, `BaseWebSearch`, zero-API-key redirect URL resolution)
+- [x] Web scraping (`WebScraper` with `httpx`, redirect handling, timeout & error resilience)
+- [x] Information extraction (`ContentExtractor` using BeautifulSoup, boilerplate & script stripping)
+- [x] Page summarization & multi-source research (`WebPipeline` research synthesis report)
+- [x] Agent & Engine integration (`WebSearchTool` and `WebScrapeTool` in default registry)
 
 ---
 

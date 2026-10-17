@@ -31,7 +31,7 @@ def test_default_registry_contains_expected_tools():
 
     tools = registry.list()
 
-    assert len(tools) == 8
+    assert len(tools) == 10
 
     names = {tool.name for tool in tools}
 
@@ -43,5 +43,7 @@ def test_default_registry_contains_expected_tools():
         "python",
         "read_file",
         "terminal",
+        "web_scrape",
+        "web_search",
         "write_file",
     }

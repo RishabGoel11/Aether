@@ -103,6 +103,10 @@ class ApplicationBuilder:
             tool_policy=tool_policy,
         )
 
+        from app.web.pipeline import WebPipeline
+
+        web_pipeline = WebPipeline(llm=llm)
+
         return Application(
             settings=settings,
             engine=engine,
@@ -113,4 +117,5 @@ class ApplicationBuilder:
             tool_executor=tool_executor,
             agent=agent,
             rag=rag_pipeline,
+            web=web_pipeline,
         )

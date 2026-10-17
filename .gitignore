@@ -56,4 +56,5 @@ Thumbs.db
 
 data/
 .coverage
-WORK_LOG.md
+WORK_LOG.md
+*.pdf

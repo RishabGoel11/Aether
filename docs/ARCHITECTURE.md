@@ -1,6 +1,6 @@
 # Aether System Architecture
 
-> **Version:** v0.7.0 (AI Framework Integrations)
+> **Version:** v0.8.0 (Web Intelligence)
 > This document describes the current architecture of Aether and its intended long-term evolution.
 
 ---
@@ -538,6 +538,41 @@ Aether maintains strict architectural independence from third-party agent framew
 
 ---
 
+# Web Intelligence Subsystem (`app/web/`)
+
+The Web Intelligence subsystem grants Aether zero-API-key internet browsing, article scraping, and multi-source research capabilities:
+
+```text
+                                +---------------------------+
+                                |      WebPipeline          |
+                                +-------------+-------------+
+                                              |
+                       +----------------------+----------------------+
+                       |                                             |
+                       v                                             v
+        +-----------------------------+               +-----------------------------+
+        |      DuckDuckGoSearch       |               |         WebScraper          |
+        | - BaseWebSearch abstraction |               | - httpx HTTP client         |
+        | - HTML/Lite search parser   |               | - Redirect & status check   |
+        | - Redirect URL unquoting    |               | - ContentExtractor (BS4)    |
+        | - Network & timeout guards  |               | - Strips ads, scripts, nav  |
+        +--------------+--------------+               +--------------+--------------+
+                       |                                             |
+                       v                                             v
+        +-----------------------------+               +-----------------------------+
+        |        WebSearchTool        |               |        WebScrapeTool        |
+        | ("web_search" for agents)   |               | ("web_scrape" for agents)   |
+        +-----------------------------+               +-----------------------------+
+```
+
+### Components
+* **Search Provider (`app/web/search.py`)**: `BaseWebSearch` abstract interface implemented by `DuckDuckGoSearch`, allowing internet searches without third-party API keys or rate-limiting accounts.
+* **Content Extraction (`app/web/extractor.py`)**: `ContentExtractor` strips boilerplate (`<script>`, `<style>`, `<nav>`, `<footer>`, `<aside>`, `<iframe>`), detects `<main>` or `<article>` semantic blocks, and produces clean markdown paragraphs.
+* **Page Fetcher (`app/web/scraper.py`)**: `WebScraper` fetches pages using `httpx` with timeout controls, realistic browser headers, and truncation protections.
+* **Research Facade (`app/web/pipeline.py`)**: `WebPipeline` coordinates multi-source queries, scraping top matching pages and synthesizing grounded reports using the LLM.
+
+---
+
 # Current Core Modules
 
 ### Implemented
@@ -549,10 +584,11 @@ Aether maintains strict architectural independence from third-party agent framew
 * Prompt Builder (dynamic context composition with memory and RAG injection)
 * LLM Abstraction (`BaseLLM`, `LLMFactory`) & Ollama Provider
 * Memory Foundation (`BaseMemoryStore`, `JsonMemoryStore`, semantic vector retrieval, consolidation)
-* Tool Framework (`BaseTool`, `ToolRegistry`, `ToolExecutor`, `ToolPolicy`, built-in tools)
-* Retrieval-Augmented Generation (`RAGPipeline`, `DocumentLoaderFactory`, `TextChunker`, `JsonChunkStore`, startup re-indexing)
+* Tool Framework (`BaseTool`, `ToolRegistry`, `ToolExecutor`, `ToolPolicy`, 10 built-in tools)
+* Retrieval-Augmented Generation (`RAGPipeline`, `DocumentLoaderFactory`, `PDFLoader`, `TextChunker`, `JsonChunkStore`, startup re-indexing)
 * Agentic ReAct Loop (`AgentRunner`, `AgentTrace`, multi-step autonomous execution)
 * AI Framework Integrations (`LangChain` prompts/chains/tools/LLM & `LangGraph` state/workflow/agent)
+* Web Intelligence Subsystem (`WebSearchTool`, `WebScrapeTool`, `WebPipeline`, `DuckDuckGoSearch`, `ContentExtractor`)
 * Diagnostics (`Doctor`, environment & daemon check suite)
 * Debug System (`DebugCollector`, `DebugRenderer`)
 * Bootstrap Layer (`ApplicationBuilder` composition root)
@@ -560,7 +596,6 @@ Aether maintains strict architectural independence from third-party agent framew
 
 ### Planned
 
-* Web Intelligence & Browser Automation
 * Voice System (Whisper STT, Piper TTS)
 * Multi-Agent Collaboration & Role Delegation
 * Production REST API & Packaging
@@ -571,7 +606,7 @@ Aether maintains strict architectural independence from third-party agent framew
 
 ### Current Version
 
-**v0.7.0**
+**v0.8.0**
 
 ### Completed Epics
 
@@ -580,9 +615,10 @@ Aether maintains strict architectural independence from third-party agent framew
 * Phase 2 – Engineering Excellence ✅
 * Phase 3 – Long-Term Memory System ✅
 * Phase 4 – Extensible Tool Framework ✅
-* Phase 5 – Retrieval-Augmented Generation (RAG) ✅
+* Phase 5 – Retrieval-Augmented Generation (RAG) & Multi-Page PDF ✅
 * Phase 6 – Agentic ReAct Loop ✅
 * Phase 7 – AI Framework Integrations (LangChain & LangGraph) ✅
+* Phase 8 – Web Intelligence ✅
 
-The next architectural milestone is **Phase 8: Web Intelligence**.
+The next architectural milestone is **Phase 9: Voice**.
 

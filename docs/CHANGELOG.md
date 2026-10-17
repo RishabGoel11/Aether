@@ -2,6 +2,31 @@
 
 All notable changes to Aether will be documented in this file.
 
+## [0.8.0] - Phase 8: Web Intelligence
+
+### Added
+
+- **Web Intelligence Subsystem (`app/web/`)**:
+  - `models.py`: Typed Pydantic data models for `WebSearchResult`, `WebPageContent`, and `WebResearchReport`.
+  - `search.py`: `BaseWebSearch` and `DuckDuckGoSearch` implementing zero-API-key internet search with redirect URL unquoting and network error resilience.
+  - `extractor.py`: `ContentExtractor` leveraging BeautifulSoup to strip boilerplate (scripts, styles, headers, footers, navs, iframes), extract titles, meta descriptions, and clean article body text.
+  - `scraper.py`: `WebScraper` fetching web pages over HTTP/HTTPS with realistic browser headers, redirect handling, and size caps.
+  - `pipeline.py`: `WebPipeline` coordinating search, page scraping, and LLM-grounded multi-source research synthesis.
+  - `tools/search_tool.py`: `WebSearchTool` (`web_search`) enabling conversational and autonomous agents to query the internet.
+  - `tools/scrape_tool.py`: `WebScrapeTool` (`web_scrape`) enabling agents to read and digest webpage text content.
+- **Application Bootstrap Integration**:
+  - `app.web`: Direct access to `WebPipeline(llm=llm)` on the `Application` instance.
+  - `create_default_registry()` now provides 10 built-in tools (including `web_search` and `web_scrape`).
+- **Multi-Page PDF Ingestion**:
+  - `PDFLoader`: Page-by-page text extraction for PDFs in RAG using `pypdf`.
+
+### Tested
+
+- 326 total unit tests passing with 89% code coverage.
+- Full unit test suites for HTML extraction, DuckDuckGo search parsing, scraping timeouts, web tools, and pipeline research synthesis.
+
+---
+
 ## [0.7.0] - Phase 7: AI Framework Integrations (LangChain & LangGraph)
 
 ### Added

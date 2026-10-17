@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "aether"
-version = "0.7.0"
+version = "0.8.0"
 description = "A modular, local-first AI engineering platform."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -14,6 +14,8 @@ authors = [{ name = "Rishab Goel" }]
 license = { text = "MIT" }
 
 dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "httpx>=0.28.1",
     "ollama~=0.6.2",
     "pydantic~=2.13.4",
     "pypdf>=6.21.0",

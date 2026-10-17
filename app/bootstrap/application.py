@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from app.agent.runner import AgentRunner
 from app.config.config import Settings
 from app.core.engine import ConversationEngine
@@ -7,6 +11,9 @@ from app.rag.pipeline import RAGPipeline
 from app.session.manager import SessionManager
 from app.tools.executor import ToolExecutor
 from app.tools.registry import ToolRegistry
+
+if TYPE_CHECKING:
+    from app.web.pipeline import WebPipeline
 
 
 class Application:
@@ -28,6 +35,7 @@ class Application:
         tool_executor: ToolExecutor,
         agent: AgentRunner,
         rag: RAGPipeline | None = None,
+        web: WebPipeline | None = None,
     ):
         self.settings = settings
         self.engine = engine
@@ -38,6 +46,7 @@ class Application:
         self.tool_executor = tool_executor
         self.agent = agent
         self.rag = rag
+        self.web = web
 
     def chat(self, user_input: str):
         """
