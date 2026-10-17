@@ -25,7 +25,10 @@ def test_microphone_recorder_list_devices():
         {"name": "Speaker 1", "max_input_channels": 0, "default_samplerate": 44100},
     ]
 
-    with patch("sounddevice.query_devices", return_value=mock_devices):
+    mock_sd = MagicMock()
+    mock_sd.query_devices.return_value = mock_devices
+
+    with patch.dict("sys.modules", {"sounddevice": mock_sd}):
         devs = rec.list_devices()
         assert len(devs) == 1
         assert devs[0]["name"] == "Mic 1"
@@ -38,12 +41,31 @@ def test_microphone_recorder_fixed_duration():
     rec = MicrophoneRecorder(sample_rate=16000)
     fake_audio = np.zeros((16000, 1), dtype=np.int16)
 
-    with patch("sounddevice.rec", return_value=fake_audio), patch("sounddevice.wait"):
+    mock_sd = MagicMock()
+    mock_sd.rec.return_value = fake_audio
+
+    with patch.dict("sys.modules", {"sounddevice": mock_sd}):
         audio = rec.record(duration=1.0)
         assert isinstance(audio, AudioData)
         assert audio.format == "wav"
         assert audio.sample_rate == 16000
         assert len(audio.data) > 0
+
+
+def test_microphone_recorder_until_silence():
+    import numpy as np
+
+    rec = MicrophoneRecorder(sample_rate=16000)
+    mock_sd = MagicMock()
+    stream_mock = MagicMock()
+    chunk = np.zeros((1600, 1), dtype=np.int16)
+    stream_mock.read.return_value = (chunk, None)
+    mock_sd.InputStream.return_value.__enter__.return_value = stream_mock
+
+    with patch.dict("sys.modules", {"sounddevice": mock_sd}):
+        audio = rec.record_until_silence(max_duration=0.15)
+        assert isinstance(audio, AudioData)
+        assert audio.format == "wav"
 
 
 def test_voice_pipeline_microphone_methods():

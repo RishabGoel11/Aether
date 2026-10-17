@@ -81,10 +81,10 @@ class MicrophoneRecorder:
         """
         try:
             import sounddevice as sd
-        except ImportError as exc:
+        except (ImportError, OSError) as exc:
             raise RecorderError(
-                "Live microphone recording requires 'sounddevice' and 'numpy'. "
-                "Install them with `uv add sounddevice numpy`."
+                f"Live microphone recording is unavailable: {exc}. "
+                "Ensure 'sounddevice' and system audio libraries (PortAudio) are installed."
             ) from exc
 
         frames_to_record = int(duration * self.sample_rate)
@@ -132,9 +132,9 @@ class MicrophoneRecorder:
         try:
             import numpy as np
             import sounddevice as sd
-        except ImportError as exc:
+        except (ImportError, OSError) as exc:
             raise RecorderError(
-                "Live microphone recording requires 'sounddevice' and 'numpy'."
+                f"Live microphone recording is unavailable: {exc}."
             ) from exc
 
         chunk_size = int(self.sample_rate * 0.1)  # 100ms chunks
