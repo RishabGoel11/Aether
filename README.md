@@ -2,10 +2,10 @@
 
 > **A modular, local-first AI engineering platform built with privacy, transparency, extensibility, and software engineering best practices at its core.**
 
-![Version](https://img.shields.io/badge/version-v0.6.0-blue)
+![Version](https://img.shields.io/badge/version-v0.7.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB)
-![Tests](https://img.shields.io/badge/tests-269%20passed-brightgreen)
-![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)
+![Tests](https://img.shields.io/badge/tests-294%20passed-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
@@ -189,6 +189,23 @@ Current capabilities:
 - **Fault-Tolerant Feedback**: Tool execution errors and policy denials are fed back as observations so the agent can self-correct
 - **CLI Execution**: `aether run "GOAL" [--max-steps N] [--show-trace]` for autonomous goal execution
 
+## AI Framework Integrations (LangChain & LangGraph)
+
+Aether maintains strict architectural independence while offering zero-lock-in adapter bridges in `app/integrations/`:
+
+- **LangChain Adapter Suite**:
+  - `LangChainPromptTemplate`, `MessagePromptTemplate`, and `ChatPromptTemplate` for message and prompt templating.
+  - Bidirectional tool adapters: `AetherToolAdapter` (exposes native `BaseTool` instances to LangChain with auto-generated Pydantic schemas) and `LangChainToolAdapter` (wraps external LangChain tools for native Aether use).
+  - `AetherLangChainLLM`: Wraps Aether's `BaseLLM` with `.invoke()`, `.generate()`, and `.bind_tools()`.
+  - `AetherChain` implementing the Unix-style pipe syntax (`prompt | llm | transform`) and `RouterChain` for branching logic.
+- **LangGraph Workflow Engine**:
+  - `GraphState` schema and `append_reducer` for monotonic message and trace accumulation.
+  - `StateGraph` and `CompiledGraph` supporting cyclical nodes, conditional routers, streaming state updates, and step-budget protection.
+  - `GraphReActAgent`: Cyclic Reason -> Act -> Observe workflow orchestrator with state checkpointing.
+- **Application Factory Methods**:
+  - `app.get_langchain_model()`: Exposes the active LLM as a LangChain-compatible model.
+  - `app.create_graph_agent()`: Instantiates a graph-driven ReAct agent backed by the application's engine and tool executor.
+
 ## Engineering Excellence
 
 - Modern Python packaging with `uv`
@@ -196,7 +213,7 @@ Current capabilities:
 - Hatchling build backend
 - GitHub Actions Continuous Integration
 - Ruff linting and formatting
-- Pytest suite (269 tests, 90% test coverage)
+- Pytest suite (294 tests, 89% test coverage)
 - Debug subsystem
 - Diagnostics subsystem (`aether doctor`)
 - Documentation-first development workflow
@@ -207,8 +224,7 @@ Current capabilities:
 
 Aether's future roadmap includes:
 
-- AI Framework Integrations (LangChain, LangGraph adapters)
-- Web Intelligence & Scraping
+- Web Intelligence & Scraping (Playwright / BeautifulSoup)
 - Voice Interface (Faster-Whisper, Piper)
 - Multi-Agent Collaboration
 - Production Deployment & API
@@ -393,7 +409,7 @@ Aether uses:
 | Epic 4 – Tool Framework | ✅ Complete |
 | Epic 5 – Retrieval-Augmented Generation (RAG) | ✅ Complete |
 | Epic 6 – Agentic ReAct Loop | ✅ Complete |
-| Epic 7 – AI Framework Integrations | ⬜ Planned |
+| Epic 7 – AI Framework Integrations | ✅ Complete |
 | Epic 8 – Web Intelligence | ⬜ Planned |
 | Epic 9 – Voice | ⬜ Planned |
 | Epic 10 – Multi-Agent System | ⬜ Planned |
@@ -405,25 +421,31 @@ For detailed milestones and implementation tasks, see `docs/ROADMAP.md`.
 
 # Latest Release
 
-## v0.6.0 — Agentic ReAct Loop
+## v0.7.0 — AI Framework Integrations (LangChain & LangGraph)
 
 Highlights of this release:
 
-- Autonomous `AgentRunner` driving Reason -> Act -> Observe multi-step execution
-- Full reasoning trace capturing: `THOUGHT`, `ACTION`, `OBSERVATION`, and `ANSWER` steps
-- Dynamic tool chaining across multiple steps to solve complex goals
-- Step budget control (`--max-steps`) with graceful LLM synthesis fallback
-- Error feedback loop for missing tools and policy denials
-- CLI `aether run GOAL [--max-steps N] [--show-trace]`
-- 269 total tests passing with 90% code coverage
+- **LangChain Integration Suite**:
+  - `LangChainPromptTemplate`, `MessagePromptTemplate`, and `ChatPromptTemplate` with variable formatting
+  - Bidirectional tool adapters (`AetherToolAdapter` & `LangChainToolAdapter`) bridging Aether tools and LC tools
+  - `AetherLangChainLLM` with standard `.invoke()`, `.generate()`, and `.bind_tools()`
+  - `AetherChain` supporting LCEL pipe syntax (`prompt | llm | transform`) and `RouterChain`
+- **LangGraph Integration Engine**:
+  - `GraphState` schema and monotonic state reducers (`append_reducer`)
+  - `StateGraph` and `CompiledGraph` supporting cyclical nodes, conditional routers, streaming state updates, and step-budget protection
+  - `GraphReActAgent`: Cyclic Reason -> Act -> Observe workflow orchestrator with state checkpointing
+- **Application Factory Methods**:
+  - `app.get_langchain_model()` and `app.create_graph_agent()`
+- 294 total unit tests passing with 89% code coverage
 
 ### Prior Release Highlights
 
+- **v0.6.0 — Agentic ReAct Loop**: Autonomous `AgentRunner` driving Reason -> Act -> Observe multi-step execution, full reasoning trace capturing (`THOUGHT`, `ACTION`, `OBSERVATION`, `ANSWER`), step budget control with graceful synthesis fallback, and `aether run` CLI.
 - **v0.5.0 — Retrieval-Augmented Generation (RAG)**: Extensible document loaders (`TextLoader`, `MarkdownLoader`), sliding-window chunking with boundary snapping, persistent `JsonChunkStore` (`data/rag_chunks.json`), startup re-indexing, cosine similarity retrieval, source citation formatting, and `aether index` CLI command.
 - **v0.4.0 — Tool Framework**: Modular `BaseTool` abstraction, `ToolRegistry`, `ToolExecutor`, `ToolPolicy`, built-in tools (Calculator, Datetime, Python, Terminal, FileInfo).
 - **v0.3.0 — Memory System**: Persistent JSON memory store, rule-based extraction, semantic vector search, memory summarization & consolidation.
 
-The next major milestone is **Epic 7 – AI Framework Integrations (LangChain & LangGraph)**.
+The next major milestone is **Epic 8 – Web Intelligence**.
 
 ---
 

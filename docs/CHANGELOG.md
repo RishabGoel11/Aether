@@ -2,6 +2,31 @@
 
 All notable changes to Aether will be documented in this file.
 
+## [0.7.0] - Phase 7: AI Framework Integrations (LangChain & LangGraph)
+
+### Added
+
+- **Modular Framework Integrations (`app/integrations/`)**:
+  - `langchain/prompts.py`: `LangChainPromptTemplate`, `MessagePromptTemplate`, `ChatPromptTemplate` supporting string and message templating with variable substitution.
+  - `langchain/tools.py`: Bidirectional adapters:
+    - `AetherToolAdapter`: Converts any Aether `BaseTool` into an LC-compatible tool with auto-inferred Pydantic `args_schema` and `invoke()` / `run()`.
+    - `LangChainToolAdapter`: Wraps third-party LangChain tools into an Aether `BaseTool` with schema discovery for use in `ToolRegistry` and `AgentRunner`.
+  - `langchain/llm.py`: `AetherLangChainLLM` wrapping Aether's `BaseLLM` with `.invoke()`, `.generate()`, and `.bind_tools()`.
+  - `langchain/chains.py`: `AetherChain` supporting the LCEL pipe syntax (`prompt | llm | transform`) and `RouterChain` for conditional chain branch selection.
+  - `langgraph/state.py`: `GraphState` schema and `append_reducer` for monotonic message/step state accumulation.
+  - `langgraph/graph.py`: `StateGraph` and `CompiledGraph` supporting nodes, directed edges, conditional router edges, streaming state generators, and step budget protection.
+  - `langgraph/agent.py`: `GraphReActAgent` orchestrating cyclic Reason -> Act -> Observe loops with state checkpointing using the graph engine.
+- **Bootstrap integration**:
+  - `Application.get_langchain_model()`: Factory method exposing the active LLM as a LangChain-compatible model.
+  - `Application.create_graph_agent()`: Factory method instantiating a `GraphReActAgent` backed by the application's engine and tool executor.
+
+### Tested
+
+- 25 new unit tests across prompts, tools, LLMs, LCEL chains, graph states, state graphs, and graph agents.
+- 294/294 tests passing with zero regressions and clean Ruff linting/formatting.
+
+---
+
 ## [0.6.0] - Phase 6: Agentic ReAct Loop
 
 ### Added

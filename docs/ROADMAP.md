@@ -212,15 +212,15 @@ Integrate external frameworks without making them architectural dependencies.
 
 ## LangChain
 
-- [ ] Prompt templates
-- [ ] Chain integration
-- [ ] Tool adapters
+- [x] Prompt templates (`LangChainPromptTemplate`, `MessagePromptTemplate`, `ChatPromptTemplate`)
+- [x] Chain integration (`AetherChain` pipe syntax `|`, `RouterChain`, `AetherLangChainLLM`)
+- [x] Tool adapters (`AetherToolAdapter` for LC consumption, `LangChainToolAdapter` for Aether BaseTool)
 
 ## LangGraph
 
-- [ ] State management
-- [ ] Graph workflows
-- [ ] Agent orchestration
+- [x] State management (`GraphState` with `append_reducer` and step reducers)
+- [x] Graph workflows (`StateGraph`, `CompiledGraph`, conditional routing, cycle execution, streaming)
+- [x] Agent orchestration (`GraphReActAgent` cyclic reason/action loop with state checkpointing)
 
 > **Principle:** Aether remains framework-independent. LangChain and LangGraph are integrations, not foundations.
 

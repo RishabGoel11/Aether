@@ -54,3 +54,19 @@ class Application:
         Clear the current conversation and start a new session.
         """
         self.engine.session = self.session.clear()
+
+    def get_langchain_model(self):
+        """Return a LangChain-compatible chat model wrapping Aether's configured LLM."""
+        from app.integrations.langchain.llm import AetherLangChainLLM
+
+        return AetherLangChainLLM(self.engine.llm, tools=self.tools.list())
+
+    def create_graph_agent(self):
+        """Create a stateful LangGraph ReAct agent using Aether's LLM and registered tools."""
+        from app.integrations.langgraph.agent import GraphReActAgent
+
+        return GraphReActAgent(
+            llm=self.engine.llm,
+            tools=self.tools.list(),
+            executor=self.tool_executor,
+        )

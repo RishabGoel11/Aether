@@ -1,6 +1,6 @@
 # Aether System Architecture
 
-> **Version:** v0.6.0 (Agentic ReAct Loop)
+> **Version:** v0.7.0 (AI Framework Integrations)
 > This document describes the current architecture of Aether and its intended long-term evolution.
 
 ---
@@ -500,6 +500,44 @@ AgentResult(success=True, answer="...", trace=AgentTrace, total_steps=N)
 
 ---
 
+# AI Framework Integrations Subsystem
+
+Aether maintains strict architectural independence from third-party agent frameworks while offering zero-friction adapter bridges in `app/integrations/`.
+
+```text
+                                +---------------------------+
+                                |      Aether Core          |
+                                | (BaseLLM, BaseTool, etc.) |
+                                +-------------+-------------+
+                                              |
+                       +----------------------+----------------------+
+                       |                                             |
+                       v                                             v
+        +-----------------------------+               +-----------------------------+
+        |     LangChain Adapters      |               |     LangGraph Engine        |
+        |  - LangChainPromptTemplate  |               |  - StateGraph / Compiled    |
+        |  - AetherToolAdapter (to LC)|               |  - GraphState & Reducers    |
+        |  - LangChainToolAdapter     |               |  - Conditional Routing      |
+        |  - AetherLangChainLLM       |               |  - GraphReActAgent          |
+        |  - AetherChain (| syntax)   |               |  - Streaming & Checkpoints  |
+        +-----------------------------+               +-----------------------------+
+```
+
+### LangChain Layer (`app/integrations/langchain/`)
+* **Prompt Adapters**: `LangChainPromptTemplate`, `MessagePromptTemplate`, and `ChatPromptTemplate` provide format-string variable substitution.
+* **Bidirectional Tool Adapters**:
+  * `AetherToolAdapter`: Exposes native Aether `BaseTool` models to LangChain agents with auto-synthesized Pydantic input schemas and `.invoke()`/`.run()` APIs.
+  * `LangChainToolAdapter`: Wraps third-party LangChain tools into native Aether `BaseTool` instances for use in `ToolRegistry` and `AgentRunner`.
+* **LLM Model Bridge**: `AetherLangChainLLM` wraps Aether's `BaseLLM` and supports standard invocation, tool binding (`bind_tools`), and structured output calls.
+* **LCEL Composition**: `AetherChain` implements Unix-style pipe syntax (`chain = prompt | llm | transform`) and `RouterChain` for branching logic.
+
+### LangGraph Engine (`app/integrations/langgraph/`)
+* **State Management**: `GraphState` with reducer decorators (`append_reducer`) allowing monotonic state accumulation without mutable collisions.
+* **Execution Graph**: `StateGraph` compiles into `CompiledGraph` supporting cyclical execution, conditional routers, step budgets, and streaming event generators.
+* **Graph Agent**: `GraphReActAgent` orchestrates reason/action loops as state machines with checkpointing and fallback answer synthesis.
+
+---
+
 # Current Core Modules
 
 ### Implemented
@@ -514,6 +552,7 @@ AgentResult(success=True, answer="...", trace=AgentTrace, total_steps=N)
 * Tool Framework (`BaseTool`, `ToolRegistry`, `ToolExecutor`, `ToolPolicy`, built-in tools)
 * Retrieval-Augmented Generation (`RAGPipeline`, `DocumentLoaderFactory`, `TextChunker`, `JsonChunkStore`, startup re-indexing)
 * Agentic ReAct Loop (`AgentRunner`, `AgentTrace`, multi-step autonomous execution)
+* AI Framework Integrations (`LangChain` prompts/chains/tools/LLM & `LangGraph` state/workflow/agent)
 * Diagnostics (`Doctor`, environment & daemon check suite)
 * Debug System (`DebugCollector`, `DebugRenderer`)
 * Bootstrap Layer (`ApplicationBuilder` composition root)
@@ -521,7 +560,6 @@ AgentResult(success=True, answer="...", trace=AgentTrace, total_steps=N)
 
 ### Planned
 
-* AI Framework Integrations (LangChain & LangGraph adapters)
 * Web Intelligence & Browser Automation
 * Voice System (Whisper STT, Piper TTS)
 * Multi-Agent Collaboration & Role Delegation
@@ -533,7 +571,7 @@ AgentResult(success=True, answer="...", trace=AgentTrace, total_steps=N)
 
 ### Current Version
 
-**v0.6.0**
+**v0.7.0**
 
 ### Completed Epics
 
@@ -544,6 +582,7 @@ AgentResult(success=True, answer="...", trace=AgentTrace, total_steps=N)
 * Phase 4 – Extensible Tool Framework ✅
 * Phase 5 – Retrieval-Augmented Generation (RAG) ✅
 * Phase 6 – Agentic ReAct Loop ✅
+* Phase 7 – AI Framework Integrations (LangChain & LangGraph) ✅
 
-The next architectural milestone is **Phase 7: AI Framework Integrations (LangChain & LangGraph)**.
+The next architectural milestone is **Phase 8: Web Intelligence**.
 
