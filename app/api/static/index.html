@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aether — AI Engineering Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">
+          <h2>Aether</h2>
+          <span class="version-badge">v0.11.0</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="chat-tab" id="nav-chat">
+          <span class="icon">💬</span> Chat
+        </button>
+        <button class="nav-item" data-tab="team-tab" id="nav-team">
+          <span class="icon">👥</span> Multi-Agent Team
+        </button>
+        <button class="nav-item" data-tab="agent-tab" id="nav-agent">
+          <span class="icon">🤖</span> Autonomous ReAct
+        </button>
+        <button class="nav-item" data-tab="rag-tab" id="nav-rag">
+          <span class="icon">📚</span> Knowledge Base
+        </button>
+        <button class="nav-item" data-tab="memory-tab" id="nav-memory">
+          <span class="icon">🧠</span> Long-Term Memory
+        </button>
+        <button class="nav-item" data-tab="voice-tab" id="nav-voice">
+          <span class="icon">🎙️</span> Voice & Audio
+        </button>
+        <button class="nav-item" data-tab="doctor-tab" id="nav-doctor">
+          <span class="icon">🩺</span> Diagnostics
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-indicator">
+          <span class="dot online"></span>
+          <span class="status-text">Local-First Engine</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chat Tab -->
+      <section class="tab-pane active" id="chat-tab">
+        <header class="pane-header">
+          <div>
+            <h1>Interactive Chat</h1>
+            <p class="subtitle">Conversational intelligence with persistent memory and RAG context.</p>
+          </div>
+          <button class="btn btn-secondary" id="clear-chat-btn">Clear Session</button>
+        </header>
+
+        <div class="chat-container">
+          <div class="chat-messages" id="chat-messages">
+            <div class="message assistant">
+              <div class="message-bubble">
+                Hello! I am Aether. How can I assist you today?
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-bar">
+            <textarea id="chat-input" placeholder="Type a message to Aether..." rows="1"></textarea>
+            <button class="btn btn-primary" id="chat-send-btn">Send</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Multi-Agent Team Tab -->
+      <section class="tab-pane" id="team-tab">
+        <header class="pane-header">
+          <div>
+            <h1>Multi-Agent Collaboration</h1>
+            <p class="subtitle">Planner, Researcher, Coder, Reviewer, and Coordinator working as a team.</p>
+          </div>
+        </header>
+
+        <div class="team-panel">
+          <div class="input-card">
+            <label for="team-goal-input">Team Objective / Goal:</label>
+            <div class="input-row">
+              <input type="text" id="team-goal-input" placeholder="e.g. Design a Python CLI tool for checking site uptime and review it">
+              <button class="btn btn-primary" id="team-run-btn">Assemble Team</button>
+            </div>
+          </div>
+
+          <div id="team-loading" class="loading-state hidden">
+            <div class="spinner"></div>
+            <p>Collaborating... Planner is creating subtasks and specialists are executing...</p>
+          </div>
+
+          <div id="team-result-container" class="hidden">
+            <div class="card subtasks-card">
+              <h3>📋 Execution Plan & Subtasks</h3>
+              <div class="subtasks-grid" id="team-subtasks-list"></div>
+            </div>
+
+            <div class="card deliverable-card">
+              <h3>✨ Coordinator Final Deliverable</h3>
+              <div class="markdown-body" id="team-final-answer"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Autonomous Agent Tab -->
+      <section class="tab-pane" id="agent-tab">
+        <header class="pane-header">
+          <div>
+            <h1>Autonomous ReAct Agent</h1>
+            <p class="subtitle">Step-by-step reasoning, dynamic tool calls, and observations.</p>
+          </div>
+        </header>
+
+        <div class="agent-panel">
+          <div class="input-card">
+            <label for="agent-goal-input">Agent Goal:</label>
+            <div class="input-row">
+              <input type="text" id="agent-goal-input" placeholder="e.g. Calculate 15 factorial and check current date">
+              <button class="btn btn-primary" id="agent-run-btn">Execute Goal</button>
+            </div>
+          </div>
+
+          <div id="agent-loading" class="loading-state hidden">
+            <div class="spinner"></div>
+            <p>Reasoning and acting through tools...</p>
+          </div>
+
+          <div id="agent-result-container" class="hidden">
+            <div class="card answer-card">
+              <h3>✅ Final Answer</h3>
+              <div id="agent-final-answer"></div>
+            </div>
+
+            <div class="card trace-card">
+              <h3>🔍 Step-by-Step Reasoning Trace</h3>
+              <div class="timeline" id="agent-trace-list"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Knowledge Base (RAG) Tab -->
+      <section class="tab-pane" id="rag-tab">
+        <header class="pane-header">
+          <div>
+            <h1>Knowledge Base (RAG)</h1>
+            <p class="subtitle">Index documents and explore retrieved passages.</p>
+          </div>
+        </header>
+
+        <div class="rag-panel">
+          <div class="input-card">
+            <label for="rag-path-input">Local Document Path to Index (.txt, .md, .pdf):</label>
+            <div class="input-row">
+              <input type="text" id="rag-path-input" placeholder="./docs">
+              <button class="btn btn-primary" id="rag-index-btn">Index Path</button>
+            </div>
+            <span id="rag-status-msg" class="hint-text"></span>
+          </div>
+
+          <div class="card chunks-card">
+            <h3>📑 Indexed Chunks Overview</h3>
+            <div class="chunks-list" id="rag-chunks-list">
+              <p class="empty-state">Loading indexed knowledge chunks...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Long-Term Memory Tab -->
+      <section class="tab-pane" id="memory-tab">
+        <header class="pane-header">
+          <div>
+            <h1>Long-Term Memory Explorer</h1>
+            <p class="subtitle">Persistent facts, preferences, and project context remembered by Aether.</p>
+          </div>
+          <button class="btn btn-secondary" id="refresh-memory-btn">Refresh</button>
+        </header>
+
+        <div class="memory-grid" id="memory-list">
+          <p class="empty-state">Loading memories...</p>
+        </div>
+      </section>
+
+      <!-- Voice Tab -->
+      <section class="tab-pane" id="voice-tab">
+        <header class="pane-header">
+          <div>
+            <h1>Voice & Audio Subsystem</h1>
+            <p class="subtitle">Local offline Text-to-Speech and audio device detection.</p>
+          </div>
+        </header>
+
+        <div class="voice-panel">
+          <div class="card">
+            <h3>🔊 Offline Speech Synthesis (TTS)</h3>
+            <div class="input-row">
+              <input type="text" id="voice-speak-input" placeholder="Type text to speak aloud through speakers...">
+              <button class="btn btn-primary" id="voice-speak-btn">Speak Aloud</button>
+            </div>
+            <span id="voice-speak-status" class="hint-text"></span>
+          </div>
+
+          <div class="card">
+            <h3>🎤 Detected Audio Input Microphones</h3>
+            <div class="device-list" id="voice-device-list">
+              <p class="empty-state">Scanning audio hardware...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Diagnostics Tab -->
+      <section class="tab-pane" id="doctor-tab">
+        <header class="pane-header">
+          <div>
+            <h1>System Diagnostics & Doctor</h1>
+            <p class="subtitle">Ollama connectivity, tool policy, and platform health.</p>
+          </div>
+          <button class="btn btn-secondary" id="run-doctor-btn">Re-run Checks</button>
+        </header>
+
+        <div class="doctor-panel">
+          <div class="health-summary card" id="health-summary-card">
+            <p>Loading diagnostics...</p>
+          </div>
+          <div class="checks-list" id="doctor-checks-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

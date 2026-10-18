@@ -111,4 +111,30 @@ def create_parser() -> argparse.ArgumentParser:
         help="Do not speak responses aloud (text-only output).",
     )
 
+    serve_parser = subparsers.add_parser(
+        "serve",
+        help="Launch the Aether REST API server and modern Web UI dashboard.",
+    )
+    serve_parser.add_argument(
+        "--host",
+        dest="host",
+        type=str,
+        default="127.0.0.1",
+        help="Host address to bind the server to (default: 127.0.0.1).",
+    )
+    serve_parser.add_argument(
+        "--port",
+        dest="port",
+        type=int,
+        default=8000,
+        help="Port number to listen on (default: 8000).",
+    )
+    serve_parser.add_argument(
+        "--reload",
+        dest="reload",
+        action="store_true",
+        default=False,
+        help="Enable auto-reload for development.",
+    )
+
     return parser

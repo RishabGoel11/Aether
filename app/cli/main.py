@@ -4,6 +4,7 @@ from app.cli.commands.chat import run as chat_command
 from app.cli.commands.doctor import run as doctor_command
 from app.cli.commands.index import run as index_command
 from app.cli.commands.run import run as run_command
+from app.cli.commands.serve import serve as serve_command
 from app.cli.commands.team import team as team_command
 from app.cli.commands.version import run as version_command
 from app.cli.commands.voice import voice as voice_command
@@ -50,6 +51,13 @@ def main() -> None:
             seconds=args.seconds,
             until_silence=args.until_silence,
             speak_response=args.speak_response,
+        )
+
+    elif args.command == "serve":
+        serve_command(
+            host=args.host,
+            port=args.port,
+            reload=args.reload,
         )
 
 

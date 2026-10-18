@@ -1,6 +1,6 @@
 # Aether System Architecture
 
-> **Version:** v0.10.0 (Multi-Agent System)
+> **Version:** v0.11.0 (Production & Web Platform)
 > This document describes the current architecture of Aether and its intended long-term evolution.
 
 ---
@@ -25,9 +25,12 @@ Each subsystem has a single responsibility and communicates through well-defined
 
 ```mermaid
 flowchart TD
-    User([User]) --> CLI["Command-Line Interface<br/>(chat | run | team | index | doctor | version)"]
+    User([User]) --> CLI["Command-Line Interface<br/>(chat | run | team | voice | serve | index | doctor | version)"]
+    User --> WebUI["Web UI Dashboard<br/>(SPA Dark-Mode Dashboard)"]
+    WebUI --> API["FastAPI REST Server<br/>(/api/chat, /api/team, /api/run, /api/rag, etc.)"]
+    API --> App["Application Facade"]
     CLI --> Builder["ApplicationBuilder<br/>(Dependency Injection Composition Root)"]
-    Builder --> App["Application Facade"]
+    Builder --> App
 
     subgraph Core ["Core Execution Engines"]
         App --> Engine["ConversationEngine<br/>(Interactive Dialogue)"]
@@ -668,15 +671,13 @@ The Multi-Agent Subsystem expands Aether into a collaborative AI platform featur
 * Web Intelligence Subsystem (`WebSearchTool`, `WebScrapeTool`, `WebPipeline`, `DuckDuckGoSearch`, `ContentExtractor`)
 * Voice Subsystem (`WhisperSTT`, `Pyttsx3TTS`, `KeywordWakeWordDetector`, `VoicePipeline`, `SpeakTool`)
 * Multi-Agent System (`PlannerAgent`, `ResearchAgent`, `CoderAgent`, `ReviewerAgent`, `CoordinatorAgent`, `AgentTeam`, `Blackboard`, `DelegateTaskTool`)
+* Production REST API (`FastAPI` application with modular routers, models, and OpenAPI docs)
+* Web UI Dashboard (Dark-mode SPA interface for chat, multi-agent teams, ReAct traces, RAG, and memory)
+* Container Deployment (`Dockerfile` multi-stage build, `docker-compose.yml` local orchestration)
 * Diagnostics (`Doctor`, environment & daemon check suite)
 * Debug System (`DebugCollector`, `DebugRenderer`)
 * Bootstrap Layer (`ApplicationBuilder` composition root)
-* CLI (`chat`, `run`, `team`, `index`, `doctor`, `version`)
-
-### Planned
-
-* Production REST API & Packaging
-* Desktop / Web User Interface
+* CLI (`chat`, `run`, `team`, `voice`, `serve`, `index`, `doctor`, `version`)
 
 ---
 
@@ -684,7 +685,7 @@ The Multi-Agent Subsystem expands Aether into a collaborative AI platform featur
 
 ### Current Version
 
-**v0.10.0**
+**v0.11.0**
 
 ### Completed Epics
 
@@ -699,7 +700,8 @@ The Multi-Agent Subsystem expands Aether into a collaborative AI platform featur
 * Phase 8 – Web Intelligence ✅
 * Phase 9 – Voice Subsystem ✅
 * Phase 10 – Multi-Agent System ✅
+* Phase 11 – Production ✅
 
-The next architectural milestone is **Phase 11: Production**.
+Aether has evolved from a foundational conversational loop into a comprehensive, local-first AI engineering platform with web and multi-agent capabilities.
 
 

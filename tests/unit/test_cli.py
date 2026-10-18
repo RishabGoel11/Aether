@@ -84,3 +84,33 @@ def test_cli_team_command(capsys):
     captured = capsys.readouterr()
     assert "Aether Multi-Agent Team assembling" in captured.out
     assert "Coordinated output" in captured.out
+
+
+def test_parser_serve_command():
+    parser = create_parser()
+    args = parser.parse_args(["serve"])
+    assert args.command == "serve"
+    assert args.host == "127.0.0.1"
+    assert args.port == 8000
+    assert args.reload is False
+
+    args_custom = parser.parse_args(["serve", "--host", "0.0.0.0", "--port", "9090", "--reload"])
+    assert args_custom.host == "0.0.0.0"
+    assert args_custom.port == 9090
+    assert args_custom.reload is True
+
+
+def test_cli_serve_command(capsys):
+    from app.cli.commands.serve import serve as run_serve
+
+    with patch("uvicorn.run") as mock_uvicorn:
+        run_serve(host="0.0.0.0", port=8000, reload=False)
+        mock_uvicorn.assert_called_once_with(
+            "app.api.server:app",
+            host="0.0.0.0",
+            port=8000,
+            reload=False,
+        )
+
+    captured = capsys.readouterr()
+    assert "Starting Aether Web Platform" in captured.out

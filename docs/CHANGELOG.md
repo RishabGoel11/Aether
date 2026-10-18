@@ -2,6 +2,40 @@
 
 All notable changes to Aether will be documented in this file.
 
+## [0.11.0] - Phase 11: Production
+
+### Added
+
+- **FastAPI REST API Platform (`app/api/`)**:
+  - `server.py`: Production-grade ASGI application with CORS, static file hosting, and interactive OpenAPI `/docs`.
+  - `models.py`: Typed Pydantic request/response schemas for all subsystems (`ChatRequest`, `RunRequest`, `TeamRequest`, `IndexRequest`, `SpeakRequest`, `HealthResponse`).
+  - `auth.py`: Configurable API key security dependency (`verify_api_key`) via `AETHER_API_KEY` and `X-API-Key` headers.
+  - `routes/`:
+    - `chat.py`: Interactive conversational endpoint (`POST /api/chat`, `POST /api/chat/clear`) with persistent memory.
+    - `agent.py`: Autonomous ReAct loop execution (`POST /api/run`) with step trace return.
+    - `team.py`: Multi-agent team problem solving (`POST /api/team`) returning plan markdown and subtasks.
+    - `rag.py`: Knowledge base document ingestion (`POST /api/rag/index`, `GET /api/rag/chunks`).
+    - `memory.py`: Long-term memory exploration and deletion (`GET /api/memory`, `DELETE /api/memory/{id}`).
+    - `voice.py`: Offline voice speech synthesis and microphone detection (`POST /api/voice/speak`, `GET /api/voice/devices`).
+    - `health.py`: Live platform health check (`GET /api/health`) and diagnostics suite (`GET /api/doctor`).
+- **Modern Web UI Dashboard (`app/api/static/`)**:
+  - `index.html`: Responsive single-page layout with tabbed navigation (Chat, Team, ReAct, RAG, Memory, Voice, Diagnostics).
+  - `style.css`: Sleek dark-mode aesthetic with custom color tokens, glassmorphism, glowing accents, and typography.
+  - `app.js`: Vanilla JavaScript frontend orchestrating real-time API calls, loaders, and interactive components.
+- **CLI Subcommand**:
+  - `aether serve [--host HOST] [--port PORT] [--reload]`: Starts the Uvicorn web server hosting both the REST API and the Web UI dashboard.
+- **Docker & Deployment Artifacts**:
+  - `Dockerfile`: Multi-stage build leveraging Astral `uv` for fast frozen layer caching and runtime audio system libraries (`libportaudio2`).
+  - `docker-compose.yml`: Multi-container stack coordinating Aether and local Ollama services with persistent storage.
+  - `.dockerignore`: Excludes caches, virtual environments, and test artifacts for slim container images.
+
+### Tested
+
+- 13 new unit tests across API endpoints and CLI serve commands (`tests/unit/api/test_api.py`, `tests/unit/test_cli.py`).
+- 385/385 passing tests with 88% overall test coverage.
+
+---
+
 ## [0.10.0] - Phase 10: Multi-Agent System
 
 ### Added

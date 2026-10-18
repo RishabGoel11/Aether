@@ -133,9 +133,7 @@ class MicrophoneRecorder:
             import numpy as np
             import sounddevice as sd
         except (ImportError, OSError) as exc:
-            raise RecorderError(
-                f"Live microphone recording is unavailable: {exc}."
-            ) from exc
+            raise RecorderError(f"Live microphone recording is unavailable: {exc}.") from exc
 
         chunk_size = int(self.sample_rate * 0.1)  # 100ms chunks
         chunks: list[np.ndarray] = []

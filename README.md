@@ -2,10 +2,10 @@
 
 > **A modular, local-first AI engineering platform built with privacy, transparency, extensibility, and software engineering best practices at its core.**
 
-![Version](https://img.shields.io/badge/version-v0.10.0-blue)
+![Version](https://img.shields.io/badge/version-v0.11.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB)
-![Tests](https://img.shields.io/badge/tests-369%20passed-brightgreen)
-![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)
+![Tests](https://img.shields.io/badge/tests-385%20passed-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-88%25-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
@@ -375,6 +375,19 @@ Run collaborative multi-agent problem solving:
 uv run aether team "Design a Python CLI tool for checking site uptime"
 ```
 
+Start the interactive voice assistant (listening & speaking):
+
+```bash
+uv run aether voice --until-silence
+```
+
+Launch the Web UI dashboard and REST API:
+
+```bash
+uv run aether serve --host 127.0.0.1 --port 8000
+```
+Then open your browser to `http://127.0.0.1:8000`.
+
 Index documents into the local RAG knowledge base:
 
 ```bash
@@ -439,7 +452,7 @@ Aether uses:
 | Epic 8 – Web Intelligence | ✅ Complete |
 | Epic 9 – Voice | ✅ Complete |
 | Epic 10 – Multi-Agent System | ✅ Complete |
-| Epic 11 – Production | ⬜ Planned |
+| Epic 11 – Production | ✅ Complete |
 
 For detailed milestones and implementation tasks, see `docs/ROADMAP.md`.
 
@@ -447,36 +460,40 @@ For detailed milestones and implementation tasks, see `docs/ROADMAP.md`.
 
 # Latest Release
 
-## v0.10.0 — Multi-Agent System
+## v0.11.0 — Production & Web Platform
 
 Highlights of this release:
 
-- **Multi-Agent Subsystem (`app/multi_agent/`)**:
-  - `PlannerAgent`: Autonomous goal decomposition into structured `TaskPlan`s with dependency management
-  - `ResearchAgent`: Fact gathering, internet searches (`web_search`), web scraping (`web_scrape`), and document exploration
-  - `CoderAgent`: Software development, file operations (`read_file`, `write_file`), Python execution, and test runs
-  - `ReviewerAgent`: Quality assurance, security analysis, edge-case critiques, and structured verdicts (`APPROVED` / `NEEDS_REVISION`)
-  - `CoordinatorAgent`: Supervisor orchestrating workflow execution and synthesizing publication-ready deliverables
-  - `Blackboard`: Central state repository tracking task outputs, shared artifacts, and inter-agent messages
-  - `AgentTeam`: High-level orchestration facade executing the collaborative team workflow (`solve()`) and direct specialist delegation (`delegate()`)
-  - `DelegateTaskTool` (`delegate_task`): Tool enabling agents and ReAct runners to dynamically delegate subtasks to specialists
-- **CLI Workflow**:
-  - `aether team "GOAL" [--no-plan]`: Command to initiate collaborative multi-agent problem solving
+- **FastAPI REST API Platform (`app/api/`)**:
+  - `server.py`: High-performance ASGI server with CORS, static hosting, and OpenAPI `/docs` documentation
+  - `models.py`: Typed Pydantic schemas for `/api/chat`, `/api/run`, `/api/team`, `/api/rag`, `/api/memory`, `/api/voice`, and `/api/health`
+  - `auth.py`: Optional header authentication (`X-API-Key`) configured via `AETHER_API_KEY`
+  - Complete REST endpoints for all Aether capabilities
+- **Modern Web UI Dashboard (`app/api/static/`)**:
+  - Tabbed single-page application with responsive dark-mode glassmorphic styling
+  - Interactive Chat interface with live responses and persistent memory
+  - Multi-Agent Team dashboard visualizing generated subtask plans and coordinator deliverables
+  - Autonomous ReAct Agent explorer with step-by-step reasoning trace timeline
+  - Knowledge Base (RAG) explorer, Long-Term Memory manager, offline Voice synthesizer, and Diagnostics
+- **CLI Web Server**:
+  - `aether serve [--host HOST] [--port PORT] [--reload]`: Starts the local Uvicorn server hosting both the web dashboard and REST API
+- **Docker Deployment**:
+  - `Dockerfile`: Multi-stage build with Astral `uv` layer caching and system audio dependencies (`libportaudio2`)
+  - `docker-compose.yml`: Multi-container stack coordinating Aether and local Ollama services
 - **Test Suite & Engineering**:
-  - 23 new unit tests across multi-agent models, blackboard, specialists, team orchestrator, delegate tool, builder, and CLI
-  - 369 total unit tests passing with 89% code coverage
+  - 13 new unit tests covering API routes, authentication, and CLI serve command
+  - 385 total unit tests passing with 88% code coverage
 
 ### Prior Release Highlights
 
-- **v0.9.0 — Voice Subsystem**: Local Speech-to-Text (`WhisperSTT`), 100% offline Text-to-Speech (`Pyttsx3TTS`), Wake Word Detection (`KeywordWakeWordDetector`), end-to-end `VoicePipeline`, and agent `SpeakTool` (`speak`).
+- **v0.10.0 — Multi-Agent System**: Autonomous team problem solving (`PlannerAgent`, `ResearchAgent`, `CoderAgent`, `ReviewerAgent`, `CoordinatorAgent`), shared `Blackboard` bus, `AgentTeam` orchestrator, `delegate_task` tool, and `aether team` CLI command.
+- **v0.9.0 — Voice Subsystem**: Local Speech-to-Text (`WhisperSTT`), 100% offline Text-to-Speech (`Pyttsx3TTS`), Wake Word Detection (`KeywordWakeWordDetector`), end-to-end `VoicePipeline`, microphone capture, and agent `SpeakTool` (`speak`).
 - **v0.8.0 — Web Intelligence**: Zero-API-key DuckDuckGo search, HTML content extraction, web scraping, multi-source research pipeline, `web_search` and `web_scrape` agent tools, and multi-page PDF ingestion (`PDFLoader`).
 - **v0.7.0 — AI Framework Integrations**: LangChain prompt/tool/LLM adapters, LCEL `|` pipe chains, LangGraph `StateGraph`, `CompiledGraph`, and `GraphReActAgent`.
 - **v0.6.0 — Agentic ReAct Loop**: Autonomous `AgentRunner` driving Reason -> Act -> Observe multi-step execution, full reasoning trace capturing (`THOUGHT`, `ACTION`, `OBSERVATION`, `ANSWER`), step budget control with graceful synthesis fallback, and `aether run` CLI.
 - **v0.5.0 — Retrieval-Augmented Generation (RAG)**: Extensible document loaders (`TextLoader`, `MarkdownLoader`), sliding-window chunking with boundary snapping, persistent `JsonChunkStore` (`data/rag_chunks.json`), startup re-indexing, cosine similarity retrieval, source citation formatting, and `aether index` CLI command.
 - **v0.4.0 — Tool Framework**: Modular `BaseTool` abstraction, `ToolRegistry`, `ToolExecutor`, `ToolPolicy`, built-in tools (Calculator, Datetime, Python, Terminal, FileInfo).
 - **v0.3.0 — Memory System**: Persistent JSON memory store, rule-based extraction, semantic vector search, memory summarization & consolidation.
-
-The next major milestone is **Epic 11 – Production**.
 
 ---
 
