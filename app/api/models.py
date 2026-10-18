@@ -13,14 +13,49 @@ class ChatRequest(BaseModel):
     """Payload for conversational interaction."""
 
     message: str = Field(..., min_length=1, description="User prompt or inquiry.")
+    session_id: str | None = Field(default=None, description="Optional target session ID.")
 
 
 class ChatResponse(BaseModel):
     """Response containing assistant reply and session status."""
 
     response: str
+    session_id: str | None = None
     success: bool = True
     error: str | None = None
+
+
+class CreateSessionRequest(BaseModel):
+    """Payload to create a new conversation session."""
+
+    title: str = Field(default="New Chat", description="Title for the session.")
+
+
+class SessionSummary(BaseModel):
+    """Overview of a saved chat session."""
+
+    id: str
+    title: str
+    message_count: int
+    created_at: str
+    updated_at: str
+    active: bool = False
+
+
+class SessionListResponse(BaseModel):
+    """Response containing list of all chat sessions."""
+
+    active_session_id: str
+    sessions: list[SessionSummary]
+
+
+class SessionDetailResponse(BaseModel):
+    """Detailed response for a single session and its full message history."""
+
+    id: str
+    title: str
+    active: bool
+    messages: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class RunRequest(BaseModel):

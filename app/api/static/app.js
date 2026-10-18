@@ -21,11 +21,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Chat Subsystem
+  // Chat Subsystem & Multi-Session Switcher
   const chatMessages = document.getElementById('chat-messages');
   const chatInput = document.getElementById('chat-input');
   const chatSendBtn = document.getElementById('chat-send-btn');
   const clearChatBtn = document.getElementById('clear-chat-btn');
+  const sessionsList = document.getElementById('sessions-list');
+  const newSessionBtn = document.getElementById('new-session-btn');
+
+  let currentSessionId = 'default';
 
   function appendChatMessage(role, text) {
     const msgDiv = document.createElement('div');
@@ -37,6 +41,108 @@ document.addEventListener('DOMContentLoaded', () => {
     chatMessages.appendChild(msgDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
+
+  function renderMessages(messages) {
+    chatMessages.innerHTML = '';
+    if (!messages || messages.length === 0) {
+      appendChatMessage('assistant', 'Hello! I am Aether. How can I assist you today?');
+      return;
+    }
+    messages.forEach(m => {
+      const role = m.role === 'user' ? 'user' : 'assistant';
+      appendChatMessage(role, m.content);
+    });
+  }
+
+  async function loadSessions() {
+    try {
+      const res = await fetch('/api/sessions');
+      const data = await res.json();
+      if (!res.ok) return;
+
+      currentSessionId = data.active_session_id || 'default';
+      sessionsList.innerHTML = '';
+
+      if (data.sessions && data.sessions.length > 0) {
+        data.sessions.forEach(sess => {
+          const item = document.createElement('div');
+          item.className = `session-item ${sess.id === currentSessionId ? 'active' : ''}`;
+          item.setAttribute('data-id', sess.id);
+
+          item.innerHTML = `
+            <div class="session-info">
+              <span class="session-item-title">${escapeHtml(sess.title || 'Chat')}</span>
+              <span class="session-item-meta">${sess.message_count || 0} msgs</span>
+            </div>
+            ${sess.id !== 'default' ? `<button class="session-del-btn" title="Delete chat" data-id="${sess.id}">✕</button>` : ''}
+          `;
+
+          item.addEventListener('click', (e) => {
+            if (e.target.classList.contains('session-del-btn')) return;
+            switchSession(sess.id);
+          });
+
+          const delBtn = item.querySelector('.session-del-btn');
+          delBtn?.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (confirm(`Delete conversation "${sess.title}"?`)) {
+              await deleteSession(sess.id);
+            }
+          });
+
+          sessionsList.appendChild(item);
+        });
+      }
+    } catch (err) {
+      console.error('Error loading sessions:', err);
+    }
+  }
+
+  async function switchSession(sessionId) {
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}/activate`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        currentSessionId = data.id;
+        renderMessages(data.messages);
+        loadSessions();
+      }
+    } catch (err) {
+      alert(`Could not switch session: ${err.message}`);
+    }
+  }
+
+  async function createNewSession() {
+    try {
+      const res = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: 'New Chat' })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        currentSessionId = data.id;
+        renderMessages([]);
+        loadSessions();
+      }
+    } catch (err) {
+      alert(`Could not create session: ${err.message}`);
+    }
+  }
+
+  async function deleteSession(sessionId) {
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (res.ok) {
+        switchSession(data.active_session_id || 'default');
+      }
+    } catch (err) {
+      alert(`Could not delete session: ${err.message}`);
+    }
+  }
+
+  newSessionBtn?.addEventListener('click', createNewSession);
 
   async function sendChatMessage() {
     const text = chatInput.value.trim();
@@ -57,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text })
+        body: JSON.stringify({ message: text, session_id: currentSessionId })
       });
       const data = await res.json();
       thinkingMsg.remove();
@@ -67,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
           appendChatMessage('assistant', `⚠️ ${data.response || data.error || 'Failed to process message.'}`);
         } else {
           appendChatMessage('assistant', data.response || 'No response.');
+          loadSessions(); // Update title & message count
         }
       } else {
         appendChatMessage('assistant', `⚠️ Error: ${data.detail || 'Failed to get response'}`);
@@ -91,15 +198,15 @@ document.addEventListener('DOMContentLoaded', () => {
   clearChatBtn?.addEventListener('click', async () => {
     try {
       await fetch('/api/chat/clear', { method: 'POST' });
-      chatMessages.innerHTML = `
-        <div class="message assistant">
-          <div class="message-bubble">Session cleared. Ready for a new topic!</div>
-        </div>
-      `;
+      renderMessages([]);
+      loadSessions();
     } catch (err) {
       alert(`Could not clear session: ${err.message}`);
     }
   });
+
+  // Initial sessions load
+  loadSessions();
 
   // Multi-Agent Team Subsystem
   const teamGoalInput = document.getElementById('team-goal-input');

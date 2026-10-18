@@ -255,3 +255,57 @@ def test_voice_endpoints(client):
         devices = devices_res.json()
         assert len(devices) == 1
         assert devices[0]["name"] == "Default Microphone"
+
+
+def test_sessions_endpoints(client):
+    """Test sessions endpoints: listing, creating, retrieving, activating, and deleting."""
+    with patch("app.api.routes.sessions.get_application") as mock_get_app:
+        mock_app = MagicMock()
+        mock_app.session.active_session_id = "default"
+        mock_app.list_sessions.return_value = [
+            {
+                "id": "default",
+                "title": "General Chat",
+                "message_count": 2,
+                "created_at": "2026-10-18T10:00:00Z",
+                "updated_at": "2026-10-18T10:05:00Z",
+                "active": True,
+            }
+        ]
+        mock_session = MagicMock()
+        mock_msg = MagicMock()
+        mock_msg.role.value = "user"
+        mock_msg.content = "Hello there"
+        mock_session.get_messages.return_value = [mock_msg]
+
+        mock_app.session.load.return_value = mock_session
+        mock_app.switch_session.return_value = mock_session
+        mock_app.create_session.return_value = "sess_123"
+        mock_app.delete_session.return_value = True
+        mock_get_app.return_value = mock_app
+
+        # List
+        res_list = client.get("/api/sessions")
+        assert res_list.status_code == 200
+        assert res_list.json()["active_session_id"] == "default"
+        assert len(res_list.json()["sessions"]) == 1
+
+        # Create
+        res_create = client.post("/api/sessions", json={"title": "Work Project"})
+        assert res_create.status_code == 200
+        assert res_create.json()["id"] == "sess_123"
+
+        # Get detail
+        res_detail = client.get("/api/sessions/default")
+        assert res_detail.status_code == 200
+        assert res_detail.json()["messages"][0]["content"] == "Hello there"
+
+        # Activate
+        res_act = client.post("/api/sessions/sess_123/activate")
+        assert res_act.status_code == 200
+        assert res_act.json()["active"] is True
+
+        # Delete
+        res_del = client.delete("/api/sessions/sess_123")
+        assert res_del.status_code == 200
+        assert res_del.json()["deleted"] is True

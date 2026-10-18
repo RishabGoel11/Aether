@@ -62,20 +62,36 @@
             <h1>Interactive Chat</h1>
             <p class="subtitle">Conversational intelligence with persistent memory and RAG context.</p>
           </div>
-          <button class="btn btn-secondary" id="clear-chat-btn">Clear Session</button>
+          <div class="header-actions">
+            <button class="btn btn-secondary" id="clear-chat-btn">Clear Chat</button>
+          </div>
         </header>
 
-        <div class="chat-container">
-          <div class="chat-messages" id="chat-messages">
-            <div class="message assistant">
-              <div class="message-bubble">
-                Hello! I am Aether. How can I assist you today?
-              </div>
+        <div class="chat-layout">
+          <!-- Session Sidebar -->
+          <div class="chat-sessions-panel">
+            <div class="sessions-panel-header">
+              <span class="sessions-title">💬 Saved Chats</span>
+              <button class="btn btn-sm btn-primary" id="new-session-btn" title="Start a fresh chat">+ New</button>
+            </div>
+            <div class="sessions-list" id="sessions-list">
+              <!-- Dynamically populated session cards -->
             </div>
           </div>
-          <div class="chat-input-bar">
-            <textarea id="chat-input" placeholder="Type a message to Aether..." rows="1"></textarea>
-            <button class="btn btn-primary" id="chat-send-btn">Send</button>
+
+          <!-- Chat Area -->
+          <div class="chat-container">
+            <div class="chat-messages" id="chat-messages">
+              <div class="message assistant">
+                <div class="message-bubble">
+                  Hello! I am Aether. How can I assist you today?
+                </div>
+              </div>
+            </div>
+            <div class="chat-input-bar">
+              <textarea id="chat-input" placeholder="Type a message to Aether..." rows="1"></textarea>
+              <button class="btn btn-primary" id="chat-send-btn">Send</button>
+            </div>
           </div>
         </div>
       </section>

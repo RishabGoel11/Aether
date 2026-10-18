@@ -31,17 +31,24 @@ def get_application() -> Application:
 def chat(payload: ChatRequest) -> ChatResponse:
     """Send a message to Aether and receive an intelligent response."""
     app = get_application()
+    active_sid = getattr(getattr(app, "session", None), "active_session_id", "default")
+    session_id_str = active_sid if isinstance(active_sid, str) else "default"
     try:
-        raw_response = app.chat(payload.message)
+        raw_response = app.chat(payload.message, session_id=payload.session_id)
         if hasattr(raw_response, "content"):
             response_text = str(raw_response.content)
         else:
             response_text = str(raw_response)
-        return ChatResponse(response=response_text, success=True)
+        return ChatResponse(
+            response=response_text,
+            session_id=session_id_str,
+            success=True,
+        )
     except Exception as exc:
         logger.error("Chat turn failed: %s", exc, exc_info=True)
         return ChatResponse(
             response=f"An error occurred while processing your message: {exc}",
+            session_id=session_id_str,
             success=False,
             error=str(exc),
         )

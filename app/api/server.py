@@ -15,6 +15,7 @@ from app.api.routes import (
     health_router,
     memory_router,
     rag_router,
+    sessions_router,
     team_router,
     voice_router,
 )
@@ -48,6 +49,7 @@ def create_app() -> FastAPI:
     # Include REST API Routers
     application.include_router(health_router)
     application.include_router(chat_router)
+    application.include_router(sessions_router)
     application.include_router(agent_router)
     application.include_router(team_router)
     application.include_router(rag_router)
