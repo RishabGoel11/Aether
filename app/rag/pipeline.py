@@ -23,6 +23,18 @@ class RAGPipeline:
         self.indexer = indexer
         self.retriever = retriever
 
+    @property
+    def chunk_store(self) -> BaseChunkStore:
+        """Access the underlying chunk store."""
+        return self.indexer.chunk_store
+
+    def index(self, path: str | Path, recursive: bool = True) -> list[Chunk]:
+        """Index a file or directory into the knowledge base."""
+        p = Path(path)
+        if p.is_dir():
+            return self.index_directory(p, recursive=recursive)
+        return self.index_file(p)
+
     @classmethod
     def create(
         cls,

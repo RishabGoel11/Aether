@@ -25,6 +25,10 @@ class BaseChunkStore(ABC):
     def list(self) -> list[Chunk]:
         """List all chunks in the store."""
 
+    def get_all(self) -> list[Chunk]:
+        """Alias for list() to retrieve all chunks."""
+        return self.list()
+
     @abstractmethod
     def delete(self, chunk_id: UUID) -> None:
         """Delete a chunk by ID."""

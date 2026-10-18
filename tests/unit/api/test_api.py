@@ -185,6 +185,7 @@ def test_rag_endpoints(client, tmp_path):
         mock_chunk.content = "Aether architecture guidelines."
 
         mock_rag.index.return_value = [mock_chunk]
+        mock_rag.chunk_store.list.return_value = [mock_chunk]
         mock_rag.chunk_store.get_all.return_value = [mock_chunk]
         mock_app.rag = mock_rag
         mock_get_app.return_value = mock_app
@@ -198,9 +199,9 @@ def test_rag_endpoints(client, tmp_path):
 
         chunks_res = client.get("/api/rag/chunks")
         assert chunks_res.status_code == 200
-        chunks = chunks_res.json()
-        assert len(chunks) == 1
-        assert chunks[0]["id"] == "c1"
+        data = chunks_res.json()
+        assert len(data["chunks"]) == 1
+        assert data["chunks"][0]["id"] == "c1"
 
 
 def test_memory_endpoints(client):

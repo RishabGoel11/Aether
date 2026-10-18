@@ -52,3 +52,19 @@ def test_pipeline_format_context_multiple():
     formatted = pipeline.format_context([r1, r2])
     assert "[1] Source: a.txt" in formatted
     assert "[2] Source: b.txt" in formatted
+
+
+def test_pipeline_chunk_store_property_and_index(tmp_path: Path):
+    doc_file = tmp_path / "guide.txt"
+    doc_file.write_text("Testing chunk store access.", encoding="utf-8")
+
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.1, 0.2, 0.3]
+
+    pipeline = RAGPipeline.create(embedder=embedder)
+    assert pipeline.chunk_store is not None
+
+    chunks = pipeline.index(doc_file)
+    assert len(chunks) == 1
+    assert len(pipeline.chunk_store.list()) == 1
+    assert len(pipeline.chunk_store.get_all()) == 1

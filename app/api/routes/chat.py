@@ -4,6 +4,8 @@ Chat endpoint for the Aether REST API.
 
 from __future__ import annotations
 
+import logging
+
 from fastapi import APIRouter, Depends
 
 from app.api.auth import verify_api_key
@@ -11,6 +13,7 @@ from app.api.models import ChatRequest, ChatResponse
 from app.bootstrap.application import Application
 from app.bootstrap.builder import ApplicationBuilder
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/chat", tags=["Chat"], dependencies=[Depends(verify_api_key)])
 
 _app_instance: Application | None = None
@@ -32,8 +35,9 @@ def chat(payload: ChatRequest) -> ChatResponse:
         response_text = app.chat(payload.message)
         return ChatResponse(response=response_text, success=True)
     except Exception as exc:
+        logger.error("Chat turn failed: %s", exc, exc_info=True)
         return ChatResponse(
-            response="An error occurred while processing your message.",
+            response=f"An error occurred while processing your message: {exc}",
             success=False,
             error=str(exc),
         )

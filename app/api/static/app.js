@@ -46,6 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
     chatInput.value = '';
     chatSendBtn.disabled = true;
 
+    // Show temporary thinking bubble
+    const thinkingMsg = document.createElement('div');
+    thinkingMsg.className = 'message assistant thinking';
+    thinkingMsg.innerHTML = '<div class="message-bubble"><em>Thinking...</em></div>';
+    chatMessages.appendChild(thinkingMsg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -53,15 +60,23 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ message: text })
       });
       const data = await res.json();
+      thinkingMsg.remove();
+
       if (res.ok) {
-        appendChatMessage('assistant', data.response || 'No response.');
+        if (!data.success) {
+          appendChatMessage('assistant', `⚠️ ${data.response || data.error || 'Failed to process message.'}`);
+        } else {
+          appendChatMessage('assistant', data.response || 'No response.');
+        }
       } else {
         appendChatMessage('assistant', `⚠️ Error: ${data.detail || 'Failed to get response'}`);
       }
     } catch (err) {
+      thinkingMsg.remove();
       appendChatMessage('assistant', `⚠️ Network error: ${err.message}`);
     } finally {
       chatSendBtn.disabled = false;
+      chatInput.focus();
     }
   }
 
@@ -204,13 +219,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('/api/rag/chunks');
       const data = await res.json();
       ragChunksList.innerHTML = '';
-      if (data.chunks && data.chunks.length > 0) {
-        data.chunks.forEach(chunk => {
+      const chunkList = Array.isArray(data) ? data : (data.chunks || []);
+      if (chunkList && chunkList.length > 0) {
+        chunkList.forEach(chunk => {
           const div = document.createElement('div');
           div.className = 'chunk-item';
           div.innerHTML = `
             <div class="chunk-source">📄 ${escapeHtml(chunk.source || 'Unknown')}</div>
-            <div>${escapeHtml(chunk.text || '')}</div>
+            <div>${escapeHtml(chunk.text || chunk.content || '')}</div>
           `;
           ragChunksList.appendChild(div);
         });
@@ -236,11 +252,11 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ path: path })
       });
       const data = await res.json();
-      if (res.ok) {
-        ragStatusMsg.textContent = `✅ Successfully indexed ${data.chunks_indexed} chunk(s) across ${data.documents_indexed} file(s).`;
+      if (res.ok && data.success) {
+        ragStatusMsg.textContent = `✅ ${data.message || 'Successfully indexed ' + (data.indexed_chunks || 0) + ' chunk(s).'}`;
         loadRagChunks();
       } else {
-        ragStatusMsg.textContent = `⚠️ Error: ${data.detail || 'Indexing failed'}`;
+        ragStatusMsg.textContent = `⚠️ Error: ${data.detail || data.message || 'Indexing failed'}`;
       }
     } catch (err) {
       ragStatusMsg.textContent = `⚠️ Network error: ${err.message}`;

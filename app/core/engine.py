@@ -144,9 +144,13 @@ class ConversationEngine:
                 f"Extracted {len(extracted_memories)} memories",
             )
 
-            memories = self.memory_retriever.retrieve(
-                user_input,
-            )
+            try:
+                memories = self.memory_retriever.retrieve(
+                    user_input,
+                )
+            except Exception as exc:
+                logger.warning("Memory retrieval skipped: %s", exc)
+                memories = []
 
             self.debug_collector.add_event(
                 f"Retrieved {len(memories)} memories",
@@ -154,8 +158,12 @@ class ConversationEngine:
 
             rag_context = ""
             if self.rag_pipeline is not None:
-                rag_results = self.rag_pipeline.retrieve(user_input)
-                rag_context = self.rag_pipeline.format_context(rag_results)
+                try:
+                    rag_results = self.rag_pipeline.retrieve(user_input)
+                    rag_context = self.rag_pipeline.format_context(rag_results)
+                except Exception as exc:
+                    logger.warning("RAG retrieval skipped: %s", exc)
+                    rag_results = []
                 self.debug_collector.add_event(
                     f"Retrieved {len(rag_results)} RAG chunks",
                 )

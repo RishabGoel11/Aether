@@ -40,18 +40,21 @@ def index_documents(payload: IndexRequest) -> IndexResponse:
 
 
 @router.get("/chunks")
-def list_chunks() -> list[dict[str, Any]]:
+def list_chunks() -> dict[str, Any]:
     """List indexed document chunks available in the knowledge base."""
     app = get_application()
     if not app.rag:
-        return []
+        return {"chunks": []}
 
-    chunks = app.rag.chunk_store.get_all()
-    return [
-        {
-            "id": str(c.id),
-            "source": c.source,
-            "content": c.content[:200] + "..." if len(c.content) > 200 else c.content,
-        }
-        for c in chunks[:50]
-    ]
+    chunks = app.rag.chunk_store.list()
+    return {
+        "chunks": [
+            {
+                "id": str(c.id),
+                "source": c.source,
+                "text": c.content[:200] + "..." if len(c.content) > 200 else c.content,
+                "content": c.content[:200] + "..." if len(c.content) > 200 else c.content,
+            }
+            for c in chunks[:50]
+        ]
+    }
