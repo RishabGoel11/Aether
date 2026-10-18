@@ -32,7 +32,11 @@ def chat(payload: ChatRequest) -> ChatResponse:
     """Send a message to Aether and receive an intelligent response."""
     app = get_application()
     try:
-        response_text = app.chat(payload.message)
+        raw_response = app.chat(payload.message)
+        if hasattr(raw_response, "content"):
+            response_text = str(raw_response.content)
+        else:
+            response_text = str(raw_response)
         return ChatResponse(response=response_text, success=True)
     except Exception as exc:
         logger.error("Chat turn failed: %s", exc, exc_info=True)

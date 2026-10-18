@@ -90,9 +90,11 @@ def test_api_key_auth(client, monkeypatch):
 
 def test_chat_endpoint(client):
     """Test POST /api/chat and POST /api/chat/clear."""
+    from app.llm.models import LLMResponse
+
     with patch("app.api.routes.chat.get_application") as mock_get_app:
         mock_app = MagicMock()
-        mock_app.chat.return_value = "Hello from Aether"
+        mock_app.chat.return_value = LLMResponse(content="Hello from Aether", tool_calls=[])
         mock_get_app.return_value = mock_app
 
         res = client.post("/api/chat", json={"message": "Hi there"})
