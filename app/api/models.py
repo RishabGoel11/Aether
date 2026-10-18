@@ -122,6 +122,26 @@ class SpeakResponse(BaseModel):
     success: bool
 
 
+class ListenRequest(BaseModel):
+    """Payload for triggering microphone audio recording."""
+
+    duration: float = Field(default=5.0, ge=0.5, le=60.0, description="Duration in seconds.")
+    until_silence: bool = Field(default=False, description="Stop recording when silence detected.")
+    process_turn: bool = Field(
+        default=False,
+        description="Send transcription to LLM and speak response.",
+    )
+
+
+class VoiceListenResponse(BaseModel):
+    """Response containing transcribed speech and optional conversational reply."""
+
+    text: str
+    success: bool
+    reply: str | None = None
+    error: str | None = None
+
+
 class HealthResponse(BaseModel):
     """System health check and diagnostic status."""
 

@@ -81,7 +81,9 @@ class ApplicationBuilder:
                     chunk_overlap=settings.rag.chunk_overlap,
                 ),
             )
-            rag_pipeline.reindex()
+            import threading
+
+            threading.Thread(target=rag_pipeline.reindex, daemon=True).start()
 
         engine = ConversationEngine(
             llm=llm,

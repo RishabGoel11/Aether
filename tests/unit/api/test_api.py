@@ -199,6 +199,25 @@ def test_rag_endpoints(client, tmp_path):
         assert index_res.status_code == 200
         assert index_res.json()["indexed_chunks"] == 1
 
+        # Upload valid document
+        import io
+
+        upload_res = client.post(
+            "/api/rag/upload",
+            files={
+                "file": ("guide.pdf", io.BytesIO(b"%PDF-1.4 sample content"), "application/pdf")
+            },
+        )
+        assert upload_res.status_code == 200
+        assert upload_res.json()["indexed_chunks"] == 1
+
+        # Upload invalid extension -> 400
+        bad_upload = client.post(
+            "/api/rag/upload",
+            files={"file": ("script.exe", io.BytesIO(b"binary"), "application/octet-stream")},
+        )
+        assert bad_upload.status_code == 400
+
         chunks_res = client.get("/api/rag/chunks")
         assert chunks_res.status_code == 200
         data = chunks_res.json()
@@ -235,21 +254,48 @@ def test_memory_endpoints(client):
 
 
 def test_voice_endpoints(client):
-    """Test POST /api/voice/speak and GET /api/voice/devices."""
+    """Test POST /api/voice/speak, /listen, /transcribe, and GET /api/voice/devices."""
+    import io
+
     with patch("app.api.routes.voice.get_application") as mock_get_app:
         mock_app = MagicMock()
         mock_voice = MagicMock()
         mock_voice.list_input_devices.return_value = [
             {"index": 0, "name": "Default Microphone", "max_input_channels": 2}
         ]
+        mock_transcription = MagicMock()
+        mock_transcription.text = "Hello Aether from voice"
+        mock_voice.transcribe.return_value = mock_transcription
+        mock_voice.listen.return_value = MagicMock()
+
         mock_app.voice = mock_voice
+        mock_app.chat.return_value = "Voice response text"
         mock_get_app.return_value = mock_app
 
+        # Speak
         speak_res = client.post("/api/voice/speak", json={"text": "Hello world"})
         assert speak_res.status_code == 200
         assert speak_res.json()["success"] is True
         mock_voice.speak.assert_called_once_with("Hello world")
 
+        # Listen
+        listen_res = client.post(
+            "/api/voice/listen",
+            json={"duration": 3.0, "until_silence": False, "process_turn": True},
+        )
+        assert listen_res.status_code == 200
+        assert listen_res.json()["text"] == "Hello Aether from voice"
+        assert listen_res.json()["reply"] == "Voice response text"
+
+        # Transcribe uploaded file
+        transcribe_res = client.post(
+            "/api/voice/transcribe",
+            files={"file": ("audio.wav", io.BytesIO(b"RIFF dummy audio"), "audio/wav")},
+        )
+        assert transcribe_res.status_code == 200
+        assert transcribe_res.json()["text"] == "Hello Aether from voice"
+
+        # Devices
         devices_res = client.get("/api/voice/devices")
         assert devices_res.status_code == 200
         devices = devices_res.json()

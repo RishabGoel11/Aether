@@ -90,6 +90,7 @@
             </div>
             <div class="chat-input-bar">
               <textarea id="chat-input" placeholder="Type a message to Aether..." rows="1"></textarea>
+              <button class="btn btn-secondary" id="chat-mic-btn" title="Speak via microphone">🎙️</button>
               <button class="btn btn-primary" id="chat-send-btn">Send</button>
             </div>
           </div>
@@ -181,10 +182,19 @@
 
         <div class="rag-panel">
           <div class="input-card">
+            <label for="rag-file-input">📄 Upload PDF or Document directly:</label>
+            <div class="input-row">
+              <input type="file" id="rag-file-input" accept=".pdf,.txt,.md,.json,.rst">
+              <button class="btn btn-primary" id="rag-upload-btn">Upload & Index</button>
+            </div>
+            <span id="rag-upload-status" class="hint-text"></span>
+          </div>
+
+          <div class="input-card">
             <label for="rag-path-input">Local Document Path to Index (.txt, .md, .pdf):</label>
             <div class="input-row">
               <input type="text" id="rag-path-input" placeholder="./docs">
-              <button class="btn btn-primary" id="rag-index-btn">Index Path</button>
+              <button class="btn btn-secondary" id="rag-index-btn">Index Path</button>
             </div>
             <span id="rag-status-msg" class="hint-text"></span>
           </div>
@@ -218,11 +228,28 @@
         <header class="pane-header">
           <div>
             <h1>Voice & Audio Subsystem</h1>
-            <p class="subtitle">Local offline Text-to-Speech and audio device detection.</p>
+            <p class="subtitle">Local Speech-to-Text, offline Text-to-Speech, and audio device detection.</p>
           </div>
         </header>
 
         <div class="voice-panel">
+          <div class="card">
+            <h3>🎙️ Microphone Voice Input (Speech-to-Text)</h3>
+            <p class="subtitle" style="margin-bottom: 12px; font-size: 13px;">Speak into your microphone. Aether records and transcribes your voice with local Whisper STT.</p>
+            <div class="btn-group" style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-primary" id="voice-listen-btn">🎙️ Listen (5 Seconds)</button>
+              <button class="btn btn-secondary" id="voice-turn-btn">🗣️ Voice Chat (Listen & Speak Reply)</button>
+            </div>
+            <div id="voice-listening-indicator" class="loading-state hidden" style="margin-top: 12px;">
+              <div class="spinner"></div>
+              <p>Listening to microphone... Speak now!</p>
+            </div>
+            <div id="voice-transcript-result" class="hidden" style="margin-top: 12px; padding: 12px; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border-color);">
+              <p><strong>Transcribed:</strong> <span id="voice-transcript-text"></span></p>
+              <p id="voice-reply-row" class="hidden" style="margin-top: 8px;"><strong>Aether replied:</strong> <span id="voice-reply-text"></span></p>
+            </div>
+          </div>
+
           <div class="card">
             <h3>🔊 Offline Speech Synthesis (TTS)</h3>
             <div class="input-row">

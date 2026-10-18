@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
 from app.api.auth import verify_api_key
 from app.api.models import IndexRequest, IndexResponse
@@ -33,6 +33,51 @@ def index_documents(payload: IndexRequest) -> IndexResponse:
     except Exception as exc:
         return IndexResponse(
             path=payload.path,
+            indexed_chunks=0,
+            success=False,
+            message=str(exc),
+        )
+
+
+@router.post("/upload", response_model=IndexResponse)
+async def upload_and_index_document(file: UploadFile = File(...)) -> IndexResponse:
+    """Upload a PDF, Markdown, or text document and index it into the RAG knowledge base."""
+    from pathlib import Path
+
+    app = get_application()
+    if not app.rag:
+        raise HTTPException(status_code=500, detail="RAG pipeline is not configured.")
+
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file uploaded.")
+
+    allowed_exts = {".pdf", ".md", ".txt", ".json", ".rst"}
+    file_path = Path(file.filename)
+    if file_path.suffix.lower() not in allowed_exts:
+        ext_list = ", ".join(sorted(allowed_exts))
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file format '{file_path.suffix}'. Allowed: {ext_list}",
+        )
+
+    uploads_dir = Path(".aether/uploads")
+    uploads_dir.mkdir(parents=True, exist_ok=True)
+    target_path = uploads_dir / file_path.name
+
+    try:
+        content = await file.read()
+        target_path.write_bytes(content)
+
+        chunks = app.rag.index(target_path)
+        return IndexResponse(
+            path=str(target_path),
+            indexed_chunks=len(chunks),
+            success=True,
+            message=f"Uploaded '{file_path.name}' and indexed {len(chunks)} chunks.",
+        )
+    except Exception as exc:
+        return IndexResponse(
+            path=str(target_path),
             indexed_chunks=0,
             success=False,
             message=str(exc),

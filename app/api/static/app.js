@@ -195,6 +195,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  const chatMicBtn = document.getElementById('chat-mic-btn');
+  chatMicBtn?.addEventListener('click', async () => {
+    chatMicBtn.disabled = true;
+    chatMicBtn.textContent = '⏳';
+    chatInput.placeholder = 'Listening to microphone... Speak now!';
+    try {
+      const res = await fetch('/api/voice/listen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ duration: 4.0, until_silence: false, process_turn: false })
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.text) {
+        chatInput.value = data.text;
+      }
+    } catch (err) {
+      console.warn('Mic input error:', err);
+    } finally {
+      chatMicBtn.disabled = false;
+      chatMicBtn.textContent = '🎙️';
+      chatInput.placeholder = 'Type a message to Aether...';
+      chatInput.focus();
+    }
+  });
+
   clearChatBtn?.addEventListener('click', async () => {
     try {
       await fetch('/api/chat/clear', { method: 'POST' });
@@ -372,6 +397,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  const ragFileInput = document.getElementById('rag-file-input');
+  const ragUploadBtn = document.getElementById('rag-upload-btn');
+  const ragUploadStatus = document.getElementById('rag-upload-status');
+
+  ragUploadBtn?.addEventListener('click', async () => {
+    if (!ragFileInput.files || ragFileInput.files.length === 0) {
+      ragUploadStatus.textContent = 'Please choose a PDF or document first.';
+      return;
+    }
+    const file = ragFileInput.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    ragUploadStatus.textContent = `Uploading and indexing '${file.name}'...`;
+    ragUploadBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/rag/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        ragUploadStatus.textContent = `✅ ${data.message || 'Successfully indexed ' + (data.indexed_chunks || 0) + ' chunks.'}`;
+        loadRagChunks();
+        ragFileInput.value = '';
+      } else {
+        ragUploadStatus.textContent = `⚠️ Error: ${data.detail || data.message || 'Upload failed'}`;
+      }
+    } catch (err) {
+      ragUploadStatus.textContent = `⚠️ Network error: ${err.message}`;
+    } finally {
+      ragUploadBtn.disabled = false;
+    }
+  });
+
   // Long-Term Memory Subsystem
   const memoryList = document.getElementById('memory-list');
   const refreshMemoryBtn = document.getElementById('refresh-memory-btn');
@@ -468,6 +529,52 @@ document.addEventListener('DOMContentLoaded', () => {
       voiceDeviceList.innerHTML = `<p class="empty-state">Error querying audio devices: ${err.message}</p>`;
     }
   }
+
+  const voiceListenBtn = document.getElementById('voice-listen-btn');
+  const voiceTurnBtn = document.getElementById('voice-turn-btn');
+  const voiceListeningIndicator = document.getElementById('voice-listening-indicator');
+  const voiceTranscriptResult = document.getElementById('voice-transcript-result');
+  const voiceTranscriptText = document.getElementById('voice-transcript-text');
+  const voiceReplyRow = document.getElementById('voice-reply-row');
+  const voiceReplyText = document.getElementById('voice-reply-text');
+
+  async function triggerVoiceInput(processTurn = false) {
+    voiceListeningIndicator.classList.remove('hidden');
+    voiceTranscriptResult.classList.add('hidden');
+    if (voiceListenBtn) voiceListenBtn.disabled = true;
+    if (voiceTurnBtn) voiceTurnBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/voice/listen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ duration: 5.0, until_silence: false, process_turn: processTurn })
+      });
+      const data = await res.json();
+      voiceListeningIndicator.classList.add('hidden');
+      if (res.ok && data.success) {
+        voiceTranscriptResult.classList.remove('hidden');
+        voiceTranscriptText.textContent = data.text || '(Silence detected)';
+        if (data.reply) {
+          voiceReplyRow.classList.remove('hidden');
+          voiceReplyText.textContent = data.reply;
+        } else {
+          voiceReplyRow.classList.add('hidden');
+        }
+      } else {
+        alert(`Voice recording error: ${data.detail || data.error || 'Failed to capture audio'}`);
+      }
+    } catch (err) {
+      voiceListeningIndicator.classList.add('hidden');
+      alert(`Voice error: ${err.message}`);
+    } finally {
+      if (voiceListenBtn) voiceListenBtn.disabled = false;
+      if (voiceTurnBtn) voiceTurnBtn.disabled = false;
+    }
+  }
+
+  voiceListenBtn?.addEventListener('click', () => triggerVoiceInput(false));
+  voiceTurnBtn?.addEventListener('click', () => triggerVoiceInput(true));
 
   // Diagnostics & Doctor
   const runDoctorBtn = document.getElementById('run-doctor-btn');

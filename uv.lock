@@ -14,6 +14,7 @@ dependencies = [
     { name = "ollama" },
     { name = "pydantic" },
     { name = "pypdf" },
+    { name = "python-multipart" },
     { name = "pyttsx3" },
     { name = "pyyaml" },
     { name = "scipy" },
@@ -40,6 +41,7 @@ requires-dist = [
     { name = "pypdf", specifier = ">=6.21.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = "~=9.1.1" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = "~=7.0.0" },
+    { name = "python-multipart", specifier = ">=0.0.32" },
     { name = "pyttsx3", specifier = ">=2.99" },
     { name = "pyyaml", specifier = "~=6.0.3" },
     { name = "ruff", marker = "extra == 'dev'", specifier = "~=0.15.20" },
@@ -3511,6 +3513,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/5e/f7/c933acc76f5208b3b00089573cf6a2bc26dc80a8aece8f52bb7d6b1855ca/pytest_cov-7.0.0.tar.gz", hash = "sha256:33c97eda2e049a0c5298e91f519302a1334c26ac65c1a483d6206fd458361af1", size = 54328, upload-time = "2025-09-09T10:57:02.113Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ee/49/1377b49de7d0c1ce41292161ea0f721913fa8722c19fb9c1e3aa0367eecb/pytest_cov-7.0.0-py3-none-any.whl", hash = "sha256:3b8e9558b16cc1479da72058bdecf8073661c7f57f7d3c5f22a1c23507f2d861", size = 22424, upload-time = "2025-09-09T10:57:00.695Z" },
+]
+
+[[package]]
+name = "python-multipart"
+version = "0.0.32"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/5b/42/55c32bb9b12693c092ad250a0e82edb5b31ddeda6eb772de5f308b3804ad/python_multipart-0.0.32.tar.gz", hash = "sha256:be54b7f3fa167bb83e4fcd936b887b708f4e57fe75911c02aebf53efaf8d938e", size = 46881, upload-time = "2026-06-04T16:18:58.647Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e1/04/e8135ebd1ad02c56ec633277529b2602ff99ff634be76cdba5744cf554fd/python_multipart-0.0.32-py3-none-any.whl", hash = "sha256:ff6d3f776f16878c894e52e107296ffc890e913c611b1a4ec6c44e2821fe2e23", size = 30042, upload-time = "2026-06-04T16:18:57.319Z" },
 ]
 
 [[package]]
