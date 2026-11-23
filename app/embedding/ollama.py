@@ -13,7 +13,7 @@ class OllamaEmbedder(BaseEmbedder):
         model: str = "nomic-embed-text",
         host: str = "http://localhost:11434",
     ) -> None:
-        self._client = Client(host=host)
+        self._client = Client(host=host, timeout=30.0)
         self._model = model
 
     def embed(

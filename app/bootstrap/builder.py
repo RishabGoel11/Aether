@@ -1,4 +1,9 @@
 from pathlib import Path
+from threading import Thread
+from typing import Callable
+
+from httpx import RequestError
+from ollama import ResponseError
 
 from app.agent.runner import AgentRunner
 from app.bootstrap.application import Application
@@ -7,6 +12,7 @@ from app.core.engine import ConversationEngine
 from app.embedding.factory import EmbeddingFactory
 from app.llm.factory import LLMFactory
 from app.logger.config import configure_logging
+from app.logger.logger import get_logger
 from app.memory.extractor import MemoryExtractor
 from app.memory.manager import MemoryManager
 from app.memory.retrieval import MemoryRetriever
@@ -20,6 +26,15 @@ from app.tools.defaults import create_default_registry
 from app.tools.executor import ToolExecutor
 from app.tools.policy import ToolPolicy
 from app.vectorstore.in_memory import InMemoryVectorStore
+
+logger = get_logger(__name__)
+
+
+def _restore_embeddings(reindex: Callable[[], int | None], name: str) -> None:
+    try:
+        reindex()
+    except (ConnectionError, RequestError, ResponseError) as exc:
+        logger.warning("Could not restore %s embeddings: %s", name, exc)
 
 
 class ApplicationBuilder:
@@ -56,7 +71,7 @@ class ApplicationBuilder:
             vector_store=vector_store,
         )
 
-        memory_manager.reindex()
+        _restore_embeddings(memory_manager.reindex, "memory")
 
         memory_retriever = MemoryRetriever(memory_manager)
 
@@ -81,9 +96,11 @@ class ApplicationBuilder:
                     chunk_overlap=settings.rag.chunk_overlap,
                 ),
             )
-            import threading
-
-            threading.Thread(target=rag_pipeline.reindex, daemon=True).start()
+            Thread(
+                target=_restore_embeddings,
+                args=(rag_pipeline.reindex, "document"),
+                daemon=True,
+            ).start()
 
         engine = ConversationEngine(
             llm=llm,

@@ -4,16 +4,18 @@ Request and response models for the Aether Production REST API.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import BaseModel, Field
+
+SessionId = Annotated[str, Field(pattern=r"^[A-Za-z0-9_-]+$")]
 
 
 class ChatRequest(BaseModel):
     """Payload for conversational interaction."""
 
     message: str = Field(..., min_length=1, description="User prompt or inquiry.")
-    session_id: str | None = Field(default=None, description="Optional target session ID.")
+    session_id: SessionId | None = Field(default=None, description="Optional target session ID.")
 
 
 class ChatResponse(BaseModel):

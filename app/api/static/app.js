@@ -49,8 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     messages.forEach(m => {
-      const role = m.role === 'user' ? 'user' : 'assistant';
-      appendChatMessage(role, m.content);
+      if (m.role === 'user' || m.role === 'assistant') {
+        appendChatMessage(m.role, m.content);
+      }
     });
   }
 
@@ -60,12 +61,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
 
-      currentSessionId = data.active_session_id || 'default';
       if (restoreHistory) {
-        const historyRes = await fetch(`/api/sessions/${encodeURIComponent(currentSessionId)}`);
+        const initialSessionId = data.active_session_id || 'default';
+        const historyRes = await fetch(`/api/sessions/${encodeURIComponent(initialSessionId)}`);
         if (!historyRes.ok) throw new Error(`Could not load chat history (HTTP ${historyRes.status})`);
         const history = await historyRes.json();
-        if (currentSessionId === history.id) renderMessages(history.messages);
+        currentSessionId = history.id;
+        renderMessages(history.messages);
       }
       sessionsList.innerHTML = '';
 
@@ -106,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function switchSession(sessionId) {
     try {
-      const res = await fetch(`/api/sessions/${sessionId}/activate`, { method: 'POST' });
+      const res = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}/activate`, { method: 'POST' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
       currentSessionId = data.id;
@@ -136,10 +138,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function deleteSession(sessionId) {
     try {
-      const res = await fetch(`/api/sessions/${sessionId}`, { method: 'DELETE' });
+      const res = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}`, { method: 'DELETE' });
       const data = await res.json();
       if (!res.ok || !data.deleted) throw new Error(data.detail || 'Session could not be deleted');
-      await switchSession(data.active_session_id || 'default');
+      if (sessionId === currentSessionId) {
+        await switchSession(data.active_session_id || 'default');
+      } else {
+        await loadSessions();
+      }
     } catch (err) {
       alert(`Could not delete session: ${err.message}`);
     }
@@ -149,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function sendChatMessage() {
     const text = chatInput.value.trim();
-    if (!text || chatSendBtn.disabled) return;
+    if (!text || chatSendBtn.disabled || clearChatBtn.disabled) return;
 
     const sessionId = currentSessionId;
     appendChatMessage('user', text);
@@ -185,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (err) {
       thinkingMsg.remove();
+      if (sessionId !== currentSessionId) return;
       appendChatMessage('assistant', `⚠️ Network error: ${err.message}`);
     } finally {
       chatSendBtn.disabled = false;
@@ -226,16 +233,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   clearChatBtn?.addEventListener('click', async () => {
+    if (chatSendBtn.disabled) return;
+    const sessionId = currentSessionId;
+    clearChatBtn.disabled = true;
     try {
-      const res = await fetch('/api/chat/clear', { method: 'POST' });
+      const params = new URLSearchParams({ session_id: sessionId });
+      const res = await fetch(`/api/chat/clear?${params}`, { method: 'POST' });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.detail || `HTTP ${res.status}`);
       }
-      renderMessages([]);
+      if (sessionId === currentSessionId) renderMessages([]);
       loadSessions();
     } catch (err) {
       alert(`Could not clear session: ${err.message}`);
+    } finally {
+      clearChatBtn.disabled = false;
     }
   });
 

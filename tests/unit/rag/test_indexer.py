@@ -1,6 +1,8 @@
 from pathlib import Path
 from unittest.mock import Mock
 
+import pytest
+
 from app.embedding.base import BaseEmbedder
 from app.rag.indexer import DocumentIndexer
 from app.rag.models import Document
@@ -91,6 +93,22 @@ def test_indexer_replaces_duplicate_source():
     all_chunks = chunk_store.list()
     assert len(all_chunks) == 1
     assert all_chunks[0].content == "Version 2 updated content"
+
+
+def test_indexer_keeps_existing_chunks_when_replacement_embedding_fails():
+    embedder = Mock(spec=BaseEmbedder)
+    embedder.embed.return_value = [0.1, 0.2]
+    chunk_store = InMemoryChunkStore()
+    vector_store = InMemoryVectorStore()
+    indexer = DocumentIndexer(embedder, chunk_store, vector_store)
+    original = indexer.index_document(Document(source="note.txt", content="Original text"))
+    embedder.embed.side_effect = ConnectionError("Ollama unavailable")
+
+    with pytest.raises(ConnectionError):
+        indexer.index_document(Document(source="note.txt", content="Updated text"))
+
+    assert chunk_store.list() == original
+    assert vector_store.get(original[0].id) == [0.1, 0.2]
 
 
 def test_indexer_reindex():

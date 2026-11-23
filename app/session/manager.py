@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
@@ -56,6 +57,8 @@ class SessionManager:
             self._save_meta(meta)
 
     def _get_store_for_session(self, session_id: str) -> BaseSessionStore:
+        if not re.fullmatch(r"[A-Za-z0-9_-]+", session_id):
+            raise ValueError("Invalid session ID.")
         if session_id == "default":
             return self.store
         session_file = self.sessions_dir / f"{session_id}.json"
@@ -105,6 +108,7 @@ class SessionManager:
     def create_session(self, title: str = "New Chat", session_id: str | None = None) -> str:
         """Create a new session, register it in metadata, and activate it."""
         sid = session_id or f"sess_{uuid4().hex[:8]}"
+        store = self._get_store_for_session(sid)
         meta = self._load_meta()
         now = datetime.now(timezone.utc).isoformat()
         meta[sid] = {
@@ -115,14 +119,14 @@ class SessionManager:
         }
         self._save_meta(meta)
         self.active_session_id = sid
-        store = self._get_store_for_session(sid)
         store.save(Session())
         return sid
 
     def switch_session(self, session_id: str) -> Session:
         """Activate and load a specific session."""
+        session = self.load(session_id)
         self.active_session_id = session_id
-        return self.load(session_id)
+        return session
 
     def list_sessions(self) -> list[dict]:
         """Return list of all session summaries."""
@@ -157,12 +161,12 @@ class SessionManager:
 
     def delete_session(self, session_id: str) -> bool:
         """Delete a session by ID."""
+        store = self._get_store_for_session(session_id)
         meta = self._load_meta()
         if session_id in meta:
             del meta[session_id]
             self._save_meta(meta)
 
-        store = self._get_store_for_session(session_id)
         if store.exists():
             store.delete()
 

@@ -78,4 +78,5 @@ def test_custom_host():
 
         mock_client.assert_called_once_with(
             host="http://test:11434",
+            timeout=30.0,
         )

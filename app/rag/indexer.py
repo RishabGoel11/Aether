@@ -51,15 +51,13 @@ class DocumentIndexer:
 
         Replaces existing chunks for the same source.
         """
+        chunks = self.chunker.chunk(document)
+        embeddings = [self.embedder.embed(chunk.content) for chunk in chunks]
+
         if document.source:
             self.remove_source(document.source)
 
-        chunks = self.chunker.chunk(document)
-        if not chunks:
-            return []
-
-        for chunk in chunks:
-            embedding = self.embedder.embed(chunk.content)
+        for chunk, embedding in zip(chunks, embeddings, strict=True):
             self.chunk_store.add(chunk)
             self.vector_store.add(chunk.id, embedding)
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from threading import RLock
 from typing import TYPE_CHECKING
 
 from app.agent.runner import AgentRunner
@@ -53,55 +54,64 @@ class Application:
         self.web = web
         self.voice = voice
         self.team = team
+        self._conversation_lock = RLock()
 
     def chat(self, user_input: str, session_id: str | None = None):
         """
         Send a message to Aether within the active or specified session.
         """
-        if session_id and session_id != self.session.active_session_id:
-            self.switch_session(session_id)
+        with self._conversation_lock:
+            if session_id and session_id != self.session.active_session_id:
+                self.switch_session(session_id)
 
-        response = self.engine.chat(user_input)
+            response = self.engine.chat(user_input)
 
-        self.session.save(self.engine.session)
+            self.session.save(self.engine.session)
 
-        return response
+            return response
 
     def switch_session(self, session_id: str):
         """
         Switch active session in both the session manager and engine.
         """
-        session = self.session.switch_session(session_id)
-        self.engine.session = session
-        return session
+        with self._conversation_lock:
+            session = self.session.switch_session(session_id)
+            self.engine.session = session
+            return session
 
     def create_session(self, title: str = "New Chat") -> str:
         """
         Create a new session, activate it, and update engine.
         """
-        session_id = self.session.create_session(title=title)
-        self.engine.session = self.session.load(session_id)
-        return session_id
+        with self._conversation_lock:
+            session_id = self.session.create_session(title=title)
+            self.engine.session = self.session.load(session_id)
+            return session_id
 
     def list_sessions(self) -> list[dict]:
         """
         List all available conversation sessions.
         """
-        return self.session.list_sessions()
+        with self._conversation_lock:
+            return self.session.list_sessions()
 
     def delete_session(self, session_id: str) -> bool:
         """
         Delete a session and reset engine active session.
         """
-        success = self.session.delete_session(session_id)
-        self.engine.session = self.session.load()
-        return success
+        with self._conversation_lock:
+            success = self.session.delete_session(session_id)
+            self.engine.session = self.session.load()
+            return success
 
-    def clear_conversation(self) -> None:
+    def clear_conversation(self, session_id: str | None = None) -> None:
         """
         Clear the current conversation and start a new session.
         """
-        self.engine.session = self.session.clear()
+        with self._conversation_lock:
+            session = self.session.clear(session_id)
+            if session_id is None or session_id == self.session.active_session_id:
+                self.engine.session = session
 
     def get_langchain_model(self):
         """Return a LangChain-compatible chat model wrapping Aether's configured LLM."""

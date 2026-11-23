@@ -12,6 +12,7 @@ from app.api.auth import verify_api_key
 from app.api.models import (
     CreateSessionRequest,
     SessionDetailResponse,
+    SessionId,
     SessionListResponse,
     SessionSummary,
 )
@@ -56,7 +57,7 @@ def create_session(payload: CreateSessionRequest) -> SessionSummary:
 
 
 @router.get("/{session_id}", response_model=SessionDetailResponse)
-def get_session(session_id: str) -> SessionDetailResponse:
+def get_session(session_id: SessionId) -> SessionDetailResponse:
     """Retrieve full message history for a specific session."""
     app = get_application()
     all_sessions = app.list_sessions()
@@ -83,7 +84,7 @@ def get_session(session_id: str) -> SessionDetailResponse:
 
 
 @router.post("/{session_id}/activate", response_model=SessionDetailResponse)
-def activate_session(session_id: str) -> SessionDetailResponse:
+def activate_session(session_id: SessionId) -> SessionDetailResponse:
     """Switch active conversation to the specified session."""
     app = get_application()
     session = app.switch_session(session_id)
@@ -110,7 +111,7 @@ def activate_session(session_id: str) -> SessionDetailResponse:
 
 
 @router.delete("/{session_id}")
-def delete_session(session_id: str) -> dict[str, Any]:
+def delete_session(session_id: SessionId) -> dict[str, Any]:
     """Delete a conversation session."""
     app = get_application()
     success = app.delete_session(session_id)
