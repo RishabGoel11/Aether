@@ -12,3 +12,5 @@ htmlcov/
 tests/
 *.log
 data/
+.aether/
+dist/

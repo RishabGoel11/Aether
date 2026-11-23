@@ -1,4 +1,5 @@
 from app.bootstrap.builder import ApplicationBuilder
+from app.core.exceptions import LLMError
 
 
 def run() -> None:
@@ -11,7 +12,11 @@ def run() -> None:
     print("Type 'exit' to quit or '/clear' to start a new conversation.\n")
 
     while True:
-        user_input = input("You: ").strip()
+        try:
+            user_input = input("You: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nGoodbye!")
+            break
 
         if user_input.lower() == "exit":
             print("Goodbye!")
@@ -25,6 +30,10 @@ def run() -> None:
         if not user_input:
             continue
 
-        response = app.chat(user_input)
+        try:
+            response = app.chat(user_input)
+        except LLMError as exc:
+            print(f"Aether could not reply: {exc}\n")
+            continue
 
         print(f"Aether: {response.content}\n")

@@ -10,6 +10,7 @@ from fastapi import APIRouter
 
 from app.api.models import HealthResponse
 from app.api.routes.chat import get_application
+from app.diagnostics.checks import check_ollama_server
 
 router = APIRouter(prefix="/api", tags=["Health"])
 
@@ -21,7 +22,7 @@ def health_check() -> HealthResponse:
     return HealthResponse(
         status="ok",
         version="0.11.0",
-        ollama_connected=True,
+        ollama_connected=check_ollama_server().success,
         tools_registered=len(app.tools.list()),
     )
 

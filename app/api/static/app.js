@@ -54,13 +54,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  async function loadSessions() {
+  async function loadSessions(restoreHistory = false) {
     try {
       const res = await fetch('/api/sessions');
       const data = await res.json();
-      if (!res.ok) return;
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
 
       currentSessionId = data.active_session_id || 'default';
+      if (restoreHistory) {
+        const historyRes = await fetch(`/api/sessions/${encodeURIComponent(currentSessionId)}`);
+        if (!historyRes.ok) throw new Error(`Could not load chat history (HTTP ${historyRes.status})`);
+        const history = await historyRes.json();
+        if (currentSessionId === history.id) renderMessages(history.messages);
+      }
       sessionsList.innerHTML = '';
 
       if (data.sessions && data.sessions.length > 0) {
@@ -94,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
     } catch (err) {
-      console.error('Error loading sessions:', err);
+      sessionsList.textContent = `Could not load sessions: ${err.message}`;
     }
   }
 
@@ -102,11 +108,10 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const res = await fetch(`/api/sessions/${sessionId}/activate`, { method: 'POST' });
       const data = await res.json();
-      if (res.ok) {
-        currentSessionId = data.id;
-        renderMessages(data.messages);
-        loadSessions();
-      }
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+      currentSessionId = data.id;
+      renderMessages(data.messages);
+      await loadSessions();
     } catch (err) {
       alert(`Could not switch session: ${err.message}`);
     }
@@ -120,11 +125,10 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ title: 'New Chat' })
       });
       const data = await res.json();
-      if (res.ok) {
-        currentSessionId = data.id;
-        renderMessages([]);
-        loadSessions();
-      }
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+      currentSessionId = data.id;
+      renderMessages([]);
+      await loadSessions();
     } catch (err) {
       alert(`Could not create session: ${err.message}`);
     }
@@ -134,9 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const res = await fetch(`/api/sessions/${sessionId}`, { method: 'DELETE' });
       const data = await res.json();
-      if (res.ok) {
-        switchSession(data.active_session_id || 'default');
-      }
+      if (!res.ok || !data.deleted) throw new Error(data.detail || 'Session could not be deleted');
+      await switchSession(data.active_session_id || 'default');
     } catch (err) {
       alert(`Could not delete session: ${err.message}`);
     }
@@ -146,8 +149,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function sendChatMessage() {
     const text = chatInput.value.trim();
-    if (!text) return;
+    if (!text || chatSendBtn.disabled) return;
 
+    const sessionId = currentSessionId;
     appendChatMessage('user', text);
     chatInput.value = '';
     chatSendBtn.disabled = true;
@@ -163,10 +167,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, session_id: currentSessionId })
+        body: JSON.stringify({ message: text, session_id: sessionId })
       });
       const data = await res.json();
       thinkingMsg.remove();
+      if (sessionId !== currentSessionId) return;
 
       if (res.ok) {
         if (!data.success) {
@@ -222,7 +227,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   clearChatBtn?.addEventListener('click', async () => {
     try {
-      await fetch('/api/chat/clear', { method: 'POST' });
+      const res = await fetch('/api/chat/clear', { method: 'POST' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.detail || `HTTP ${res.status}`);
+      }
       renderMessages([]);
       loadSessions();
     } catch (err) {
@@ -231,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Initial sessions load
-  loadSessions();
+  loadSessions(true);
 
   // Multi-Agent Team Subsystem
   const teamGoalInput = document.getElementById('team-goal-input');
@@ -592,26 +601,30 @@ document.addEventListener('DOMContentLoaded', () => {
       ]);
       const healthData = await healthRes.json();
       const docData = await docRes.json();
+      if (!healthRes.ok || !docRes.ok) {
+        throw new Error(healthData.detail || docData.detail || 'Server request failed');
+      }
 
       healthSummaryCard.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <div>
-            <h3>Overall Status: <span style="color: ${healthData.status === 'healthy' ? '#10b981' : '#f59e0b'}">${healthData.status.toUpperCase()}</span></h3>
-            <p class="subtitle">Platform: Aether v${healthData.version || '0.11.0'}</p>
+            <h3>Overall Status: <span style="color: ${docData.status === 'healthy' ? '#10b981' : '#f59e0b'}">${docData.status === 'healthy' ? 'HEALTHY' : 'WARNING'}</span></h3>
+            <p class="subtitle">Platform: Aether v${escapeHtml(healthData.version)} · Ollama ${healthData.ollama_connected ? 'connected' : 'offline'}</p>
           </div>
           <span class="dot online"></span>
         </div>
       `;
 
-      if (docData.checks && docData.checks.length > 0) {
+      if (docData.results && docData.results.length > 0) {
         doctorChecksList.innerHTML = '';
-        docData.checks.forEach(check => {
+        docData.results.forEach(check => {
           const row = document.createElement('div');
           row.className = 'check-row';
           row.innerHTML = `
             <div class="check-label">
               <span>${check.status === 'ok' ? '✅' : '⚠️'}</span>
               <span>${escapeHtml(check.name)}</span>
+              <span class="subtitle">${escapeHtml(check.message)}</span>
             </div>
             <span class="status-badge" style="background: ${check.status === 'ok' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)'}; color: ${check.status === 'ok' ? '#34d399' : '#fbbf24'}">
               ${check.status.toUpperCase()}
@@ -621,7 +634,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
     } catch (err) {
-      healthSummaryCard.innerHTML = `<p class="empty-state">Diagnostics check failed: ${err.message}</p>`;
+      healthSummaryCard.textContent = `Diagnostics check failed: ${err.message}`;
     }
   }
 

@@ -31,19 +31,24 @@ def test_favicon_returns_204(client):
     assert response.status_code == 204
 
 
-def test_health_check(client):
+@pytest.mark.parametrize("connected", [True, False])
+def test_health_check(client, connected):
     """Test GET /api/health returns platform status and version."""
-    with patch("app.api.routes.health.get_application") as mock_get_app:
+    with (
+        patch("app.api.routes.health.get_application") as mock_get_app,
+        patch("app.api.routes.health.check_ollama_server") as mock_check_ollama,
+    ):
         mock_app = MagicMock()
         mock_app.tools.list.return_value = ["tool_a", "tool_b"]
         mock_get_app.return_value = mock_app
+        mock_check_ollama.return_value.success = connected
 
         response = client.get("/api/health")
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
         assert data["version"] == "0.11.0"
-        assert data["ollama_connected"] is True
+        assert data["ollama_connected"] is connected
         assert data["tools_registered"] == 2
 
 

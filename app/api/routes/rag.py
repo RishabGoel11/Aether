@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from app.api.auth import verify_api_key
 from app.api.models import IndexRequest, IndexResponse
 from app.api.routes.chat import get_application
+from app.rag.loader import DocumentLoaderFactory
 
 router = APIRouter(prefix="/api/rag", tags=["RAG"], dependencies=[Depends(verify_api_key)])
 
@@ -51,7 +52,7 @@ async def upload_and_index_document(file: UploadFile = File(...)) -> IndexRespon
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file uploaded.")
 
-    allowed_exts = {".pdf", ".md", ".txt", ".json", ".rst"}
+    allowed_exts = DocumentLoaderFactory.LOADERS
     file_path = Path(file.filename)
     if file_path.suffix.lower() not in allowed_exts:
         ext_list = ", ".join(sorted(allowed_exts))

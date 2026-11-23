@@ -6,6 +6,8 @@ import ollama
 from app.config.loader import ConfigLoader
 from app.diagnostics.models import DiagnosticResult
 
+OLLAMA_DIAGNOSTIC_TIMEOUT = 3.0
+
 
 def check_python_version() -> DiagnosticResult:
     """
@@ -76,7 +78,7 @@ def check_ollama_server() -> DiagnosticResult:
     Verify that the Ollama server is reachable.
     """
     try:
-        ollama.list()
+        ollama.Client(timeout=OLLAMA_DIAGNOSTIC_TIMEOUT).list()
 
         return DiagnosticResult(
             name="Ollama Server",
@@ -99,7 +101,7 @@ def check_model() -> DiagnosticResult:
     settings = ConfigLoader().load()
 
     try:
-        models = ollama.list()
+        models = ollama.Client(timeout=OLLAMA_DIAGNOSTIC_TIMEOUT).list()
 
         installed = {model.model for model in models.models}
 
